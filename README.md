@@ -16,7 +16,7 @@ Testé de bout en bout sur un vrai Saltcorn 1.6.2 : installation, réglages, blo
 
 ### a. Mettre le code sur GitHub
 
-Crée le dépôt `SidyLaye/saltcorn-dysizz-ui` et pousse ce dossier (tel quel, `index.js` à la racine).
+Crée le dépôt **public** `SidyLaye/saltcorn-dysizz-ui` et pousse ce dossier (tel quel, `index.js` à la racine). La source « github » de Saltcorn télécharge `https://api.github.com/repos/<location>/tarball` sans authentification : un dépôt privé échoue. Pour un dépôt privé, prends la source « git » avec une clé de déploiement SSH.
 
 ### b. Réglages du tenant racine
 
@@ -29,7 +29,7 @@ Dans le tenant racine : **Settings → Site structure → Multitenancy** (`/tena
 
 ### c. Installer le plugin
 
-**Settings → Plugins → Add another plugin** :
+**Settings → Modules**, menu déroulant en haut à droite → **Add another module** (adresse directe : `/plugins/new`) :
 
 - Name : `dysizz-ui` (garde ce nom, la page d'outils s'en sert)
 - Source : `github`
@@ -144,13 +144,27 @@ Le moteur relance tout seul l'initialisation quand Saltcorn recharge un morceau 
 
 ---
 
-## 5. Mettre à jour le kit
+## 5. Structure et mise à jour
 
-1. Modifie les fichiers, puis **augmente `version` dans `package.json`**. L'URL des CSS/JS contient la version, donc les navigateurs rechargent.
-2. Si tu modifies les blocs : `python3 tools/build_packs.py` régénère `packs/`.
-3. Réinstalle le plugin dans le tenant, puis `/dysizz-ui` → *Mettre à jour les blocs*. Les blocs `DZ · …` sont remplacés, les tiens ne sont pas touchés.
+```
+index.js            ← généré : le plugin complet en UN fichier (CSS, JS, blocs, pages embarqués)
+package.json
+src/plugin.js       ← le code du plugin (à modifier)
+assets/             ← dz-core.css, dz-skin.css, dz.js, blocks.json, demo-pages.json
+tools/build_packs.py   ← régénère assets/blocks.json et assets/demo-pages.json
+tools/build_index.py   ← reconstruit index.js à partir de src/ et assets/
+```
 
-Point à savoir : le bouton de Saltcorn qui met à jour les plugins de **tous les tenants d'un coup** ne traite que les plugins npm (`upgrade_all_tenants_plugins` filtre `source: "npm"`). Tant que le kit est sur GitHub, la mise à jour se fait tenant par tenant. Quand il sera stable, le publier sur npm règle ça.
+Pourquoi un seul fichier : l'installeur de Saltcorn peut laisser un dossier de module incomplet (dossier déjà présent et jamais retéléchargé, ou deux workers qui installent en même temps). Avec tout dans `index.js`, le plugin n'a besoin d'aucun autre fichier sur le serveur. Le CSS et le JS sont servis par le plugin lui-même sur `/dysizz-ui/a/<version>/<fichier>`, avec un cache long qui saute à chaque nouvelle version.
+
+Pour publier une modification :
+
+1. Modifie `src/plugin.js` ou les fichiers de `assets/`.
+2. Augmente `version` dans `package.json`.
+3. `python3 tools/build_packs.py` (si tu as touché aux blocs), puis `python3 tools/build_index.py`.
+4. Pousse sur GitHub, réinstalle le module dans Saltcorn, puis `/dysizz-ui` → *Mettre à jour les blocs*. Les blocs `DZ · …` sont remplacés, les tiens ne sont pas touchés.
+
+Le bouton de Saltcorn qui met à jour les plugins de **tous les tenants d'un coup** ne traite que les plugins npm (`upgrade_all_tenants_plugins` filtre `source: "npm"`). Tant que le kit est sur GitHub, la mise à jour se fait tenant par tenant.
 
 ---
 

@@ -11,7 +11,7 @@ Lancer :  python3 tools/build_packs.py
 import json, os, textwrap
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "packs")
+OUT = os.path.join(HERE, "..", "assets")
 os.makedirs(OUT, exist_ok=True)
 
 
