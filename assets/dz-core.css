@@ -331,7 +331,7 @@ body.dz, .dz-page {
 .text-center .dz-eyebrow::before, .dz-center .dz-eyebrow::before { display: none; }
 
 /* scrollbar discrète */
-* { scrollbar-width: thin; scrollbar-color: var(--dz-border-strong) transparent; }
+html { scrollbar-width: thin; scrollbar-color: var(--dz-border-strong) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--dz-border-strong); border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
 
@@ -439,7 +439,8 @@ body.dz, .dz-page {
 .dz-badge-warning { color: var(--dz-warning); background: color-mix(in srgb, var(--dz-warning) 14%, transparent); border-color: color-mix(in srgb, var(--dz-warning) 25%, transparent); }
 .dz-badge-danger { color: var(--dz-danger); background: color-mix(in srgb, var(--dz-danger) 13%, transparent); border-color: color-mix(in srgb, var(--dz-danger) 25%, transparent); }
 .dz-badge-neutral { color: var(--dz-text-soft); background: var(--dz-surface-2); border-color: var(--dz-border); }
-.dz-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: dz-ping 2s infinite; }
+.dz-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+.dz-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: dz-ping 2s infinite; }
 
 .dz-announce {
   display: inline-flex; align-items: center; gap: .6rem; padding: .35rem .45rem .35rem .4rem;
@@ -711,11 +712,11 @@ body.dz, .dz-page {
 .dz-bottom-nav a.dz-active { color: var(--dz-primary-ink); }
 .dz-bottom-nav a.dz-active i { transform: translateY(-2px) scale(1.1); }
 @media (min-width: 992px) { .dz-bottom-nav.dz-mobile-only { display: none; } }
-body:has(.dz-bottom-nav) { padding-bottom: calc(var(--dz-bottomnav-h) + var(--dz-safe-bottom)); }
-@media (min-width: 992px) { body:has(.dz-bottom-nav.dz-mobile-only) { padding-bottom: 0; } }
+html.dz-has-bottomnav body { padding-bottom: calc(var(--dz-bottomnav-h) + var(--dz-safe-bottom)); }
+@media (min-width: 992px) { html.dz-has-bottomnav-mobile body { padding-bottom: 0; } }
 .dz-fab { position: fixed; right: 1.25rem; bottom: calc(1.25rem + var(--dz-safe-bottom)); z-index: 1041; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: var(--dz-gradient); color: var(--dz-on-primary) !important; font-size: 1.35rem; box-shadow: var(--dz-shadow-glow), var(--dz-shadow); text-decoration: none; transition: transform var(--dz-dur) var(--dz-ease-spring); }
 .dz-fab:hover { transform: scale(1.07) rotate(-4deg); }
-body:has(.dz-bottom-nav) .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + var(--dz-safe-bottom)); }
+html.dz-has-bottomnav .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + var(--dz-safe-bottom)); }
 .dz-to-top { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1039; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--dz-border); background: var(--dz-surface); color: var(--dz-text); box-shadow: var(--dz-shadow); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: translateY(12px); pointer-events: none; transition: all var(--dz-dur) var(--dz-ease); }
 .dz-scrolled-far .dz-to-top { opacity: 1; transform: none; pointer-events: auto; }
 .dz-scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 2000; background: var(--dz-gradient); transform-origin: 0 50%; transform: scaleX(var(--dz-progress, 0)); pointer-events: none; }
@@ -732,19 +733,49 @@ body:has(.dz-bottom-nav) .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + v
 @media (max-width: 575px) { .dz-toasts { left: 1rem; right: 1rem; max-width: none; } }
 
 /* ---------------------------------------------------------------------
-   13. ANIMATIONS D'APPARITION (JS : ajoute .dz-in quand visible)
+   13. ANIMATIONS D'APPARITION
+   Navigateurs récents (Chrome, Edge, Opera, Safari 26+) : animation pilotée
+   par le défilement, 100 % CSS, calculée par la carte graphique. Rien n'est
+   caché au chargement : ce qui est déjà à l'écran s'affiche tout de suite.
+   Autres navigateurs : repli en JavaScript (classe .dz-in).
    --------------------------------------------------------------------- */
-.dz-js [data-dz-reveal], .dz-js .dz-reveal { opacity: 0; transform: translateY(28px); transition: opacity var(--dz-dur-slow) var(--dz-ease), transform var(--dz-dur-slow) var(--dz-ease), filter var(--dz-dur-slow) var(--dz-ease); transition-delay: var(--dz-delay, 0s); }
-.dz-js [data-dz-reveal="fade"] { transform: none; }
-.dz-js [data-dz-reveal="zoom"] { transform: scale(.94); }
-.dz-js [data-dz-reveal="blur"] { transform: translateY(12px); filter: blur(12px); }
-.dz-js [data-dz-reveal="left"] { transform: translateX(-40px); }
-.dz-js [data-dz-reveal="right"] { transform: translateX(40px); }
-.dz-js [data-dz-reveal="flip"] { transform: perspective(900px) rotateX(18deg) translateY(20px); transform-origin: top; }
-.dz-js [data-dz-reveal].dz-in, .dz-js .dz-reveal.dz-in { opacity: 1; transform: none; filter: none; }
-/* enfants en cascade : .dz-stagger sur le parent */
-.dz-js .dz-stagger > * { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--dz-ease), transform .7s var(--dz-ease); transition-delay: calc(var(--dz-i, 0) * 90ms); }
-.dz-js .dz-stagger.dz-in > * { opacity: 1; transform: none; }
+@keyframes dz-rv-up { from { opacity: 0; transform: translateY(28px); } }
+@keyframes dz-rv-fade { from { opacity: 0; } }
+@keyframes dz-rv-zoom { from { opacity: 0; transform: scale(.94); } }
+@keyframes dz-rv-blur { from { opacity: 0; transform: translateY(12px); filter: blur(10px); } }
+@keyframes dz-rv-left { from { opacity: 0; transform: translateX(-40px); } }
+@keyframes dz-rv-right { from { opacity: 0; transform: translateX(40px); } }
+@keyframes dz-rv-flip { from { opacity: 0; transform: perspective(900px) rotateX(18deg) translateY(20px); } }
+@supports (animation-timeline: view()) {
+  html:not([data-dz-motion="off"]) :is([data-dz-reveal], .dz-reveal, .dz-stagger > *) {
+    animation: dz-rv-up linear both; animation-timeline: view(); animation-range: entry 0% entry 90%;
+  }
+  html:not([data-dz-motion="off"]) .dz-stagger > * { animation-range: entry calc(var(--dz-i, 0) * 6%) entry calc(80% + var(--dz-i, 0) * 6%); }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="fade"] { animation-name: dz-rv-fade; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="zoom"] { animation-name: dz-rv-zoom; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="blur"] { animation-name: dz-rv-blur; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="left"] { animation-name: dz-rv-left; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="right"] { animation-name: dz-rv-right; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="flip"] { animation-name: dz-rv-flip; transform-origin: top; }
+}
+@supports not (animation-timeline: view()) {
+  .dz-js [data-dz-reveal], .dz-js .dz-reveal { opacity: 0; transform: translateY(28px); transition: opacity var(--dz-dur-slow) var(--dz-ease), transform var(--dz-dur-slow) var(--dz-ease), filter var(--dz-dur-slow) var(--dz-ease); transition-delay: var(--dz-delay, 0s); }
+  .dz-js [data-dz-reveal="fade"] { transform: none; }
+  .dz-js [data-dz-reveal="zoom"] { transform: scale(.94); }
+  .dz-js [data-dz-reveal="blur"] { transform: translateY(12px); filter: blur(12px); }
+  .dz-js [data-dz-reveal="left"] { transform: translateX(-40px); }
+  .dz-js [data-dz-reveal="right"] { transform: translateX(40px); }
+  .dz-js [data-dz-reveal="flip"] { transform: perspective(900px) rotateX(18deg) translateY(20px); transform-origin: top; }
+  .dz-js [data-dz-reveal].dz-in, .dz-js .dz-reveal.dz-in { opacity: 1; transform: none; filter: none; }
+  .dz-js .dz-stagger > * { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--dz-ease), transform .7s var(--dz-ease); transition-delay: calc(var(--dz-i, 0) * 90ms); }
+  .dz-js .dz-stagger.dz-in > * { opacity: 1; transform: none; }
+}
+
+/* sections hors écran : le navigateur ne calcule ni leur mise en page ni leur
+   dessin tant qu'elles ne sont pas proches de l'écran (énorme gain sur les
+   longues pages). Ajoute la classe dz-no-cv pour désactiver sur une section. */
+.dz-section:not(.dz-no-cv) { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+html.dz-builder .dz-section { content-visibility: visible; }
 
 /* flottement / effets continus */
 .dz-float { animation: dz-float 6s ease-in-out infinite; }
@@ -765,7 +796,7 @@ body:has(.dz-bottom-nav) .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + v
 @keyframes dz-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-100% - var(--dz-gap, 3.5rem))); } }
 @keyframes dz-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 @keyframes dz-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-@keyframes dz-ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 60%, transparent); } 80%, 100% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes dz-ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
 @keyframes dz-blink { 50% { opacity: 0; } }
 @keyframes dz-shimmer { to { transform: translateX(100%); } }
 @keyframes dz-blob { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(8%, 10%) scale(1.1); } 66% { transform: translate(-6%, 4%) scale(.92); } }
@@ -854,11 +885,10 @@ body:has(.dz-bottom-nav) .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + v
 /* ---------------------------------------------------------------------
    16. INTÉGRATION SALTCORN (pages pleine largeur, barre fixe, builder)
    --------------------------------------------------------------------- */
-html:has(.full-page-width), html:has(.full-page-width) body { overflow-x: clip; }
+html, body { overflow-x: clip; }
 .dz-nav-spacer { height: var(--dz-nav-h); }
-body:has(.dz-hero) .dz-nav-spacer { display: none; }
-.page-section:has(.dz-nav) { padding-top: 0 !important; }
-.page-section:has(> .container > .full-page-width), .page-section:has(> .container-fluid > .full-page-width) { padding-top: 0 !important; }
+html.dz-has-hero .dz-nav-spacer { display: none; }
+.page-section.dz-flush { padding-top: 0 !important; }
 
 /* ---- Builder : même rendu que la page publiée ----
    Dans l'éditeur, Saltcorn glisse deux div entre un conteneur et ses enfants
@@ -942,7 +972,7 @@ html.dz-builder .builder-library .card { max-height: 62vh; overflow-y: auto; pad
 .dz-float-card b { display: block; font-size: .95rem; }
 @media (max-width: 767px) { .dz-float-card { display: none; } }
 /* barre « Page … Edit » des admins : on la pose en bas à gauche quand la page a une barre fixe */
-body:has(.dz-nav) .admin-edit-bar { position: fixed; left: 1rem; bottom: 1rem; z-index: 1050; margin: 0 !important; width: auto; box-shadow: var(--dz-shadow-lg); border-radius: var(--dz-radius); }
+html.dz-has-nav .admin-edit-bar { position: fixed; left: 1rem; bottom: 1rem; z-index: 1050; margin: 0 !important; width: auto; box-shadow: var(--dz-shadow-lg); border-radius: var(--dz-radius); }
 
 /* =====================================================================
    18. SITES PRO : bandeau, texte géant, révélation au scroll, cartes
@@ -976,8 +1006,9 @@ body:has(.dz-nav) .admin-edit-bar { position: fixed; left: 1rem; bottom: 1rem; z
 .dz-split-ready .dz-wd { display: inline-block; white-space: nowrap; }
 
 /* image qui se dévoile (clip) */
-.dz-js .dz-clip { clip-path: inset(100% 0 0 0 round var(--dz-radius-lg)); transition: clip-path 1.2s var(--dz-ease); }
-.dz-js .dz-clip.dz-in { clip-path: inset(0 0 0 0 round var(--dz-radius-lg)); }
+@keyframes dz-clip-in { from { clip-path: inset(100% 0 0 0 round var(--dz-radius-lg)); } to { clip-path: inset(0 0 0 0 round var(--dz-radius-lg)); } }
+@supports (animation-timeline: view()) { html:not([data-dz-motion="off"]) .dz-clip { animation: dz-clip-in linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; } }
+@supports not (animation-timeline: view()) { .dz-js .dz-clip { clip-path: inset(100% 0 0 0 round var(--dz-radius-lg)); transition: clip-path 1.2s var(--dz-ease); } .dz-js .dz-clip.dz-in { clip-path: inset(0 0 0 0 round var(--dz-radius-lg)); } }
 
 /* cartes qui s'empilent en restant collées au défilement */
 .dz-stack-cards { display: grid; gap: 1.5rem; }
@@ -1041,7 +1072,7 @@ body:has(.dz-nav) .admin-edit-bar { position: fixed; left: 1rem; bottom: 1rem; z
 
 /* visuel « portrait » : photo + formes + cartes flottantes + badge tournant */
 .dz-portrait-wrap { position: relative; width: 100%; max-width: 480px; margin-inline: auto; padding: 1.5rem; justify-self: center; }
-.dz-portrait-wrap::before { content: ""; position: absolute; inset: 8% -4% -2% 10%; border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%; background: var(--dz-gradient); opacity: .9; z-index: -1; animation: dz-morph 14s ease-in-out infinite; }
+.dz-portrait-wrap::before { content: ""; position: absolute; inset: 8% -4% -2% 10%; border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%; background: var(--dz-gradient); opacity: .9; z-index: -1; animation: dz-spin 40s linear infinite; }
 .dz-portrait-wrap img, .dz-portrait { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: calc(var(--dz-radius-lg) * 1.4); display: block; box-shadow: var(--dz-shadow-lg); }
 .dz-portrait-wrap .dz-float-card { z-index: 3; }
 @keyframes dz-morph { 0%,100% { border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%; } 50% { border-radius: 55% 45% 40% 60% / 60% 55% 45% 40%; } }

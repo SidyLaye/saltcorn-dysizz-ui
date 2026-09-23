@@ -6,8 +6,10 @@ Plugin Saltcorn (1.6.x) qui apporte :
 - l'**habillage des vues natives** (List, Edit, Show, Filter, menus, modales, alertes, pagination…) ;
 - un **moteur d'animations** sans dépendance, piloté par des classes et des attributs `data-dz-*` ;
 - **6 univers visuels** complets (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) ;
-- **72 blocs prêts** dans le panneau *Library* du builder : sites, applications web / bureau, mobile ;
-- **7 pages de démo** : landing SaaS, présentation perso, studio, application (menu + Ctrl K), app mobile, 404, catalogue.
+- **73 blocs prêts** dans le panneau *Library* du builder : sites, applications web / bureau, mobile ;
+- **7 pages de démo** : landing SaaS, présentation perso, studio, application (menu + Ctrl K), app mobile, 404, catalogue ;
+- un **atelier de blocs** (`/dysizz-ui/blocks`) : crée tes blocs en HTML / CSS / JS avec aperçu en direct, exporte / importe-les entre tenants ;
+- un **guide de production** (`docs/SCALING.md`) et un compose multi-nœud (`deploy/`).
 
 Testé de bout en bout sur un vrai Saltcorn 1.6.2 : installation, réglages, blocs dans la Library, pages de démo.
 
@@ -113,9 +115,42 @@ Les blocs avec « ⬇ Glisse ici … » (carte + vue, contact + formulaire, list
 
 ### Performances
 
-- Les animations en boucle (logos, orbite, dégradés, flottements) se mettent en pause dès que leur section sort de l'écran.
-- Pas de flou géant animé : les halos sont des dégradés, le verre dépoli est limité à 10–12 px.
+Mesuré sur une page de démo, processeur ralenti ×4 et réseau 4G simulé :
+
+| | v2.0 | v2.1+ |
+|---|---|---|
+| Titre du hero visible | 2,7 s | **0,4 s** (dès le 1er affichage) |
+| Temps bloqué (JS/CSS) | 887 ms | **413 ms** |
+| Page prête (DOMContentLoaded) | 1,6 s | **0,8 s** |
+| Défilement | saccades | 60 i/s |
+
+Ce qui a changé :
+
+- Les apparitions au défilement sont faites **par le navigateur** (CSS `animation-timeline: view()`), sans attendre le JS. Le JS ne sert que de secours pour les vieux navigateurs.
+- Plus aucun sélecteur `:has()` (coûteux à chaque changement de la page) : remplacé par des classes posées une fois.
+- Animations en boucle limitées à `transform` / `opacity` (calculées par la carte graphique), et mises en pause dès que leur section sort de l'écran.
+- Les sections hors écran ne sont pas dessinées tant qu'on n'y arrive pas (`content-visibility`).
+- Le JS s'initialise en deux temps : l'essentiel tout de suite, le reste quand le navigateur est libre.
+- CSS et JS compressés une seule fois en brotli / gzip au démarrage puis servis depuis la mémoire, avec `ETag` et cache d'un an (l'URL change à chaque version).
+- Polices chargées sans bloquer l'affichage.
 - Dans l'éditeur de pages, le moteur JS ne tourne pas du tout.
+
+Pour tenir des milliers d'utilisateurs sur plusieurs SaaS (serveurs multiples, Postgres, CDN, sécurité) : voir **[docs/SCALING.md](docs/SCALING.md)**.
+
+### Modifier un bloc, créer les tiens
+
+Un bloc glissé sur une page est une **copie** : tu la modifies librement, l'original de la Library ne bouge pas.
+
+- **Modifier une instance** : clique le bloc dans le builder. Bloc HTML → panneau de droite, zone de code. Conteneur → classes, CSS, couleurs, espacements dans le panneau.
+- **Sans code** : assemble des éléments dans le builder, sélectionne le conteneur parent, puis *Library → Add* (en haut du panneau Library). Il devient un bloc réutilisable dans ce tenant.
+- **Atelier** (`/dysizz-ui/blocks`) : HTML + CSS + JS avec aperçu en direct (bureau / mobile, clair / sombre).
+  - Le CSS est **limité au bloc** automatiquement : `padding:2rem` vise le bloc, `h2{…}` ses titres, `&:hover{…}` le bloc au survol.
+  - Le JS reçoit `el` (le bloc) et tourne une fois par bloc présent sur la page.
+  - *Partir d'un bloc du kit* copie son code dans l'atelier pour en faire ta version.
+  - *Exporter* / *Importer* : un fichier JSON pour passer tes blocs d'un tenant à l'autre (ou les garder dans Git).
+- **En code, pour tous les tenants** : un fichier `.html` dans `blocks/` devient un bloc du kit à la prochaine version (voir `blocks/README.md`).
+
+Les noms des blocs du kit sont réservés : un bloc perso ne peut pas les écraser, et « Mettre à jour les blocs » ne touche jamais aux tiens.
 
 ---
 
@@ -202,6 +237,9 @@ Le moteur relance tout seul l'initialisation quand Saltcorn recharge un morceau 
 index.js            ← généré : le plugin complet en UN fichier (CSS, JS, blocs, pages embarqués)
 package.json
 src/plugin.js       ← le code du plugin (à modifier)
+blocks/             ← tes blocs en code (.html), ajoutés au kit
+docs/SCALING.md     ← production : multi-serveurs, Postgres, CDN, sécurité
+deploy/             ← docker-compose multi-nœud pour Dokploy / Traefik
 assets/             ← dz-core.css, dz-skin.css, dz.js, blocks.json, demo-pages.json
 tools/build_packs.py   ← régénère assets/blocks.json et assets/demo-pages.json
 tools/build_index.py   ← reconstruit index.js à partir de src/ et assets/
@@ -222,7 +260,8 @@ Le bouton de Saltcorn qui met à jour les plugins de **tous les tenants d'un cou
 
 ## 6. Sécurité et vie privée
 
-- `/dysizz-ui` et ses deux actions sont réservées au rôle admin (`role_id === 1`). Les POST passent par le jeton CSRF de Saltcorn.
+- `/dysizz-ui`, l'atelier et toutes leurs actions sont réservés au rôle admin (`role_id === 1`). Les POST passent par le jeton CSRF de Saltcorn.
+- Le HTML / JS d'un bloc s'exécute tel quel sur les pages : seuls les admins peuvent en créer ou en importer. N'importe que des fichiers de blocs dont tu connais la source.
 - Les pages de démo sont installées en `min_role = 1` (admin). Pense à passer en 100 (public) seulement les pages que tu publies.
 - Les valeurs de réglage sont filtrées (couleurs en hexadécimal, listes fermées pour les polices et styles, bornes pour les nombres).
 - **Google Fonts** : les polices sont chargées depuis les serveurs de Google, et ça fait sortir l'IP du visiteur. Pour un site public européen strict (RGPD), choisis « Système » ou héberge les polices toi-même (téléverse-les et déclare-les dans « CSS en plus » avec `@font-face`).

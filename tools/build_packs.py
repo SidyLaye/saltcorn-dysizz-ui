@@ -942,6 +942,26 @@ CATALOGUE = page("dz-catalogue", "Catalogue du kit", "Tous les blocs du kit sur 
                  [b["layout"] for b in LIB if b["name"] not in ("Mobile · onglets bas", "Mobile · bouton flottant", "App · coquille (menu + barre)", "App · palette de commandes (Ctrl K)", "Web · bandeau cookies", "Web · page 404")],
                  no_menu=True, fluid=True)
 
+
+# ---- blocs écrits à la main : blocks/*.html (voir blocks/README.md) ----
+# En-tête facultatif en première ligne :
+# <!-- name: Web · Mon bloc | icon: fas fa-star | wrap: section -->
+# puis le HTML ; <style>…</style> et <script>…</script> sont gardés tels quels.
+import glob, re as _re
+for f in sorted(glob.glob(os.path.join(HERE, "..", "blocks", "*.html"))):
+    src = open(f, encoding="utf-8").read()
+    meta = {"name": "Code · " + os.path.splitext(os.path.basename(f))[0].replace("-", " "), "icon": "fas fa-code", "wrap": "none"}
+    m = _re.match(r"\s*<!--(.*?)-->", src, _re.S)
+    if m:
+        for part in m.group(1).split("|"):
+            if ":" in part:
+                k, v = part.split(":", 1); meta[k.strip()] = v.strip()
+        src = src[m.end():].strip()
+    body = src
+    if meta["wrap"] == "section": body = f'<section class="dz-section"><div class="dz-container">{src}</div></section>'
+    if meta["wrap"] == "full": body = f'<section class="dz-section dz-flush">{src}</section>'
+    LIB.append({"name": meta["name"], "icon": meta["icon"], "layout": {"type": "blank", "isHTML": True, "contents": body}})
+
 json.dump({"tables": [], "views": [], "plugins": [], "pages": [], "triggers": [], "roles": [], "library": sorted(LIB, key=lambda b: b["name"]), "previous": []},
           open(os.path.join(OUT, "blocks.json"), "w"), ensure_ascii=False, indent=1)
 json.dump({"tables": [], "views": [], "plugins": [], "pages": [LANDING, PORTRAIT_PAGE, AGENCY, DASH, MOBILE, PAGE404_PAGE, CATALOGUE], "triggers": [], "roles": [], "library": []},

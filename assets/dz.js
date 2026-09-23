@@ -24,6 +24,9 @@
   var inBuilder = root.classList.contains("dz-builder");
 
   root.classList.add("dz-js");
+  /* apparitions gérées en CSS pur si le navigateur sait faire (pas de JS au défilement) */
+  var cssReveal = !!(window.CSS && CSS.supports && CSS.supports("animation-timeline: view()"));
+  var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 60); };
 
   /* ---------- outils ---------- */
   function $all(sel, el) { return Array.prototype.slice.call((el || doc).querySelectorAll(sel)); }
@@ -61,6 +64,9 @@
   function initReveal(scope) {
     withSelf(scope, "[data-dz-reveal],.dz-reveal,.dz-stagger,.dz-highlight,.dz-clip,.dz-split-ready,[data-dz-count],.dz-progress[data-dz-value]").forEach(function (el) {
       if (!once(el, "Rev")) return;
+      var pureReveal = !el.hasAttribute("data-dz-count") && !el.classList.contains("dz-progress") && !el.classList.contains("dz-split-ready") && !el.classList.contains("dz-highlight");
+      if (el.classList.contains("dz-stagger")) Array.prototype.forEach.call(el.children, function (c, i) { c.style.setProperty("--dz-i", i); });
+      if (cssReveal && pureReveal) return;
       if (el.dataset.dzDelay) el.style.setProperty("--dz-delay", (parseFloat(el.dataset.dzDelay) || 0) + "ms");
       if (el.classList.contains("dz-stagger")) {
         Array.prototype.forEach.call(el.children, function (c, i) { c.style.setProperty("--dz-i", i); });
@@ -490,6 +496,8 @@
   function initSplit(scope) {
     withSelf(scope, "[data-dz-split],.dz-split-text").forEach(function (el) {
       if (!once(el, "Spl")) return;
+      var rr = el.getBoundingClientRect();
+      if (rr.top < window.innerHeight && rr.bottom > 0 && !el.hasAttribute("data-dz-split-force")) return; /* déjà visible : pas d'effet (évite le clignotement) */
       var i = 0;
       splitTextNodes(el, function (word) {
         var w = doc.createElement("span"); w.className = "dz-wd";
@@ -722,23 +730,35 @@
   }
 
   /* ---------- lancement ---------- */
-  function init(scope) {
-    scope = scope || doc;
-    try {
-      initReveal(scope); initTyped(scope); initSpotlight(scope); initTilt(scope); initMagnetic(scope);
-      initParallax(scope); initThemeToggle(scope); initPriceToggle(scope); initTabs(scope); initMarquee(scope);
-      initCopy(scope); initMenus(scope); initCountdown(scope); initCompare(scope); initBottomNav(scope);
-      initToTop(scope); initConfettiTriggers(scope); initAnchors(scope);
-      initOffscreen(scope); initDismiss(scope); initWords(scope); initSplit(scope); initHScroll(scope); initSlider(scope);
-      initFilter(scope); initChips(scope); initLightbox(scope); initCookie(scope); initPanels(scope); initCmdk(scope); initTabsAutoplay(scope);
-    } catch (e) { if (window.console) console.warn("[dysizz-ui]", e); }
+  function pageFlags() {
+    root.classList.toggle("dz-has-hero", !!doc.querySelector(".dz-hero"));
+    root.classList.toggle("dz-has-nav", !!doc.querySelector(".dz-nav"));
+    var bn = doc.querySelector(".dz-bottom-nav");
+    root.classList.toggle("dz-has-bottomnav", !!bn);
+    root.classList.toggle("dz-has-bottomnav-mobile", !!(bn && bn.classList.contains("dz-mobile-only")));
+    $all(".page-section").forEach(function (ps) {
+      var first = ps.firstElementChild && ps.firstElementChild.firstElementChild;
+      if (ps.querySelector(".dz-nav") || (first && first.classList.contains("full-page-width"))) ps.classList.add("dz-flush");
+    });
   }
 
-  window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "2.0.0" };
+  /* initialisation en deux temps : l'essentiel tout de suite, le reste quand
+     le navigateur est libre (le chargement reste fluide) */
+  function init(scope, deferRest) {
+    scope = scope || doc;
+    var critical = [initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop];
+    var rest = [initSpotlight, initTilt, initMagnetic, initParallax, initCopy, initCountdown, initCompare, initConfettiTriggers, initSlider, initFilter, initChips, initLightbox, initCookie, initPanels, initCmdk, initTabsAutoplay];
+    function run(list) { list.forEach(function (fn) { try { fn(scope); } catch (e) { if (window.console) console.warn("[dysizz-ui]", fn.name, e); } }); }
+    run(critical);
+    if (deferRest) idle(function () { run(rest); }, { timeout: 800 }); else run(rest);
+  }
+
+  window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "2.2.0" };
 
   function start() {
     if (inBuilder) { initThemeToggle(doc); return; }
-    init(doc);
+    pageFlags();
+    init(doc, true);
     initCursor();
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -757,7 +777,7 @@
         }
         if (pending.length && !timer) timer = setTimeout(function () {
           var batch = pending; pending = []; timer = null;
-          batch.forEach(function (n) { if (doc.body.contains(n)) init(n); });
+          batch.forEach(function (n) { if (doc.body.contains(n)) init(n, false); });
         }, 120);
       });
       mo.observe(doc.body, { childList: true, subtree: true });

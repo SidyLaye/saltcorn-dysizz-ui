@@ -1,0 +1,97 @@
+# Saltcorn multi-nœud derrière Traefik (Dokploy) — base à adapter.
+# Vérifié contre Saltcorn 1.6.2.
+#
+#   primary : 1 exemplaire, lance les migrations au démarrage
+#   web     : à dupliquer (deploy.replicas ou `docker compose up --scale web=3`)
+#   Les deux sont dans le même service Traefik "saltcorn" → répartition de charge.
+#   Les tâches planifiées tournent sur un seul nœud, élu automatiquement.
+#
+# Image officielle : ENTRYPOINT = saltcorn, donc `command` = arguments de la CLI.
+#
+# Secrets à définir dans Dokploy (onglet Environment), JAMAIS dans ce fichier :
+#   PGPASSWORD, SALTCORN_SESSION_SECRET, SALTCORN_JWT_SECRET, DOMAIN
+#   (openssl rand -hex 48 pour les deux secrets)
+
+x-saltcorn-env: &sc-env
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGUSER: saltcorn
+  PGPASSWORD: ${PGPASSWORD}
+  PGDATABASE: saltcorn
+  SALTCORN_MULTI_TENANT: "true"
+  SALTCORN_MULTI_NODE: "true"
+  SALTCORN_NWORKERS: "3"
+  # identiques sur tous les nœuds, sinon déconnexions en passant d'un nœud à l'autre
+  SALTCORN_SESSION_SECRET: ${SALTCORN_SESSION_SECRET}
+  SALTCORN_JWT_SECRET: ${SALTCORN_JWT_SECRET}
+  NODE_ENV: production
+
+x-saltcorn-labels: &sc-labels
+  traefik.enable: "true"
+  traefik.docker.network: dokploy-network
+  traefik.http.routers.saltcorn.rule: HostRegexp(`^(.+\.)?${DOMAIN}$$`)
+  traefik.http.routers.saltcorn.entrypoints: websecure
+  traefik.http.routers.saltcorn.tls.certresolver: letsencrypt
+  traefik.http.routers.saltcorn.middlewares: sc-ratelimit,sc-headers
+  traefik.http.services.saltcorn.loadbalancer.server.port: "3000"
+  traefik.http.services.saltcorn.loadbalancer.healthcheck.path: /auth/login
+  traefik.http.services.saltcorn.loadbalancer.healthcheck.interval: 10s
+  # limite par IP (mémoire de Traefik) : moyenne 50 req/s, rafale 100
+  traefik.http.middlewares.sc-ratelimit.ratelimit.average: "50"
+  traefik.http.middlewares.sc-ratelimit.ratelimit.burst: "100"
+  traefik.http.middlewares.sc-headers.headers.stsSeconds: "31536000"
+  traefik.http.middlewares.sc-headers.headers.stsIncludeSubdomains: "true"
+  traefik.http.middlewares.sc-headers.headers.contentTypeNosniff: "true"
+  traefik.http.middlewares.sc-headers.headers.permissionsPolicy: camera=(), microphone=(), geolocation=()
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: saltcorn
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: saltcorn
+    # connexions ≈ conteneurs × (NWORKERS × 10 + 2) → ajuste max_connections
+    command: >
+      postgres -c max_connections=200 -c shared_buffers=2GB
+      -c effective_cache_size=6GB -c work_mem=16MB
+      -c maintenance_work_mem=512MB -c random_page_cost=1.1
+      -c log_min_duration_statement=500
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]   # jamais exposé sur Internet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saltcorn"]
+      interval: 5s
+      retries: 10
+
+  primary:
+    image: saltcorn/saltcorn:1.6.2
+    restart: unless-stopped
+    command: ["serve"]
+    environment: *sc-env
+    labels: *sc-labels
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [internal, dokploy-network]
+
+  web:
+    image: saltcorn/saltcorn:1.6.2
+    restart: unless-stopped
+    command: ["serve", "--nomigrate"]
+    environment: *sc-env
+    labels: *sc-labels
+    depends_on:
+      - primary
+    deploy:
+      replicas: 2
+    networks: [internal, dokploy-network]
+
+volumes:
+  pgdata:
+
+networks:
+  internal:
+  dokploy-network:
+    external: true

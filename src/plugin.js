@@ -25,13 +25,36 @@ const ASSETS = {
    disque du serveur. Ne pas modifier EMBED à la main : modifier assets/ puis
    relancer le script. */
 const EMBED = /*__EMBED__*/ {};
+/* compression faite une seule fois par fichier (brotli + gzip), puis servie
+   depuis la mémoire : zéro calcul par requête, même avec des milliers de visiteurs */
+const zlib = require("zlib");
+const packed = {};
+const getPacked = (file) => {
+  if (!packed[file]) {
+    const raw = Buffer.from(EMBED[file], "utf8");
+    packed[file] = {
+      raw,
+      br: zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }),
+      gz: zlib.gzipSync(raw, { level: 9 }),
+    };
+  }
+  return packed[file];
+};
 const serveAsset = (req, res) => {
   const file = req.params.file;
   const type = ASSETS[file];
   if (!type || typeof EMBED[file] !== "string") return res.status(404).send("Not found");
+  const etag = `"dz-${VERSION}-${file}"`;
   res.set("Content-Type", type);
+  res.set("Vary", "Accept-Encoding");
+  res.set("ETag", etag);
   res.set("Cache-Control", req.params.ver === VERSION ? "public, max-age=31536000, immutable" : "no-cache");
-  res.send(EMBED[file]);
+  if (req.headers["if-none-match"] === etag) return res.status(304).end();
+  const p = getPacked(file);
+  const ae = String(req.headers["accept-encoding"] || "");
+  if (/\bbr\b/.test(ae)) { res.set("Content-Encoding", "br"); return res.end(p.br); }
+  if (/\bgzip\b/.test(ae)) { res.set("Content-Encoding", "gzip"); return res.end(p.gz); }
+  return res.end(p.raw);
 };
 
 /* ---------------- polices proposées ---------------- */
@@ -165,6 +188,8 @@ const configuration_workflow = () =>
   });
 
 /* ---------------- ce qui est injecté dans chaque page ---------------- */
+const fontUrl = (fams) => `https://fonts.googleapis.com/css2?${[...new Set(fams)].map((g) => "family=" + g).join("&")}&display=swap`;
+
 const headers = (rawCfg) => {
   const c = cfgOf(rawCfg);
   const P = PRESETS[c.preset];
@@ -177,8 +202,10 @@ const headers = (rawCfg) => {
   if (fams.length)
     out.push({
       headerTag:
+        /* polices chargées sans bloquer l'affichage (le texte apparaît tout de suite) */
         '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-        `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?${[...new Set(fams)].map((g) => "family=" + g).join("&")}&display=swap">`,
+        `<link rel="preload" as="style" href="${fontUrl(fams)}" onload="this.onload=null;this.rel='stylesheet'">` +
+        `<noscript><link rel="stylesheet" href="${fontUrl(fams)}"></noscript>`,
     });
   out.push({ css: pub("dz-core.css") });
   if (c.skin) out.push({ css: pub("dz-skin.css") });
@@ -268,6 +295,12 @@ const adminPage = async (req, res) => {
       <a class="dz-btn dz-btn-ghost" href="/plugins/configure/${encodeURIComponent(cfgName)}"><i class="fas fa-sliders-h"></i> Ouvrir les réglages</a>
     </div>
     <div class="dz-card">
+      <div class="dz-icon"><i class="fas fa-code"></i></div>
+      <h3 class="dz-h4">Atelier de blocs</h3>
+      <p>Crée tes propres blocs en HTML / CSS / JS avec aperçu en direct, modifie une copie d'un bloc du kit, exporte / importe tes blocs d'un tenant à l'autre.</p>
+      <a class="dz-btn" href="/dysizz-ui/blocks"><i class="fas fa-code"></i> Ouvrir l'atelier</a>
+    </div>
+    <div class="dz-card">
       <div class="dz-icon"><i class="fas fa-book"></i></div>
       <h3 class="dz-h4">Aide-mémoire</h3>
       <p>Toutes les classes et attributs <code>data-dz-*</code> sont dans le README du dépôt. La page de démo <b>dz-catalogue</b> montre chaque composant.</p>
@@ -300,6 +333,224 @@ const installFrom = (file, key) => async (req, res) => {
   );
 };
 
+
+/* ---------------- Atelier de blocs : créer / modifier / partager ses blocs ----------------
+   Un bloc créé ici est un bloc HTML de la Library du builder, comme ceux du kit.
+   Le code source (HTML, CSS, JS) est gardé dans le bloc (clé dz_src) pour pouvoir
+   le rouvrir et le modifier ici. Le CSS est automatiquement limité au bloc
+   (imbrication CSS native : .dzb-xxx { ton css }). */
+const kitNames = () => new Set(readPack("blocks.json").library.map((b) => b.name));
+const slug = (s) => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "bloc";
+const WRAPS = {
+  none: "Brut (juste mon HTML)",
+  section: "Section + conteneur centré",
+  full: "Section pleine largeur",
+};
+const buildBlockLayout = ({ name, html, css, js, wrap }) => {
+  const cls = "dzb-" + slug(name);
+  let inner = `<div class="${cls}">${html || ""}</div>`;
+  if (wrap === "section") inner = `<section class="dz-section"><div class="dz-container">${inner}</div></section>`;
+  if (wrap === "full") inner = `<section class="dz-section dz-flush">${inner}</section>`;
+  const style = css && css.trim() ? `<style>.${cls}{${css.replace(/<\/style/gi, "")}}</style>` : "";
+  const script =
+    js && js.trim()
+      ? `<script>(function(){var s=document.currentScript;function run(){document.querySelectorAll(".${cls}").forEach(function(el){if(el.__dzb)return;el.__dzb=1;(function(el){${js.replace(/<\/script/gi, "<\\/script")}\n})(el);});}if(document.readyState!=="loading")run();else document.addEventListener("DOMContentLoaded",run);})();</script>`
+      : "";
+  return { type: "blank", isHTML: true, contents: style + inner + script, dz_src: { html: html || "", css: css || "", js: js || "", wrap: wrap || "none" } };
+};
+/* rend un bloc du kit en HTML statique pour s'en servir comme point de départ */
+const blockToHtml = (layout) => {
+  if (layout && layout.dz_src) return layout.dz_src;
+  try {
+    const render = require("@saltcorn/markup/layout");
+    return { html: render({ blockDispatch: {}, layout, role: 1, req: {} }), css: "", js: "", wrap: "none" };
+  } catch (e) {
+    return { html: layout && layout.type === "blank" ? layout.contents : "", css: "", js: "", wrap: "none" };
+  }
+};
+const post = (req) => req.body || {};
+
+const atelierPage = async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).send("Réservé aux administrateurs");
+  const Library = require("@saltcorn/data/models/library");
+  const csrf = req.csrfToken ? req.csrfToken() : "";
+  const kit = kitNames();
+  const libs = (await Library.find({}, { orderBy: "name" })).sort((a, b) => a.name.localeCompare(b.name));
+  const mine = libs.filter((l) => !kit.has(l.name));
+  let cur = { name: "", icon: "fas fa-cube", html: "", css: "", js: "", wrap: "section", id: "" };
+  const q = req.query || {};
+  if (q.edit || q.from) {
+    const l = libs.find((x) => String(x.id) === String(q.edit || q.from));
+    if (l) {
+      const src = blockToHtml(l.layout);
+      cur = { ...cur, ...src, icon: l.icon || cur.icon, name: q.edit ? l.name : `Mon · ${l.name.replace(/^[^·]*·\s*/, "")}`, id: q.edit ? l.id : "" };
+    }
+  }
+  const msg = q.ok ? `<div class="dz-callout dz-callout-success mb-4"><div>${esc(q.ok)}</div></div>` : q.err ? `<div class="dz-callout dz-callout-danger mb-4"><div>${esc(q.err)}</div></div>` : "";
+  const opt = (v, l, sel) => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(l)}</option>`;
+  const hid = `<input type="hidden" name="_csrf" value="${esc(csrf)}">`;
+  const html = `
+<style>
+.dzb-ed textarea{font-family:var(--dz-font-mono,monospace);font-size:.82rem;line-height:1.5;min-height:9rem;tab-size:2;white-space:pre}
+.dzb-ed textarea[name=html]{min-height:18rem}
+.dzb-prev{position:sticky;top:1rem}
+.dzb-frame{width:100%;height:70vh;border:1px solid var(--dz-border);border-radius:var(--dz-radius);background:var(--dz-bg);transition:width .3s}
+.dzb-frame.m{width:390px;max-width:100%;margin-inline:auto;display:block}
+.dzb-list td{vertical-align:middle}
+</style>
+<div class="container-fluid" style="padding-top:1rem">
+  ${msg}
+  <a href="/dysizz-ui" class="small">← Kit de design</a>
+  <h1 class="dz-h2" style="margin-top:.5rem">Atelier de blocs</h1>
+  <p class="dz-lead">Écris un bloc en HTML / CSS / JS (ou pars d'un bloc du kit), vois le rendu en direct, enregistre-le : il apparaît dans le panneau <b>Library</b> du builder, dans ce tenant.</p>
+  <div class="row g-4" style="margin-top:1rem">
+    <div class="col-xl-5">
+      <form method="post" action="/dysizz-ui/blocks/save" class="dzb-ed" id="dzb-form">${hid}
+        <input type="hidden" name="id" value="${esc(cur.id)}">
+        <div class="row g-2">
+          <div class="col-7"><label class="form-label">Nom (visible dans la Library)</label><input class="form-control" name="name" required maxlength="80" value="${esc(cur.name)}" placeholder="Mon · Bandeau promo"></div>
+          <div class="col-5"><label class="form-label">Icône <a href="https://fontawesome.com/v5/search?m=free" target="_blank" rel="noopener">(liste)</a></label><input class="form-control" name="icon" value="${esc(cur.icon)}"></div>
+        </div>
+        <label class="form-label mt-3">Enveloppe</label>
+        <select class="form-select" name="wrap">${Object.entries(WRAPS).map(([k, v]) => opt(k, v, cur.wrap)).join("")}</select>
+        <label class="form-label mt-3">HTML <small class="text-muted">— toutes les classes dz-* et data-dz-* marchent</small></label>
+        <textarea class="form-control" name="html" spellcheck="false">${esc(cur.html)}</textarea>
+        <label class="form-label mt-3">CSS <small class="text-muted">— limité à ce bloc. Les règles directes visent le bloc, <code>h2{…}</code> vise ses h2, <code>&amp;:hover{…}</code> le bloc au survol</small></label>
+        <textarea class="form-control" name="css" spellcheck="false" placeholder="padding:2rem;&#10;h2{color:var(--dz-primary)}">${esc(cur.css)}</textarea>
+        <label class="form-label mt-3">JS (optionnel) <small class="text-muted">— exécuté une fois par bloc sur la page, la variable <code>el</code> est le bloc</small></label>
+        <textarea class="form-control" name="js" spellcheck="false" placeholder="el.addEventListener('click', () => DZ.toast('Bonjour'));">${esc(cur.js)}</textarea>
+        <div class="dz-cluster mt-3">
+          <button class="dz-btn" type="submit"><i class="fas fa-save"></i> ${cur.id ? "Enregistrer les modifications" : "Ajouter à la Library"}</button>
+          ${cur.id ? `<button class="dz-btn dz-btn-ghost" type="submit" name="as_new" value="1">Enregistrer comme nouveau</button><a class="dz-btn dz-btn-ghost" href="/dysizz-ui/blocks">Nouveau bloc</a>` : ""}
+        </div>
+      </form>
+    </div>
+    <div class="col-xl-7">
+      <div class="dzb-prev">
+        <div class="dz-cluster" style="justify-content:space-between;margin-bottom:.5rem">
+          <b>Aperçu en direct</b>
+          <div class="dz-cluster"><button type="button" class="dz-btn dz-btn-sm dz-btn-ghost" data-w="d"><i class="fas fa-desktop"></i></button><button type="button" class="dz-btn dz-btn-sm dz-btn-ghost" data-w="m"><i class="fas fa-mobile-alt"></i></button><button type="button" class="dz-btn dz-btn-sm dz-btn-ghost" id="dzb-theme"><i class="fas fa-adjust"></i></button></div>
+        </div>
+        <iframe class="dzb-frame" id="dzb-frame" title="Aperçu"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="dz-h3" style="margin-top:3rem">Mes blocs (${mine.length})</h2>
+  ${mine.length ? `<div class="table-responsive"><table class="table dzb-list"><tbody>${mine.map((l) => `<tr><td><i class="${esc(l.icon || "fas fa-cube")}"></i> ${esc(l.name)}</td><td class="text-end">
+    <a class="dz-btn dz-btn-sm dz-btn-ghost" href="/dysizz-ui/blocks?edit=${l.id}">Modifier</a>
+    <form method="post" action="/dysizz-ui/blocks/delete" class="d-inline" onsubmit="return confirm('Supprimer ce bloc de la Library ? (les pages qui l\\'utilisent déjà ne changent pas)')">${hid}<input type="hidden" name="id" value="${l.id}"><button class="dz-btn dz-btn-sm dz-btn-ghost" type="submit"><i class="fas fa-trash"></i></button></form></td></tr>`).join("")}</tbody></table></div>`
+    : `<p class="text-muted">Aucun bloc perso pour l'instant. Crée-en un ci-dessus, ou dans le builder : sélectionne un élément, puis <b>Library → Add</b>.</p>`}
+
+  <div class="row g-4" style="margin-top:1rem">
+    <div class="col-lg-4"><div class="dz-card">
+      <h3 class="dz-h4">Partir d'un bloc du kit</h3>
+      <p class="small">Copie son code dans l'atelier. L'original reste intact.</p>
+      <form method="get" action="/dysizz-ui/blocks"><select class="form-select" name="from">${libs.filter((l) => kit.has(l.name)).map((l) => opt(String(l.id), l.name, "")).join("")}</select>
+      <button class="dz-btn dz-btn-sm mt-2" type="submit">Ouvrir dans l'atelier</button></form>
+    </div></div>
+    <div class="col-lg-4"><div class="dz-card">
+      <h3 class="dz-h4">Exporter</h3>
+      <p class="small">Fichier JSON de tes blocs, à importer dans un autre tenant ou à garder dans ton dépôt Git.</p>
+      <a class="dz-btn dz-btn-sm" href="/dysizz-ui/blocks/export"><i class="fas fa-file-export"></i> Mes blocs</a>
+      <a class="dz-btn dz-btn-sm dz-btn-ghost" href="/dysizz-ui/blocks/export?all=1">Toute la Library</a>
+    </div></div>
+    <div class="col-lg-4"><div class="dz-card">
+      <h3 class="dz-h4">Importer</h3>
+      <form method="post" action="/dysizz-ui/blocks/import">${hid}
+        <input type="file" accept=".json,application/json" class="form-control form-control-sm" id="dzb-file">
+        <textarea name="json" class="form-control form-control-sm mt-2" rows="3" placeholder="…ou colle le JSON ici" required></textarea>
+        <label class="small mt-1"><input type="checkbox" name="overwrite" value="1" checked> remplacer les blocs du même nom</label><br>
+        <button class="dz-btn dz-btn-sm mt-2" type="submit"><i class="fas fa-file-import"></i> Importer</button></form>
+    </div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var f=document.getElementById("dzb-form"),fr=document.getElementById("dzb-frame"),dark=null,t;
+  var head=[].slice.call(document.querySelectorAll('link[rel=stylesheet],head style')).map(function(n){return n.outerHTML}).join("");
+  var de=document.documentElement,attrs=[].slice.call(de.attributes).filter(function(a){return a.name!=="style"}).map(function(a){return a.name+'="'+a.value.replace(/"/g,"&quot;")+'"'}).join(" ");
+  function slug(s){return (s||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"bloc"}
+  function draw(){
+    var cls="dzb-"+slug(f.name.value),h='<div class="'+cls+'">'+f.html.value+'</div>',w=f.wrap.value;
+    if(w==="section")h='<section class="dz-section"><div class="dz-container">'+h+'</div></section>';
+    if(w==="full")h='<section class="dz-section dz-flush">'+h+'</section>';
+    var css=f.css.value.trim()?'<style>.'+cls+'{'+f.css.value+'}</style>':"";
+    var js=f.js.value.trim()?'<script>document.querySelectorAll(".'+cls+'").forEach(function(el){try{'+f.js.value+'\\n}catch(e){console.error(e)}});<\\/script>':"";
+    var a=attrs;if(dark!==null)a=a.replace(/data-bs-theme="[^"]*"/,"")+' data-bs-theme="'+(dark?"dark":"light")+'"';
+    fr.srcdoc='<!doctype html><html '+a+'><head><meta name="viewport" content="width=device-width,initial-scale=1">'+head+'<style>body{padding:0;margin:0}</style></head><body>'+css+h+'<script src="${pub("dz.js")}"><\\/script>'+js+'</body></html>';
+  }
+  f.addEventListener("input",function(){clearTimeout(t);t=setTimeout(draw,350)});
+  f.querySelectorAll("textarea").forEach(function(ta){ta.addEventListener("keydown",function(e){if(e.key==="Tab"){e.preventDefault();var s=ta.selectionStart;ta.setRangeText("  ",s,ta.selectionEnd,"end")}})});
+  document.querySelectorAll("[data-w]").forEach(function(b){b.onclick=function(){fr.classList.toggle("m",b.dataset.w==="m")}});
+  document.getElementById("dzb-theme").onclick=function(){dark=dark===null?!(de.getAttribute("data-bs-theme")==="dark"):!dark;draw()};
+  var fi=document.getElementById("dzb-file");fi&&fi.addEventListener("change",function(){var r=new FileReader();r.onload=function(){fi.form.json.value=r.result};fi.files[0]&&r.readAsText(fi.files[0])});
+  draw();
+})();
+</script>`;
+  res.sendWrap("Atelier de blocs", { above: [{ type: "blank", contents: html }] });
+};
+
+const saveBlock = async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).send("Réservé aux administrateurs");
+  const Library = require("@saltcorn/data/models/library");
+  const b = post(req);
+  const name = String(b.name || "").trim().slice(0, 80);
+  if (!name) return res.redirect("/dysizz-ui/blocks?err=" + encodeURIComponent("Donne un nom au bloc."));
+  if (kitNames().has(name)) return res.redirect("/dysizz-ui/blocks?err=" + encodeURIComponent("Ce nom est réservé à un bloc du kit (il serait écrasé à la prochaine mise à jour). Choisis un autre nom, par ex. « Mon · … »."));
+  const icon = /^[a-z0-9 -]{1,60}$/i.test(b.icon || "") ? b.icon : "fas fa-cube";
+  const layout = buildBlockLayout({ name, html: b.html, css: b.css, js: b.js, wrap: WRAPS[b.wrap] ? b.wrap : "none" });
+  const existing = b.id && !b.as_new ? await Library.findOne({ id: +b.id }) : null;
+  const clash = await Library.findOne({ name });
+  if (clash && (!existing || clash.id !== existing.id)) return res.redirect("/dysizz-ui/blocks?err=" + encodeURIComponent(`Un bloc « ${name} » existe déjà.`) + (existing ? "&edit=" + existing.id : ""));
+  if (existing) await existing.update({ name, icon, layout });
+  else await Library.create({ name, icon, layout });
+  const saved = await Library.findOne({ name });
+  res.redirect(`/dysizz-ui/blocks?edit=${saved ? saved.id : ""}&ok=` + encodeURIComponent(`« ${name} » est enregistré. Il est dans le panneau Library du builder.`));
+};
+
+const deleteBlock = async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).send("Réservé aux administrateurs");
+  const Library = require("@saltcorn/data/models/library");
+  const l = await Library.findOne({ id: +post(req).id });
+  if (l && !kitNames().has(l.name)) await l.delete();
+  res.redirect("/dysizz-ui/blocks?ok=" + encodeURIComponent("Bloc supprimé."));
+};
+
+const exportBlocks = async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).send("Réservé aux administrateurs");
+  const Library = require("@saltcorn/data/models/library");
+  const kit = kitNames();
+  const all = req.query && req.query.all;
+  const library = (await Library.find({})).filter((l) => all || !kit.has(l.name)).map((l) => ({ name: l.name, icon: l.icon, layout: l.layout }));
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="blocs-${all ? "library" : "perso"}-${new Date().toISOString().slice(0, 10)}.json"`);
+  res.send(JSON.stringify({ format: "dysizz-blocks", version: 1, kit: VERSION, library }, null, 2));
+};
+
+const importBlocks = async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).send("Réservé aux administrateurs");
+  const Library = require("@saltcorn/data/models/library");
+  const b = post(req);
+  let data;
+  try { data = JSON.parse(b.json || ""); } catch (e) { return res.redirect("/dysizz-ui/blocks?err=" + encodeURIComponent("JSON illisible.")); }
+  const items = Array.isArray(data) ? data : data.library || [];
+  const kit = kitNames();
+  let n = 0, skipped = 0;
+  for (const it of items) {
+    if (!it || typeof it.name !== "string" || !it.layout || typeof it.layout !== "object") { skipped++; continue; }
+    const name = it.name.slice(0, 80);
+    const icon = /^[a-z0-9 -]{1,60}$/i.test(it.icon || "") ? it.icon : "fas fa-cube";
+    const ex = await Library.findOne({ name });
+    if (ex) {
+      if (!b.overwrite || kit.has(name)) { skipped++; continue; }
+      await ex.update({ icon, layout: it.layout });
+    } else await Library.create({ name, icon, layout: it.layout });
+    n++;
+  }
+  res.redirect("/dysizz-ui/blocks?ok=" + encodeURIComponent(`${n} bloc(s) importé(s)${skipped ? `, ${skipped} ignoré(s)` : ""}.`));
+};
+
 /* Saltcorn 1.6 garde en cache les en-têtes par rôle : sans ça, un
    changement de réglage (couleur, police…) n'apparaît qu'après un
    redémarrage. On recalcule le cache à chaque (re)chargement du plugin. */
@@ -324,5 +575,10 @@ module.exports = {
     { url: "/dysizz-ui/a/:ver/:file", method: "get", callback: serveAsset },
     { url: "/dysizz-ui/install-blocks", method: "post", callback: installFrom("blocks.json", "library") },
     { url: "/dysizz-ui/install-pages", method: "post", callback: installFrom("demo-pages.json", "pages") },
+    { url: "/dysizz-ui/blocks", method: "get", callback: atelierPage },
+    { url: "/dysizz-ui/blocks/save", method: "post", callback: saveBlock },
+    { url: "/dysizz-ui/blocks/delete", method: "post", callback: deleteBlock },
+    { url: "/dysizz-ui/blocks/export", method: "get", callback: exportBlocks },
+    { url: "/dysizz-ui/blocks/import", method: "post", callback: importBlocks },
   ],
 };
