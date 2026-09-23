@@ -2,11 +2,12 @@
 
 Plugin Saltcorn (1.6.x) qui apporte :
 
-- un **design system** chargé sur toutes les pages du tenant : couleurs, polices, arrondis, clair/sombre, 5 styles (moderne, glass, minimal, brutal, luxe) ;
+- un **design system** chargé sur toutes les pages du tenant, clair et sombre ;
 - l'**habillage des vues natives** (List, Edit, Show, Filter, menus, modales, alertes, pagination…) ;
 - un **moteur d'animations** sans dépendance, piloté par des classes et des attributs `data-dz-*` ;
-- **34 blocs prêts** dans le panneau *Library* du builder, à glisser-déposer ;
-- **4 pages de démo** : landing SaaS, vitrine studio sombre, écran d'application, catalogue complet.
+- **6 univers visuels** complets (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) ;
+- **72 blocs prêts** dans le panneau *Library* du builder : sites, applications web / bureau, mobile ;
+- **7 pages de démo** : landing SaaS, présentation perso, studio, application (menu + Ctrl K), app mobile, 404, catalogue.
 
 Testé de bout en bout sur un vrai Saltcorn 1.6.2 : installation, réglages, blocs dans la Library, pages de démo.
 
@@ -56,32 +57,65 @@ Pour un tenant **déjà existant** : installe le plugin, puis `/dysizz-ui` → l
 
 ## 2. Utilisation au quotidien
 
+### Choisir un univers
+
+`/plugins/configure/dysizz-ui` → **Univers**. Chaque univers change tout d'un coup : couleurs claires et sombres, polices, forme des boutons, graisse des titres, style des mots mis en valeur.
+
+| Univers | Identité | Pour |
+|---|---|---|
+| **Nocturne** (défaut) | noir profond, accent citron, sur-titres en mono | tech, SaaS, agence |
+| **Éditorial** | papier crème, encre, orange, mots en serif italique | marque perso, conseil, média |
+| **Studio** | noir & blanc, bleu électrique, angles vifs, ombres dures | portfolio, créatif, produit |
+| **Aurora** | violet / cyan, dégradés | SaaS grand public, IA |
+| **Terre** | sable, olive, terracotta, serif doux | artisan, bien-être, immobilier, resto |
+| **Luxe** | noir chaud, or, serif | hôtel, mode, premium |
+
+Ensuite, **Matière** (moderne, glass, minimal, brutal) ajuste les ombres et bordures. Tu peux aussi forcer tes couleurs (« Utiliser mes propres couleurs »), tes polices et l'arrondi.
+
+Dans les titres, mets les mots importants en *italique* dans l'éditeur de texte (balise `<em>`) : selon l'univers, ils passent en serif italique, en couleur ou en dégradé.
+
 ### Construire une page sans coder
 
-1. **Pages → Create page**.
-2. Dans le builder, panneau **Library** : glisse les blocs `DZ · …`.
-3. Clique sur un texte pour le modifier. Les conteneurs, colonnes et boutons se règlent dans le panneau de droite.
-4. Pour une landing : dans les réglages de la page, coche **No menu** et **Fluid layout** (c'est ce que font les pages de démo).
+1. **Pages → Create page**. Pour une landing : coche **No menu** et **Fluid layout** dans les réglages de la page.
+2. Dans le builder, panneau **Library** : un bloc par ligne, rangés par famille (App, Hero, Mobile, Nav, Outil, Visuel, Web). Glisse-les dans la page.
+3. Clique sur un texte pour le modifier, sur une image pour téléverser la tienne. Les conteneurs, colonnes et boutons se règlent dans le panneau de droite.
+4. Les blocs « HTML code » (tarifs, FAQ, carrousels, palette Ctrl K…) se modifient en code : double-clic, puis change les textes entre les balises.
 
-Les blocs en **HTML code** (tarifs, FAQ, logos, barre du bas, navigation…) se modifient en code : double-clic dans le builder, puis change les textes entre les balises.
+Dans le builder, le kit coupe les animations et affiche les grilles comme sur la page publiée. Ce qui bouge (défilements, compteurs, apparitions) ne se voit que sur la page.
+
+### Mettre ta photo, ta capture d'écran ou ton appli dans un visuel
+
+Les blocs **Visuel · portrait + cartes**, **Hero · portrait (présentation)**, **Hero · app mobile**, **Visuel · téléphone / navigateur / ordinateur portable** contiennent une vraie image Saltcorn :
+
+1. Clique sur l'image dans le builder.
+2. Panneau de droite : *Source* → **File** et téléverse ta photo (ou colle une URL).
+3. Les cartes flottantes sont des conteneurs avec du texte : clique dessus pour changer le texte. Leur position se règle dans *Custom CSS* (ex. `left:-18px; bottom:64px`).
+4. Le badge rond qui tourne est un bloc HTML : change le texte entre `<textPath …>` et `</textPath>`.
 
 ### Mélanger avec tes données
 
-Les blocs « zone pour ta vue » (*carte pour une vue*, *capture de leads*, *deux colonnes*) ont un emplacement prévu. Tu y glisses une vue List, Edit, Show, Kanban ou Calendrier : le kit la met en forme tout seul.
+Les blocs avec « ⬇ Glisse ici … » (carte + vue, contact + formulaire, liste + détail, coquille d'app, feuille du bas, tiroir, étapes) ont un emplacement prévu : tu y glisses une vue List, Edit, Show, Kanban, Calendrier ou Filter. Le kit la met en forme tout seul.
 
 ### Réglages par tenant
 
-`/plugins/configure/dysizz-ui` :
-
 | Réglage | Effet |
 |---|---|
-| Style général | moderne · glass · minimal · brutal · luxe |
-| Couleurs | principale, accent, 2e accent : tous les dégradés, boutons et badges suivent |
-| Polices | 13 polices Google + « Système » (aucun appel externe) |
-| Arrondi, largeur max | appliqués partout |
-| Habiller les éléments Saltcorn | restyle Bootstrap (boutons, formulaires, tableaux…) |
-| Animations | coupées aussi automatiquement si le visiteur a demandé moins d'animations |
+| Univers, Matière | identité complète + finition |
+| Mes propres couleurs | remplace les couleurs de l'univers |
+| Polices | « (celle de l'univers) » ou 14 polices Google + « Système » (aucun appel externe) |
+| Arrondi, largeur max | 0 = valeur de l'univers |
+| Habiller les éléments Saltcorn | boutons, formulaires, tableaux, cartes, menus, modales **et fond de page** des vues natives |
+| Animations | **toujours** (défaut) · **suivre le réglage du visiteur** · **désactivées** |
+| Curseur personnalisé | rond qui suit la souris et grossit sur les liens (ordinateur seulement) |
 | Retour en haut, thème mémorisé, CSS en plus | options |
+
+À propos des animations : si l'ordinateur du visiteur demande de réduire les animations (Windows : *Paramètres → Accessibilité → Effets visuels → Effets d'animation* désactivé), le choix « suivre le réglage du visiteur » fige tout. C'est ce qui donne l'impression que « rien ne défile ». Le défaut est donc « toujours ».
+
+### Performances
+
+- Les animations en boucle (logos, orbite, dégradés, flottements) se mettent en pause dès que leur section sort de l'écran.
+- Pas de flou géant animé : les halos sont des dégradés, le verre dépoli est limité à 10–12 px.
+- Dans l'éditeur de pages, le moteur JS ne tourne pas du tout.
 
 ---
 
@@ -102,6 +136,14 @@ Les blocs « zone pour ta vue » (*carte pour une vue*, *capture de leads*, *deu
 ### Composants
 
 `dz-btn` (+ `-lg` `-sm` `-ghost` `-soft` `-dark` `-light` `-gradient` `-glow` `-shine` `-link` `-block`), `dz-badge` (+ `-success` `-warning` `-danger` `-neutral`), `dz-announce`, `dz-card` (+ `-hover` `-glass` `-soft` `-brand` `-flat`), `dz-spotlight`, `dz-border-glow`, `dz-icon` (+ `-gradient` `-lg` `-round`), `dz-stat`, `dz-kpi`, `dz-trend-up/down`, `dz-progress`, `dz-ring`, `dz-pricing`, `dz-price-card` (+ `dz-featured`), `dz-check-list`, `dz-faq`, `dz-steps`, `dz-timeline`, `dz-cta`, `dz-footer`, `dz-nav`, `dz-marquee`, `dz-quote`, `dz-avatar(s)`, `dz-empty`, `dz-list`, `dz-callout` (+ `-success` `-warning` `-danger`), `dz-skeleton`, `dz-tabs`, `dz-compare`, `dz-video`, `dz-countdown`, `dz-masonry`, `dz-prose`, `dz-mock` (maquette d'app en CSS), `dz-browser`, `dz-float-card`, `dz-bottom-nav`, `dz-fab`, `dz-to-top`, `dz-scroll-progress`.
+
+### Nouveaux composants (v2)
+
+Sites : `dz-topbar`, `dz-index`, `dz-marquee-xl`, `dz-words` (+ `dz-words-reveal`), `dz-split-text`, `dz-clip`, `dz-stack-cards`, `data-dz-hscroll` (+ `dz-hscroll-sticky`, `dz-hscroll-track`, `dz-hpanel`), `dz-tabs-v` (+ `data-dz-autoplay="6"`), `dz-ctable`, `dz-orbit`, `data-dz-slider="6"`, `dz-portrait-wrap`, `dz-badge-round`, `dz-phone`, `dz-laptop`, `dz-browser`, `dz-work` + `data-dz-filter`, `dz-post`, `dz-logo-grid`, `dz-wordmark`, `dz-huge`, `data-dz-lightbox`, `data-dz-cookie`.
+
+Applications : `dz-app` (+ `dz-side`, `dz-side-item`, `dz-app-main`, `dz-app-top`, `dz-app-body`, `dz-search`), `data-dz-cmdk` (Ctrl K / ⌘K), `dz-settings` + `dz-setting`, `dz-switch`, `dz-profile`, `dz-stepper`, `dz-chips` + `dz-chip`, `dz-notifs` + `dz-notif`, `dz-chat` + `dz-msg` + `dz-typing`, `dz-checklist` + `dz-check`, `dz-dropzone`, `data-dz-tip`, `dz-window`.
+
+Mobile : `dz-appbar`, `dz-largetitle`, `dz-ios-list` + `dz-cell`, `dz-sheet`, `dz-drawer` (+ `data-dz-open="#id"` / `data-dz-close`), `dz-stories`.
 
 ### Titres et textes
 
@@ -129,6 +171,16 @@ Les blocs « zone pour ta vue » (*carte pour une vue*, *capture de leads*, *deu
 | `data-dz-copy="texte"` ou `"#id"` | copie dans le presse-papier |
 | `data-dz-confetti` | confettis au clic |
 | `.dz-progress[data-dz-value="72"]` | barre qui se remplit à l'affichage |
+| classe `dz-words-reveal` | texte qui s'éclaire mot par mot au défilement |
+| classe `dz-split-text` | titre dont les lettres montent une à une |
+| classe `dz-clip` | image qui se dévoile |
+| `data-dz-hscroll` | section qui défile à l'horizontale |
+| `data-dz-slider="6"` | carrousel (6 = défilement auto toutes les 6 s, 0 = manuel) |
+| `data-dz-filter="#grille"` + `data-filter` / `data-tags` | filtres de portfolio |
+| `data-dz-open="#id"` / `data-dz-close` | ouvre / ferme une feuille ou un tiroir |
+| `data-dz-cmdk` | palette de commandes (Ctrl K) |
+| `data-dz-lightbox` | image ou vidéo YouTube en plein écran |
+| `data-dz-dismiss` | bouton qui ferme un bandeau (mémorisé) |
 
 En JavaScript (bouton d'action, code de page) : `DZ.toast("Enregistré")`, `DZ.confetti()`, `DZ.setTheme("dark")`, `DZ.init(element)`.
 

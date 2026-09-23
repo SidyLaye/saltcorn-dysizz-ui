@@ -15,7 +15,13 @@
   var root = doc.documentElement;
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var motionOff = function () { return reduceMotion || root.getAttribute("data-dz-motion") === "off"; };
+  /* réglage « Animations » : on (défaut) | system (suit le réglage du visiteur) | off */
+  var motionOff = function () {
+    var m = root.getAttribute("data-dz-motion");
+    return m === "off" || (m === "system" && reduceMotion);
+  };
+  /* dans l'éditeur de pages Saltcorn : aucun moteur, tout reste visible et fixe */
+  var inBuilder = root.classList.contains("dz-builder");
 
   root.classList.add("dz-js");
 
@@ -53,7 +59,7 @@
   }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }) : null;
 
   function initReveal(scope) {
-    withSelf(scope, "[data-dz-reveal],.dz-reveal,.dz-stagger,.dz-highlight,[data-dz-count],.dz-progress[data-dz-value]").forEach(function (el) {
+    withSelf(scope, "[data-dz-reveal],.dz-reveal,.dz-stagger,.dz-highlight,.dz-clip,.dz-split-ready,[data-dz-count],.dz-progress[data-dz-value]").forEach(function (el) {
       if (!once(el, "Rev")) return;
       if (el.dataset.dzDelay) el.style.setProperty("--dz-delay", (parseFloat(el.dataset.dzDelay) || 0) + "ms");
       if (el.classList.contains("dz-stagger")) {
@@ -128,7 +134,7 @@
   /* ---------- 5. inclinaison 3D ---------- */
   function initTilt(scope) {
     if (!finePointer) return;
-    withSelf(scope, "[data-dz-tilt]").forEach(function (el) {
+    withSelf(scope, "[data-dz-tilt],.dz-tilt-on").forEach(function (el) {
       if (!once(el, "Tilt")) return;
       var max = parseFloat(el.getAttribute("data-dz-tilt")) || 8;
       el.classList.add("dz-tilt");
@@ -160,7 +166,7 @@
   /* ---------- 7. parallaxe + état de défilement ---------- */
   var parallaxEls = [];
   function initParallax(scope) {
-    withSelf(scope, "[data-dz-parallax]").forEach(function (el) {
+    withSelf(scope, "[data-dz-parallax],.dz-parallax").forEach(function (el) {
       if (!once(el, "Par")) return;
       parallaxEls.push(el);
     });
@@ -172,6 +178,9 @@
     requestAnimationFrame(function () {
       var y = window.scrollY || window.pageYOffset;
       root.classList.toggle("dz-scrolled", y > 12);
+      /* bandeau d'annonce au-dessus de la barre fixe : la barre descend d'autant, puis remonte au défilement */
+      var tb = doc.querySelector(".dz-topbar:not(.dz-dismissed)");
+      root.style.setProperty("--dz-nav-top", tb ? Math.max(0, tb.getBoundingClientRect().bottom) + "px" : "0px");
       root.classList.toggle("dz-scrolled-far", y > 700);
       var h = doc.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--dz-progress", h > 0 ? (y / h).toFixed(4) : 0);
@@ -184,6 +193,8 @@
           el.style.transform = "translate3d(0," + (-center * speed).toFixed(1) + "px,0)";
         });
       }
+      if (wordEls.length) updateWords();
+      if (hscrolls.length) updateHScroll();
       ticking = false;
     });
   }
@@ -193,14 +204,15 @@
     try { localStorage.setItem("dz-theme", mode); } catch (e) {}
     var eff = mode === "auto" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode;
     root.setAttribute("data-bs-theme", eff);
-    $all("[data-dz-theme-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", eff === "dark" ? "true" : "false"); });
+    $all("[data-dz-theme-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", eff === "dark" ? "true" : "false"); if (b.type === "checkbox") b.checked = eff === "dark"; });
   }
   function initThemeToggle(scope) {
     withSelf(scope, "[data-dz-theme-toggle]").forEach(function (el) {
       if (!once(el, "Theme")) return;
       el.setAttribute("aria-pressed", root.getAttribute("data-bs-theme") === "dark" ? "true" : "false");
+      if (el.type === "checkbox") el.checked = root.getAttribute("data-bs-theme") === "dark";
       el.addEventListener("click", function (e) {
-        e.preventDefault();
+        if (el.type !== "checkbox") e.preventDefault();
         setTheme(root.getAttribute("data-bs-theme") === "dark" ? "light" : "dark");
       });
     });
@@ -418,6 +430,297 @@
     });
   }
 
+
+  /* ---------- 21. pause des animations hors écran ---------- */
+  var offIO = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { en.target.classList.toggle("dz-offscreen", !en.isIntersecting); });
+  }, { rootMargin: "120px 0px" }) : null;
+  function initOffscreen(scope) {
+    if (!offIO) return;
+    withSelf(scope, ".dz-section,.dz-hero,.dz-marquee,.dz-orbit,.dz-cta,.dz-portrait-wrap,.dz-browser,.dz-footer").forEach(function (el) {
+      if (!once(el, "Off")) return;
+      offIO.observe(el);
+    });
+  }
+
+  /* ---------- 22. bandeau à fermer ---------- */
+  function initDismiss(scope) {
+    withSelf(scope, "[data-dz-dismiss]").forEach(function (b) {
+      if (!once(b, "Dis")) return;
+      var box = b.closest(b.getAttribute("data-dz-dismiss") || ".dz-topbar") || b.parentElement;
+      var key = "dz-dismiss-" + (box.id || (box.textContent || "").trim().slice(0, 40));
+      try { if (localStorage.getItem(key)) box.classList.add("dz-dismissed"); } catch (e) {}
+      b.addEventListener("click", function () { box.classList.add("dz-dismissed"); try { localStorage.setItem(key, "1"); } catch (e) {} onScroll(); });
+    });
+  }
+
+  /* ---------- 23. texte qui s'éclaire mot par mot ---------- */
+  var wordEls = [];
+  function initWords(scope) {
+    withSelf(scope, "[data-dz-words],.dz-words-reveal").forEach(function (el) {
+      if (!once(el, "Wd")) return;
+      el.classList.add("dz-words");
+      splitTextNodes(el, function (word) { var s = doc.createElement("span"); s.className = "dz-w"; s.textContent = word; return s; });
+      el._dzW = $all(".dz-w", el);
+      wordEls.push(el);
+    });
+  }
+  function splitTextNodes(el, make) {
+    var walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      var parts = n.nodeValue.split(/(\s+)/);
+      var frag = doc.createDocumentFragment();
+      parts.forEach(function (p) { if (!p) return; frag.appendChild(/\s+/.test(p) ? doc.createTextNode(p) : make(p)); });
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+  function updateWords() {
+    wordEls = wordEls.filter(function (el) { return doc.body.contains(el); });
+    wordEls.forEach(function (el) {
+      var r = el.getBoundingClientRect(), vh = window.innerHeight;
+      var p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
+      var n = el._dzW.length, lit = Math.round(p * n);
+      for (var i = 0; i < n; i++) el._dzW[i].style.setProperty("--o", i < lit ? 1 : 0.15);
+    });
+  }
+
+  /* ---------- 24. lettres qui montent (titre) ---------- */
+  function initSplit(scope) {
+    withSelf(scope, "[data-dz-split],.dz-split-text").forEach(function (el) {
+      if (!once(el, "Spl")) return;
+      var i = 0;
+      splitTextNodes(el, function (word) {
+        var w = doc.createElement("span"); w.className = "dz-wd";
+        word.split("").forEach(function (ch) { var s = doc.createElement("span"); s.className = "dz-ch"; s.textContent = ch; s.style.setProperty("--i", i++); w.appendChild(s); });
+        return w;
+      });
+      el.classList.add("dz-split-ready");
+      if (motionOff()) el.classList.add("dz-in"); else initReveal(el);
+    });
+  }
+
+  /* ---------- 25. défilement horizontal épinglé ---------- */
+  var hscrolls = [];
+  function initHScroll(scope) {
+    withSelf(scope, "[data-dz-hscroll]").forEach(function (el) {
+      if (!once(el, "Hs")) return;
+      el.classList.add("dz-hscroll");
+      hscrolls.push(el);
+      sizeHScroll(el);
+    });
+  }
+  function sizeHScroll(el) {
+    var track = el.querySelector(".dz-hscroll-track");
+    if (!track) return;
+    if (window.innerWidth < 768 || motionOff()) { el.style.height = ""; track.style.transform = ""; return; }
+    var dist = Math.max(0, track.scrollWidth - window.innerWidth);
+    el._dzDist = dist;
+    el.style.height = (window.innerHeight + dist) + "px";
+  }
+  function updateHScroll() {
+    hscrolls = hscrolls.filter(function (el) { return doc.body.contains(el); });
+    hscrolls.forEach(function (el) {
+      var track = el.querySelector(".dz-hscroll-track");
+      if (!track || !el._dzDist || window.innerWidth < 768) return;
+      var r = el.getBoundingClientRect();
+      var p = Math.min(1, Math.max(0, -r.top / (r.height - window.innerHeight || 1)));
+      track.style.transform = "translate3d(" + (-p * el._dzDist).toFixed(1) + "px,0,0)";
+    });
+  }
+
+  /* ---------- 26. carrousel ---------- */
+  function initSlider(scope) {
+    withSelf(scope, "[data-dz-slider],.dz-slider-auto").forEach(function (box) {
+      if (!once(box, "Sl")) return;
+      box.classList.add("dz-slider");
+      var track = box.querySelector(".dz-slider-track");
+      if (!track) return;
+      var slides = Array.prototype.slice.call(track.children);
+      var ui = box.querySelector(".dz-slider-ui");
+      if (!ui) {
+        ui = doc.createElement("div"); ui.className = "dz-slider-ui";
+        ui.innerHTML = '<div class="dz-slider-dots"></div><div class="dz-slider-arrows"><button type="button" class="dz-btn dz-btn-ghost dz-icon-btn" data-dir="-1" aria-label="Précédent">←</button><button type="button" class="dz-btn dz-btn-ghost dz-icon-btn" data-dir="1" aria-label="Suivant">→</button></div>';
+        box.appendChild(ui);
+      }
+      var dots = ui.querySelector(".dz-slider-dots");
+      dots.innerHTML = "";
+      slides.forEach(function (s, i) { var d = doc.createElement("button"); d.type = "button"; d.setAttribute("aria-label", "Aller à " + (i + 1)); d.addEventListener("click", function () { go(i); }); dots.appendChild(d); });
+      function current() { var x = track.scrollLeft, best = 0, bd = 1e9; slides.forEach(function (s, i) { var d = Math.abs(s.offsetLeft - track.offsetLeft - x); if (d < bd) { bd = d; best = i; } }); return best; }
+      function go(i) { i = (i + slides.length) % slides.length; track.scrollTo({ left: slides[i].offsetLeft - track.offsetLeft, behavior: motionOff() ? "auto" : "smooth" }); }
+      function mark() { var c = current(); Array.prototype.forEach.call(dots.children, function (d, i) { d.setAttribute("aria-current", i === c ? "true" : "false"); }); }
+      $all("[data-dir]", ui).forEach(function (b) { b.addEventListener("click", function () { go(current() + parseInt(b.dataset.dir, 10)); }); });
+      track.addEventListener("scroll", function () { requestAnimationFrame(mark); }, { passive: true });
+      mark();
+      var delay = parseInt(box.getAttribute("data-dz-slider"), 10);
+      if (delay > 0 && !motionOff()) {
+        var paused = false;
+        box.addEventListener("pointerenter", function () { paused = true; });
+        box.addEventListener("pointerleave", function () { paused = false; });
+        setInterval(function () { if (!paused && !box.classList.contains("dz-offscreen") && doc.body.contains(box) && !doc.hidden) go(current() + 1); }, delay * 1000);
+      }
+    });
+  }
+
+  /* ---------- 27. filtres (portfolio, listes) ---------- */
+  function initFilter(scope) {
+    withSelf(scope, "[data-dz-filter]").forEach(function (bar) {
+      if (!once(bar, "Flt")) return;
+      var target = doc.querySelector(bar.getAttribute("data-dz-filter"));
+      if (!target) return;
+      var btns = $all("[data-filter]", bar);
+      btns.forEach(function (b) {
+        b.type = "button";
+        b.addEventListener("click", function () {
+          var f = b.getAttribute("data-filter");
+          btns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          Array.prototype.forEach.call(target.children, function (it) {
+            var tags = (it.getAttribute("data-tags") || "").split(/[\s,]+/);
+            var show = f === "*" || tags.indexOf(f) >= 0;
+            it.classList.toggle("dz-filtered-out", !show);
+            if (show && it.animate && !motionOff()) it.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], { duration: 350, easing: "ease-out" });
+          });
+        });
+      });
+      if (btns[0]) btns[0].setAttribute("aria-pressed", "true");
+    });
+  }
+
+  /* ---------- 28. puces à bascule ---------- */
+  function initChips(scope) {
+    withSelf(scope, ".dz-chips[data-dz-toggle] .dz-chip, button.dz-chip").forEach(function (c) {
+      if (!once(c, "Chp") || c.closest("[data-dz-filter]")) return;
+      c.addEventListener("click", function () {
+        var single = c.closest("[data-dz-single]");
+        if (single) $all(".dz-chip", single).forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+        c.setAttribute("aria-pressed", c.getAttribute("aria-pressed") === "true" && !single ? "false" : "true");
+      });
+    });
+  }
+
+  /* ---------- 29. curseur personnalisé ---------- */
+  function initCursor() {
+    if (root.getAttribute("data-dz-cursor") !== "on" || !finePointer || motionOff() || doc.querySelector(".dz-cursor")) return;
+    var ring = doc.createElement("div"); ring.className = "dz-cursor";
+    var dot = doc.createElement("div"); dot.className = "dz-cursor-dot";
+    doc.body.appendChild(ring); doc.body.appendChild(dot);
+    var x = -100, y = -100, rx = -100, ry = -100;
+    window.addEventListener("pointermove", function (e) { x = e.clientX; y = e.clientY; dot.style.transform = "translate(" + x + "px," + y + "px)"; }, { passive: true });
+    doc.addEventListener("pointerover", function (e) { ring.classList.toggle("dz-hover", !!(e.target.closest && e.target.closest("a,button,[data-dz-lightbox],.dz-work,input,label"))); });
+    (function loop() { rx += (x - rx) * 0.18; ry += (y - ry) * 0.18; ring.style.transform = "translate(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px)"; requestAnimationFrame(loop); })();
+  }
+
+  /* ---------- 30. lightbox ---------- */
+  function initLightbox(scope) {
+    withSelf(scope, "[data-dz-lightbox],.dz-lightbox-on img").forEach(function (el) {
+      if (!once(el, "Lb")) return;
+      el.addEventListener("click", function (e) {
+        e.preventDefault();
+        var src = el.getAttribute("data-dz-lightbox") || el.getAttribute("href") || el.getAttribute("src") || (el.querySelector("img") || {}).src;
+        if (!src) return;
+        var box = doc.createElement("div"); box.className = "dz-lightbox";
+        var yt = src.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+        box.innerHTML = yt ? '<iframe src="https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>' : '<img alt="">';
+        if (!yt) box.querySelector("img").src = src;
+        doc.body.appendChild(box);
+        requestAnimationFrame(function () { box.classList.add("dz-open"); });
+        function close() { box.classList.remove("dz-open"); setTimeout(function () { box.remove(); }, 300); doc.removeEventListener("keydown", esc); }
+        function esc(ev) { if (ev.key === "Escape") close(); }
+        box.addEventListener("click", close); doc.addEventListener("keydown", esc);
+      });
+    });
+  }
+
+  /* ---------- 31. bandeau cookies ---------- */
+  function initCookie(scope) {
+    withSelf(scope, "[data-dz-cookie]").forEach(function (box) {
+      if (!once(box, "Ck")) return;
+      var v = null; try { v = localStorage.getItem("dz-cookie"); } catch (e) {}
+      if (v) { box.classList.add("dz-dismissed"); return; }
+      $all("[data-accept],[data-refuse]", box).forEach(function (b) {
+        b.addEventListener("click", function () {
+          try { localStorage.setItem("dz-cookie", b.hasAttribute("data-accept") ? "ok" : "no"); } catch (e) {}
+          box.classList.add("dz-dismissed");
+          doc.dispatchEvent(new CustomEvent("dz:cookie", { detail: b.hasAttribute("data-accept") }));
+        });
+      });
+    });
+  }
+
+  /* ---------- 32. feuilles, tiroirs, fenêtres : data-dz-open / data-dz-close ---------- */
+  var overlay = null;
+  function openPanel(p) {
+    if (!overlay) { overlay = doc.createElement("div"); overlay.className = "dz-overlay"; doc.body.appendChild(overlay); overlay.addEventListener("click", closeAll); }
+    closeAll();
+    p.classList.add("dz-open"); overlay.classList.add("dz-open");
+    doc.documentElement.style.overflow = "hidden";
+  }
+  function closeAll() {
+    $all(".dz-sheet.dz-open,.dz-drawer.dz-open").forEach(function (x) { x.classList.remove("dz-open"); });
+    if (overlay) overlay.classList.remove("dz-open");
+    doc.documentElement.style.overflow = "";
+  }
+  function initPanels(scope) {
+    withSelf(scope, "[data-dz-open]").forEach(function (b) {
+      if (!once(b, "Op")) return;
+      b.addEventListener("click", function (e) { var p = doc.querySelector(b.getAttribute("data-dz-open")); if (p) { e.preventDefault(); openPanel(p); } });
+    });
+    withSelf(scope, "[data-dz-close]").forEach(function (b) {
+      if (!once(b, "Cl")) return;
+      b.addEventListener("click", function (e) { e.preventDefault(); closeAll(); });
+    });
+  }
+
+  /* ---------- 33. palette de commandes ⌘K / Ctrl+K ---------- */
+  function initCmdk(scope) {
+    withSelf(scope, "[data-dz-cmdk]").forEach(function (box) {
+      if (!once(box, "Cmd")) return;
+      box.classList.add("dz-cmdk");
+      var input = box.querySelector("input"), list = box.querySelector(".dz-cmdk-list");
+      if (!input || !list) return;
+      var sel = 0;
+      function items() { return $all("a", list).filter(function (a) { return !a.hidden; }); }
+      function paint() { var it = items(); it.forEach(function (a, i) { a.classList.toggle("dz-sel", i === sel); }); if (it[sel]) it[sel].scrollIntoView({ block: "nearest" }); }
+      function filter() {
+        var q = input.value.trim().toLowerCase();
+        $all("a", list).forEach(function (a) { a.hidden = q && a.textContent.toLowerCase().indexOf(q) < 0 && (a.dataset.keywords || "").toLowerCase().indexOf(q) < 0; });
+        $all(".dz-cmdk-group", list).forEach(function (g) { var n = g.nextElementSibling, any = false; while (n && !n.classList.contains("dz-cmdk-group")) { if (n.tagName === "A" && !n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });
+        var empty = list.querySelector(".dz-cmdk-empty"); if (empty) empty.hidden = items().length > 0;
+        sel = 0; paint();
+      }
+      function open() { box.classList.add("dz-open"); input.value = ""; filter(); setTimeout(function () { input.focus(); }, 30); }
+      function close() { box.classList.remove("dz-open"); }
+      box.addEventListener("click", function (e) { if (e.target === box) close(); });
+      input.addEventListener("input", filter);
+      input.addEventListener("keydown", function (e) {
+        var it = items();
+        if (e.key === "ArrowDown") { sel = Math.min(it.length - 1, sel + 1); paint(); e.preventDefault(); }
+        else if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); paint(); e.preventDefault(); }
+        else if (e.key === "Enter" && it[sel]) { it[sel].click(); close(); }
+        else if (e.key === "Escape") close();
+      });
+      doc.addEventListener("keydown", function (e) { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); box.classList.contains("dz-open") ? close() : open(); } });
+      $all("[data-dz-cmdk-open]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); open(); }); });
+    });
+  }
+
+  /* ---------- 34. onglets en lecture automatique ---------- */
+  function initTabsAutoplay(scope) {
+    withSelf(scope, ".dz-tabs[data-dz-autoplay]").forEach(function (box) {
+      if (!once(box, "Ap") || motionOff()) return;
+      var sec = parseFloat(box.getAttribute("data-dz-autoplay")) || 6;
+      box.style.setProperty("--dz-autoplay", sec + "s");
+      var btns = $all(".dz-tabs-nav [data-tab]", box), user = false;
+      btns.forEach(function (b) { b.addEventListener("click", function (e) { if (e.isTrusted) user = true; }); });
+      setInterval(function () {
+        if (user || box.classList.contains("dz-offscreen") || doc.hidden || !doc.body.contains(box)) return;
+        var i = btns.findIndex(function (b) { return b.getAttribute("aria-selected") === "true"; });
+        var nb = btns[(i + 1) % btns.length]; if (nb) nb.click();
+      }, sec * 1000);
+    });
+  }
+
   /* ---------- lancement ---------- */
   function init(scope) {
     scope = scope || doc;
@@ -426,25 +729,36 @@
       initParallax(scope); initThemeToggle(scope); initPriceToggle(scope); initTabs(scope); initMarquee(scope);
       initCopy(scope); initMenus(scope); initCountdown(scope); initCompare(scope); initBottomNav(scope);
       initToTop(scope); initConfettiTriggers(scope); initAnchors(scope);
+      initOffscreen(scope); initDismiss(scope); initWords(scope); initSplit(scope); initHScroll(scope); initSlider(scope);
+      initFilter(scope); initChips(scope); initLightbox(scope); initCookie(scope); initPanels(scope); initCmdk(scope); initTabsAutoplay(scope);
     } catch (e) { if (window.console) console.warn("[dysizz-ui]", e); }
   }
 
-  window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "1.0.0" };
+  window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "2.0.0" };
 
   function start() {
+    if (inBuilder) { initThemeToggle(doc); return; }
     init(doc);
+    initCursor();
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    /* Saltcorn recharge des vues en ajax : on initialise ce qui arrive */
+    window.addEventListener("resize", function () { hscrolls.forEach(sizeHScroll); onScroll(); }, { passive: true });
+    window.addEventListener("load", function () { hscrolls.forEach(sizeHScroll); onScroll(); });
+    /* Saltcorn recharge des vues en ajax : on initialise ce qui arrive (par lots) */
     if ("MutationObserver" in window) {
-      var pending = [];
+      var pending = [], timer = null;
       var mo = new MutationObserver(function (muts) {
-        muts.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes, function (n) { if (n.nodeType === 1) pending.push(n); }); });
-        if (pending.length) {
-          var batch = pending; pending = [];
-          requestAnimationFrame(function () { batch.forEach(function (n) { if (doc.body.contains(n)) init(n); }); });
+        for (var k = 0; k < muts.length; k++) {
+          var added = muts[k].addedNodes;
+          for (var m = 0; m < added.length; m++) {
+            var n = added[m];
+            if (n.nodeType === 1 && !n.classList.contains("dz-w") && !n.classList.contains("dz-ch") && !n.classList.contains("dz-wd") && n.className !== "dz-toast") pending.push(n);
+          }
         }
+        if (pending.length && !timer) timer = setTimeout(function () {
+          var batch = pending; pending = []; timer = null;
+          batch.forEach(function (n) { if (doc.body.contains(n)) init(n); });
+        }, 120);
       });
       mo.observe(doc.body, { childList: true, subtree: true });
     }

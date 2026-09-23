@@ -6,10 +6,16 @@
    Bootstrap » dans la config du plugin).
    ===================================================================== */
 
+/* le fond vient toujours du kit : le thème Saltcorn pose parfois une couleur
+   en style inline sur <body> (réglage « Background color »), d'où le !important */
+html.dz-skin { background-color: var(--dz-bg); color-scheme: light; --bs-body-bg: var(--dz-bg); --bs-body-color: var(--dz-text); --bs-emphasis-color: var(--dz-text); --bs-secondary-color: var(--dz-text-soft); --bs-tertiary-bg: var(--dz-surface-2); --bs-secondary-bg: var(--dz-surface-2); }
+html.dz-skin[data-bs-theme="dark"] { color-scheme: dark; }
 .dz-skin body {
   font-family: var(--dz-font-body);
-  background-color: var(--dz-bg);
+  background-color: var(--dz-bg) !important;
+  background-image: none !important;
   color: var(--dz-text);
+  transition: background-color .3s ease, color .3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --bs-body-font-family: var(--dz-font-body);
@@ -26,7 +32,7 @@
   font-weight: 700;
   color: var(--dz-text);
 }
-.dz-skin :where(a:not(.btn):not(.nav-link):not(.dropdown-item):not(.dz-btn):not(.page-link)) { color: var(--dz-primary); text-underline-offset: 3px; }
+.dz-skin :where(a:not([class])) { color: var(--dz-primary-ink); text-underline-offset: 3px; }
 
 /* ---- boutons ---- */
 .dz-skin .btn {
@@ -141,6 +147,7 @@
 /* ---- navigation ---- */
 .dz-skin .navbar {
   --bs-navbar-padding-y: .7rem;
+  --bs-navbar-color: var(--dz-text-soft); --bs-navbar-hover-color: var(--dz-text); --bs-navbar-active-color: var(--dz-text); --bs-navbar-brand-color: var(--dz-text);
   font-family: var(--dz-font-body);
   transition: background-color var(--dz-dur), box-shadow var(--dz-dur), border-color var(--dz-dur);
 }
@@ -170,7 +177,7 @@
 }
 .dz-skin #sidebar .nav-link, .dz-skin .sidebar .nav-link { border-radius: var(--dz-radius-sm); margin: 1px .5rem; transition: background-color var(--dz-dur-fast), color var(--dz-dur-fast); }
 .dz-skin #sidebar .nav-link:hover, .dz-skin .sidebar .nav-link:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
-.dz-skin #sidebar .active > .nav-link, .dz-skin #sidebar .nav-link.active, .dz-skin .sidebar .nav-link.active { background: var(--dz-primary-soft); color: var(--dz-primary) !important; }
+.dz-skin #sidebar .active > .nav-link, .dz-skin #sidebar .nav-link.active, .dz-skin .sidebar .nav-link.active { background: var(--dz-primary-soft); color: var(--dz-primary-ink) !important; }
 
 /* ---- menus déroulants, modales, popovers ---- */
 .dz-skin .dropdown-menu {
@@ -208,7 +215,7 @@
 
 /* ---- badges, alertes, toasts ---- */
 .dz-skin .badge { font-weight: 600; border-radius: var(--dz-radius-pill); padding: .38em .7em; letter-spacing: .01em; }
-.dz-skin .badge.bg-primary, .dz-skin .badge.text-bg-primary { background: var(--dz-primary-soft) !important; color: var(--dz-primary) !important; }
+.dz-skin .badge.bg-primary, .dz-skin .badge.text-bg-primary { background: var(--dz-primary-soft) !important; color: var(--dz-primary-ink) !important; }
 .dz-skin .badge.bg-success, .dz-skin .badge.text-bg-success { background: color-mix(in srgb, var(--dz-success) 15%, transparent) !important; color: var(--dz-success) !important; }
 .dz-skin .badge.bg-danger, .dz-skin .badge.text-bg-danger { background: color-mix(in srgb, var(--dz-danger) 15%, transparent) !important; color: var(--dz-danger) !important; }
 .dz-skin .badge.bg-warning, .dz-skin .badge.text-bg-warning { background: color-mix(in srgb, var(--dz-warning) 16%, transparent) !important; color: color-mix(in srgb, var(--dz-warning) 80%, #000) !important; }
@@ -239,3 +246,15 @@
 .dz-skin .select2-dropdown { border-radius: var(--dz-radius-sm); border-color: var(--dz-border); box-shadow: var(--dz-shadow); }
 /* contenu principal un peu plus aéré */
 .dz-skin #page-inner-content, .dz-skin main > .container, .dz-skin #wrapper .container-fluid { padding-top: .5rem; }
+
+/* barre de menu du thème : suit les couleurs du kit (clair / sombre) */
+.dz-skin nav.navbar.bg-dark, .dz-skin nav.navbar.bg-light, .dz-skin nav.navbar.bg-primary, .dz-skin nav.navbar.bg-white { background-color: var(--dz-surface) !important; border-bottom: 1px solid var(--dz-border); }
+.dz-skin nav.navbar .navbar-brand, .dz-skin nav.navbar .nav-link { color: var(--dz-text) !important; }
+.dz-skin nav.navbar .navbar-toggler { border-color: var(--dz-border-strong); }
+.dz-skin nav.navbar .navbar-toggler-icon { filter: var(--dz-toggler-filter, none); }
+.dz-skin[data-bs-theme="dark"] nav.navbar .navbar-toggler-icon { --dz-toggler-filter: invert(1); }
+.dz-skin #sidebar, .dz-skin .sidebar, .dz-skin #accordionSidebar { background: var(--dz-surface) !important; border-right: 1px solid var(--dz-border); }
+.dz-skin #sidebar .nav-link, .dz-skin .sidebar .nav-link, .dz-skin #accordionSidebar .nav-link { color: var(--dz-text-soft) !important; }
+.dz-skin .card, .dz-skin .modal-content, .dz-skin .dropdown-menu, .dz-skin .list-group-item, .dz-skin .table { color: var(--dz-text); }
+.dz-skin .text-muted { color: var(--dz-text-mute) !important; }
+.dz-skin .bg-white, .dz-skin .bg-light { background-color: var(--dz-surface) !important; }
