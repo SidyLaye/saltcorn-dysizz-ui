@@ -1,0 +1,24 @@
+{
+  "name": "dysizz-ui",
+  "version": "1.0.0",
+  "description": "Design system Dysizz pour Saltcorn : thème configurable par tenant, animations, blocs prêts à glisser dans le builder, pages de démo.",
+  "main": "index.js",
+  "author": "SidyLaye",
+  "license": "MIT",
+  "keywords": [
+    "saltcorn",
+    "saltcorn-plugin",
+    "design-system",
+    "ui-kit"
+  ],
+  "dependencies": {
+    "@saltcorn/data": "^1.6.2",
+    "@saltcorn/admin-models": "^1.6.2"
+  },
+  "files": [
+    "index.js",
+    "public",
+    "packs",
+    "README.md"
+  ]
+}

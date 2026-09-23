@@ -1,0 +1,2070 @@
+{
+ "tables": [],
+ "views": [],
+ "plugins": [],
+ "pages": [],
+ "triggers": [],
+ "roles": [],
+ "library": [
+  {
+   "name": "DZ · Navigation · landing",
+   "icon": "fas fa-bars",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<header class=\"dz-nav\">\n  <div class=\"dz-container dz-nav-inner\">\n    <a class=\"dz-brand\" href=\"/\"><span class=\"dz-brand-mark\"></span>Marque</a>\n    <nav class=\"dz-nav-links\">\n      <a href=\"#fonctionnalites\">Fonctionnalités</a>\n      <a href=\"#tarifs\">Tarifs</a>\n      <a href=\"#temoignages\">Clients</a>\n      <a href=\"#faq\">FAQ</a>\n    </nav>\n    <div class=\"dz-cluster\" style=\"--dz-gap:.5rem\">\n      <button class=\"dz-btn dz-btn-ghost dz-icon-btn dz-theme-btn\" data-dz-theme-toggle aria-label=\"Changer de thème\"><i class=\"fas fa-moon dz-moon\"></i><i class=\"fas fa-sun dz-sun\"></i></button>\n      <a class=\"dz-btn dz-btn-ghost dz-btn-sm dz-nav-cta\" href=\"/auth/login\">Connexion</a>\n      <a class=\"dz-btn dz-btn-sm dz-nav-cta\" href=\"/auth/signup\">Commencer</a>\n      <button class=\"dz-nav-burger\" data-dz-menu-toggle=\"#dz-mobile-menu\" aria-label=\"Menu\"><i class=\"fas fa-bars\"></i></button>\n    </div>\n  </div>\n</header>\n<div class=\"dz-nav-spacer\"></div>\n<nav class=\"dz-mobile-menu\" id=\"dz-mobile-menu\">\n  <a href=\"#fonctionnalites\">Fonctionnalités</a>\n  <a href=\"#tarifs\">Tarifs</a>\n  <a href=\"#temoignages\">Clients</a>\n  <a href=\"#faq\">FAQ</a>\n  <a class=\"dz-btn dz-btn-block\" style=\"margin-top:1rem;border:0\" href=\"/auth/signup\">Commencer gratuitement</a>\n</nav>\n<div class=\"dz-scroll-progress\"></div>"
+   }
+  },
+  {
+   "name": "DZ · Hero · aurora centré",
+   "icon": "fas fa-star",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-hero dz-center",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "blank",
+       "isHTML": true,
+       "contents": "<div class=\"dz-aurora\"></div>"
+      },
+      {
+       "type": "container",
+       "customClass": "dz-container-narrow",
+       "htmlElement": "div",
+       "display": "block",
+       "contents": {
+        "above": [
+         {
+          "type": "blank",
+          "isHTML": true,
+          "contents": "<a class=\"dz-announce\" href=\"#\" data-dz-reveal><strong>Nouveau</strong> Découvrez la version 2.0 <i class=\"fas fa-arrow-right\"></i></a>"
+         },
+         {
+          "type": "blank",
+          "contents": "Construisez plus vite, <span class=\"dz-gradient-text\">sans compromis</span>",
+          "block": true,
+          "customClass": "dz-display dz-reveal",
+          "textStyle": "h1"
+         },
+         {
+          "type": "blank",
+          "contents": "Une plateforme pensée pour aller de l'idée au lancement en quelques jours. Belle sur tous les écrans, rapide, sécurisée.",
+          "block": true,
+          "customClass": "dz-lead dz-reveal"
+         },
+         {
+          "type": "container",
+          "customClass": "dz-cluster dz-reveal",
+          "htmlElement": "div",
+          "display": "block",
+          "contents": {
+           "above": [
+            {
+             "type": "link",
+             "text": "Commencer gratuitement",
+             "url": "#",
+             "link_src": "URL",
+             "link_style": "",
+             "link_class": "dz-btn dz-btn-lg dz-btn-shine dz-magnetic",
+             "link_icon": "fas fa-arrow-right"
+            },
+            {
+             "type": "link",
+             "text": "Voir la démo",
+             "url": "#",
+             "link_src": "URL",
+             "link_style": "",
+             "link_class": "dz-btn dz-btn-lg dz-btn-ghost",
+             "link_icon": "fas fa-play"
+            }
+           ]
+          }
+         },
+         {
+          "type": "blank",
+          "isHTML": true,
+          "contents": "<div class=\"dz-cluster dz-reveal\" style=\"justify-content:center;margin-top:2.2rem;--dz-gap:.9rem\">\n  <div class=\"dz-avatars\"><span class=\"dz-avatar dz-avatar-sm\">AL</span><span class=\"dz-avatar dz-avatar-sm\" style=\"background:linear-gradient(135deg,#f472b6,#fb923c)\">MK</span><span class=\"dz-avatar dz-avatar-sm\" style=\"background:linear-gradient(135deg,#22d3ee,#10b981)\">SD</span><span class=\"dz-avatar dz-avatar-sm\" style=\"background:linear-gradient(135deg,#f59e0b,#ef4444)\">+</span></div>\n  <div class=\"dz-small\" style=\"text-align:left\"><span class=\"dz-stars\">★★★★★</span><br>Déjà adopté par <b>2 400+</b> équipes</div>\n</div>"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Hero · texte + visuel",
+   "icon": "fas fa-columns",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-hero dz-bg-mesh",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-split",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "container",
+         "customClass": "dz-mobile-center",
+         "htmlElement": "div",
+         "display": "block",
+         "contents": {
+          "above": [
+           {
+            "type": "blank",
+            "contents": "<span class=\"dz-dot\"></span> Disponible maintenant",
+            "block": false,
+            "customClass": "dz-badge dz-reveal"
+           },
+           {
+            "type": "blank",
+            "contents": "Votre activité, <span class=\"dz-gradient-text\">enfin pilotée</span> au même endroit",
+            "block": true,
+            "customClass": "dz-h1 dz-reveal",
+            "textStyle": "h1"
+           },
+           {
+            "type": "blank",
+            "contents": "Clients, ventes, équipes et automatisations dans une seule interface. Moins d'outils, plus de résultats.",
+            "block": true,
+            "customClass": "dz-lead dz-reveal"
+           },
+           {
+            "type": "container",
+            "customClass": "dz-cluster dz-reveal",
+            "htmlElement": "div",
+            "display": "block",
+            "contents": {
+             "above": [
+              {
+               "type": "link",
+               "text": "Essayer 14 jours",
+               "url": "#",
+               "link_src": "URL",
+               "link_style": "",
+               "link_class": "dz-btn dz-btn-lg dz-btn-gradient",
+               "link_icon": "fas fa-arrow-right"
+              },
+              {
+               "type": "link",
+               "text": "Parler à un expert",
+               "url": "#",
+               "link_src": "URL",
+               "link_style": "",
+               "link_class": "dz-btn dz-btn-lg dz-btn-ghost",
+               "link_icon": ""
+              }
+             ]
+            }
+           },
+           {
+            "type": "blank",
+            "contents": "<i class=\"fas fa-check\" style=\"color:var(--dz-success)\"></i> Sans carte bancaire &nbsp; <i class=\"fas fa-check\" style=\"color:var(--dz-success)\"></i> Annulable à tout moment",
+            "block": true,
+            "customClass": "dz-small dz-reveal"
+           }
+          ]
+         }
+        },
+        {
+         "type": "container",
+         "customClass": "dz-glow-under",
+         "htmlElement": "div",
+         "display": "block",
+         "contents": {
+          "type": "blank",
+          "isHTML": true,
+          "contents": "<div style=\"position:relative\" data-dz-reveal=\"zoom\">\n                  <div data-dz-tilt=\"6\">\n<div class=\"dz-browser dz-float-slow\">\n  <div class=\"dz-mock\">\n    <div class=\"dz-mock-side\"><i></i><i></i><i></i><i></i><i></i></div>\n    <div class=\"dz-mock-main\">\n      <div class=\"dz-mock-top\"><span class=\"dz-mock-line dz-dark\" style=\"--w:120px\"></span><span class=\"dz-badge dz-badge-success\"><span class=\"dz-dot\"></span>En ligne</span></div>\n      <div class=\"dz-mock-kpis\">\n        <div><span class=\"dz-small\">Revenus</span><b>48,2 k€</b><span class=\"dz-trend dz-trend-up\">▲ 12 %</span></div>\n        <div><span class=\"dz-small\">Clients</span><b>1 284</b><span class=\"dz-trend dz-trend-up\">▲ 8 %</span></div>\n        <div><span class=\"dz-small\">Churn</span><b>1,9 %</b><span class=\"dz-trend dz-trend-down\">▼ 0,4</span></div>\n      </div>\n      <div class=\"dz-mock-chart\"><span style=\"--h:35%;--i:0\"></span><span style=\"--h:52%;--i:1\"></span><span style=\"--h:44%;--i:2\"></span><span style=\"--h:68%;--i:3\"></span><span style=\"--h:58%;--i:4\"></span><span style=\"--h:80%;--i:5\"></span><span style=\"--h:72%;--i:6\"></span><span style=\"--h:92%;--i:7\"></span><span style=\"--h:84%;--i:8\"></span><span style=\"--h:100%;--i:9\"></span></div>\n    </div>\n  </div>\n</div></div>\n                  <div class=\"dz-float-card dz-float\" style=\"left:-28px;bottom:36px\"><span class=\"dz-icon dz-icon-round\" style=\"width:38px;height:38px;font-size:1rem\"><i class=\"fas fa-bolt\"></i></span><div><b>+32 % de conversions</b><span class=\"dz-small\">ce mois-ci</span></div></div>\n                  <div class=\"dz-float-card dz-float-slow\" style=\"right:-18px;top:28px\"><span class=\"dz-avatar dz-avatar-sm\">JD</span><div><b>Nouveau client</b><span class=\"dz-small\">il y a 2 min</span></div></div>\n                </div>"
+         }
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Hero · plein écran + texte animé",
+   "icon": "fas fa-keyboard",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-hero dz-hero-full dz-section-dark dz-noise dz-center",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "blank",
+       "isHTML": true,
+       "contents": "<div class=\"dz-aurora\"></div>"
+      },
+      {
+       "type": "container",
+       "customClass": "dz-container-narrow",
+       "htmlElement": "div",
+       "display": "block",
+       "contents": {
+        "above": [
+         {
+          "type": "blank",
+          "contents": "Studio numérique",
+          "block": false,
+          "customClass": "dz-eyebrow dz-reveal"
+         },
+         {
+          "type": "blank",
+          "isHTML": true,
+          "contents": "<h1 class=\"dz-display dz-reveal\">On crée des <br><span class=\"dz-gradient-text\" data-dz-typed=\"sites qui vendent|apps qui plaisent|outils qui libèrent\">sites qui vendent</span></h1>"
+         },
+         {
+          "type": "blank",
+          "contents": "Design, développement et automatisation. Des produits rapides, beaux et pensés pour vos clients.",
+          "block": true,
+          "customClass": "dz-lead dz-reveal"
+         },
+         {
+          "type": "container",
+          "customClass": "dz-cluster dz-reveal",
+          "htmlElement": "div",
+          "display": "block",
+          "contents": {
+           "above": [
+            {
+             "type": "link",
+             "text": "Démarrer un projet",
+             "url": "#contact",
+             "link_src": "URL",
+             "link_style": "",
+             "link_class": "dz-btn dz-btn-lg dz-btn-light dz-magnetic",
+             "link_icon": "fas fa-arrow-right"
+            },
+            {
+             "type": "link",
+             "text": "Nos réalisations",
+             "url": "#",
+             "link_src": "URL",
+             "link_style": "",
+             "link_class": "dz-btn dz-btn-lg dz-btn-glow",
+             "link_icon": ""
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Logos · défilement infini",
+   "icon": "fas fa-infinity",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section-sm",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "blank",
+        "contents": "Ils nous font confiance",
+        "block": true,
+        "customClass": "dz-small dz-center"
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div class=\"dz-marquee\" style=\"margin-top:1.5rem\" data-dz-speed=\"28\">\n  <div class=\"dz-marquee-track\">\n    <span class=\"dz-logo\"><i class=\"fas fa-cube\"></i> Nexora</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-leaf\"></i> Verdant</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-bolt\"></i> Voltix</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-gem\"></i> Lumia</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-mountain\"></i> Altura</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-atom\"></i> Quanta</span>\n    <span class=\"dz-logo\"><i class=\"fas fa-feather-alt\"></i> Plume</span>\n  </div>\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Chiffres clés animés",
+   "icon": "fas fa-sort-numeric-up",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section-sm",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "blank",
+      "isHTML": true,
+      "contents": "<div class=\"dz-grid dz-grid-4 dz-stagger dz-center\">\n  <div class=\"dz-stat\"><span class=\"dz-stat-value dz-gradient-text\" data-dz-count=\"2400\" data-dz-suffix=\"+\">0</span><span class=\"dz-stat-label\">équipes actives</span></div>\n  <div class=\"dz-stat\"><span class=\"dz-stat-value\" data-dz-count=\"99.9\" data-dz-decimals=\"1\" data-dz-suffix=\" %\">0</span><span class=\"dz-stat-label\">de disponibilité</span></div>\n  <div class=\"dz-stat\"><span class=\"dz-stat-value\" data-dz-count=\"3.2\" data-dz-decimals=\"1\" data-dz-suffix=\" M\">0</span><span class=\"dz-stat-label\">actions automatisées / mois</span></div>\n  <div class=\"dz-stat\"><span class=\"dz-stat-value\" data-dz-count=\"4.9\" data-dz-decimals=\"1\" data-dz-suffix=\"/5\">0</span><span class=\"dz-stat-label\">note moyenne clients</span></div>\n</div>"
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Fonctionnalités · grille 3 colonnes",
+   "icon": "fas fa-th-large",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Fonctionnalités",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Tout ce qu'il faut, rien de trop",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          },
+          {
+           "type": "blank",
+           "contents": "Chaque outil a été pensé pour vous faire gagner du temps dès le premier jour.",
+           "block": true,
+           "customClass": "dz-lead"
+          }
+         ]
+        }
+       },
+       {
+        "type": "container",
+        "customClass": "dz-grid dz-grid-3 dz-stagger",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-bolt\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Ultra rapide",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Pages chargées en moins d'une seconde, même sur mobile et en 4G.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-shield-alt\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Sécurisé par défaut",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Double authentification, rôles fins, données chiffrées et sauvegardes quotidiennes.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-magic\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Automatisations",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Relances, e-mails, notifications : les tâches répétitives tournent toutes seules.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-mobile-alt\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Pensé mobile",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Une interface fluide au doigt, installable comme une vraie application.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-plug\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Connecté",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "API, webhooks, WhatsApp, e-mail : branchez vos outils existants en quelques clics.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-chart-line\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Pilotage en temps réel",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Tableaux de bord clairs pour décider vite, sur des chiffres à jour.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true,
+    "customId": "fonctionnalites"
+   }
+  },
+  {
+   "name": "DZ · Fonctionnalités · bento",
+   "icon": "fas fa-border-all",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Plateforme",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Une base solide pour tous vos projets",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "container",
+        "customClass": "dz-bento dz-stagger",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-brand dz-span-4 dz-row-2 dz-spotlight",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\" style=\"background:rgba(255,255,255,.18);color:#fff\"><i class=\"fas fa-layer-group\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Tout-en-un",
+              "block": true,
+              "customClass": "dz-h3",
+              "textStyle": "h3"
+             },
+             {
+              "type": "blank",
+              "contents": "Site, application, espace client et outils internes partagent les mêmes données. Plus de copier-coller entre dix logiciels.",
+              "block": true,
+              "customClass": "dz-text"
+             },
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<div class=\"dz-progress\" data-dz-value=\"82\" style=\"margin-top:auto;background:rgba(255,255,255,.2)\"><span style=\"background:#fff\"></span></div><span class=\"dz-small\" style=\"color:rgba(255,255,255,.8)\">82 % de temps gagné en moyenne</span>"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-span-2",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-lock\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "RGPD",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Hébergé en France, vos données restent les vôtres.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-span-2",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon\"><i class=\"fas fa-sync-alt\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Synchro live",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Chaque modification est visible partout, instantanément.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-soft dz-span-3",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "type": "blank",
+            "isHTML": true,
+            "contents": "<div class=\"dz-cluster\"><div class=\"dz-ring\" style=\"--v:94\">94%</div><div><b class=\"dz-h4\" style=\"display:block;margin:0\">Satisfaction</b><span class=\"dz-text\">sur 1 200 avis vérifiés</span></div></div>"
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-span-3 dz-border-glow",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-icon dz-icon-gradient\"><i class=\"fas fa-robot\"></i></span>"
+             },
+             {
+              "type": "blank",
+              "contents": "IA intégrée",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Résumés, réponses automatiques et suggestions directement dans vos écrans.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Section · texte + visuel (alterné)",
+   "icon": "fas fa-align-left",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section dz-section-alt",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-split",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "container",
+         "customClass": "",
+         "htmlElement": "div",
+         "display": "block",
+         "contents": {
+          "above": [
+           {
+            "type": "blank",
+            "contents": "Automatisations",
+            "block": false,
+            "customClass": "dz-eyebrow"
+           },
+           {
+            "type": "blank",
+            "contents": "Vos process tournent pendant que vous dormez",
+            "block": true,
+            "customClass": "dz-h2",
+            "textStyle": "h2"
+           },
+           {
+            "type": "blank",
+            "contents": "Définissez une règle une fois. Relances clients, confirmations, rappels et rapports partent au bon moment, sans oubli.",
+            "block": true,
+            "customClass": "dz-lead"
+           },
+           {
+            "type": "blank",
+            "isHTML": true,
+            "contents": "<ul class=\"dz-check-list\" style=\"margin:1.5rem 0 2rem\">\n  <li>Déclencheurs sur n'importe quel événement</li>\n  <li>E-mails, SMS et WhatsApp personnalisés</li>\n  <li>Historique complet et reprise en cas d'erreur</li>\n</ul>"
+           },
+           {
+            "type": "link",
+            "text": "Découvrir",
+            "url": "#",
+            "link_src": "URL",
+            "link_style": "",
+            "link_class": "dz-btn dz-btn-soft",
+            "link_icon": "fas fa-arrow-right"
+           }
+          ]
+         }
+        },
+        {
+         "type": "blank",
+         "isHTML": true,
+         "contents": "<div class=\"dz-card dz-card-glass\" data-dz-reveal=\"right\" style=\"gap:1rem\">\n  <div class=\"dz-cluster\" style=\"justify-content:space-between\"><b>Workflow « Nouveau lead »</b><span class=\"dz-badge dz-badge-success\"><span class=\"dz-dot\"></span>Actif</span></div>\n  <div class=\"dz-timeline\">\n    <div><b>Formulaire reçu</b><div class=\"dz-small\">Déclencheur</div></div>\n    <div><b>Fiche client créée</b><div class=\"dz-small\">+ attribution au commercial</div></div>\n    <div><b>WhatsApp de bienvenue</b><div class=\"dz-small\">envoyé en 3 s</div></div>\n    <div><b>Relance J+2</b><div class=\"dz-small\">si pas de réponse</div></div>\n  </div>\n</div>"
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Étapes · comment ça marche",
+   "icon": "fas fa-list-ol",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Comment ça marche",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Opérationnel en 3 étapes",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "container",
+        "customClass": "dz-steps dz-stagger",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "container",
+           "customClass": "dz-step",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "Créez votre espace",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Inscription en 30 secondes, sans carte bancaire.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-step",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "Importez vos données",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Fichier Excel, CSV ou connexion directe à vos outils.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-step",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "Lancez-vous",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Invitez l'équipe, activez les automatisations, c'est parti.",
+              "block": true,
+              "customClass": "dz-text"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Tarifs · 3 offres + bascule annuel",
+   "icon": "fas fa-tags",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Tarifs",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Un prix simple, sans surprise",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          },
+          {
+           "type": "blank",
+           "contents": "Commencez gratuitement, évoluez quand vous êtes prêt.",
+           "block": true,
+           "customClass": "dz-lead"
+          }
+         ]
+        }
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div data-dz-pricing>\n  <div class=\"dz-center\" style=\"margin-bottom:2.5rem\">\n    <div class=\"dz-toggle\" data-dz-price-toggle=\"monthly\">\n      <button data-period=\"monthly\">Mensuel</button>\n      <button data-period=\"yearly\">Annuel <span class=\"dz-badge dz-badge-success\" style=\"margin-left:.3rem\">-20 %</span></button>\n    </div>\n  </div>\n  <div class=\"dz-pricing dz-stagger\">\n    <div class=\"dz-price-card\">\n      <div><b class=\"dz-h4\">Découverte</b><p class=\"dz-small\" style=\"margin:.3rem 0 0\">Pour tester et démarrer seul.</p></div>\n      <div class=\"dz-price\"><span class=\"dz-price-amount\">0 €</span><span class=\"dz-price-period\">/ mois</span></div>\n      <a class=\"dz-btn dz-btn-ghost dz-btn-block\" href=\"#\">Commencer</a>\n      <ul class=\"dz-check-list\"><li>1 utilisateur</li><li>3 projets</li><li>Support communautaire</li><li class=\"dz-no\">Automatisations</li></ul>\n    </div>\n    <div class=\"dz-price-card dz-featured\">\n      <span class=\"dz-badge dz-ribbon\" style=\"background:var(--dz-primary);color:#fff;border:0\">Le plus choisi</span>\n      <div><b class=\"dz-h4\">Pro</b><p class=\"dz-small\" style=\"margin:.3rem 0 0\">Pour les équipes qui grandissent.</p></div>\n      <div class=\"dz-price\"><span class=\"dz-price-amount\" data-monthly=\"29 €\" data-yearly=\"23 €\">29 €</span><span class=\"dz-price-period\">/ utilisateur / mois</span></div>\n      <a class=\"dz-btn dz-btn-block dz-btn-shine\" href=\"#\">Essayer 14 jours</a>\n      <ul class=\"dz-check-list\"><li>Utilisateurs illimités</li><li>Projets illimités</li><li>Automatisations</li><li>Support prioritaire</li></ul>\n    </div>\n    <div class=\"dz-price-card\">\n      <div><b class=\"dz-h4\">Entreprise</b><p class=\"dz-small\" style=\"margin:.3rem 0 0\">Sécurité et accompagnement dédiés.</p></div>\n      <div class=\"dz-price\"><span class=\"dz-price-amount\" data-monthly=\"99 €\" data-yearly=\"79 €\">99 €</span><span class=\"dz-price-period\">/ mois</span></div>\n      <a class=\"dz-btn dz-btn-dark dz-btn-block\" href=\"#\">Nous contacter</a>\n      <ul class=\"dz-check-list\"><li>SSO et journal d'audit</li><li>Hébergement dédié</li><li>SLA 99,9 %</li><li>Chef de projet dédié</li></ul>\n    </div>\n  </div>\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true,
+    "customId": "tarifs"
+   }
+  },
+  {
+   "name": "DZ · Témoignages · grille",
+   "icon": "fas fa-quote-right",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section dz-section-alt",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Témoignages",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Ils ont franchi le pas",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "container",
+        "customClass": "dz-grid dz-grid-3 dz-stagger",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "container",
+           "customClass": "dz-card dz-quote dz-card-hover",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "★★★★★",
+              "block": true,
+              "customClass": "dz-stars"
+             },
+             {
+              "type": "blank",
+              "contents": "« On a remplacé quatre outils par un seul. L'équipe a enfin une vue claire sur les clients. »",
+              "block": true,
+              "customClass": ""
+             },
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<div class=\"dz-person\"><span class=\"dz-avatar\">AL</span><div><div class=\"dz-person-name\">Amélie L.</div><div class=\"dz-person-role\">Directrice commerciale</div></div></div>"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-quote dz-card-hover",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "★★★★★",
+              "block": true,
+              "customClass": "dz-stars"
+             },
+             {
+              "type": "blank",
+              "contents": "« Mise en place en une semaine. Les relances automatiques nous ont fait gagner 30 % de chiffre. »",
+              "block": true,
+              "customClass": ""
+             },
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<div class=\"dz-person\"><span class=\"dz-avatar\" style=\"background:linear-gradient(135deg,#f472b6,#fb923c)\">KM</span><div><div class=\"dz-person-name\">Karim M.</div><div class=\"dz-person-role\">Gérant, agence immobilière</div></div></div>"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-quote dz-card-hover",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "contents": "★★★★★",
+              "block": true,
+              "customClass": "dz-stars"
+             },
+             {
+              "type": "blank",
+              "contents": "« Beau, rapide, et nos clients adorent l'appli sur leur téléphone. »",
+              "block": true,
+              "customClass": ""
+             },
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<div class=\"dz-person\"><span class=\"dz-avatar\" style=\"background:linear-gradient(135deg,#22d3ee,#10b981)\">SD</span><div><div class=\"dz-person-name\">Sophie D.</div><div class=\"dz-person-role\">Fondatrice</div></div></div>"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true,
+    "customId": "temoignages"
+   }
+  },
+  {
+   "name": "DZ · Témoignages · mur qui défile",
+   "icon": "fas fa-comments",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Avis clients",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Plus de 1 200 avis 5 étoiles",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div class=\"dz-marquee\" data-dz-speed=\"45\" style=\"--dz-gap:1.25rem\">\n  <div class=\"dz-marquee-track\" style=\"align-items:stretch\">\n    <div class=\"dz-card\" style=\"width:320px\"><span class=\"dz-stars\">★★★★★</span><p>Interface magnifique et super intuitive.</p><div class=\"dz-person\"><span class=\"dz-avatar dz-avatar-sm\">LB</span><span class=\"dz-person-name\">Lucas B.</span></div></div>\n    <div class=\"dz-card\" style=\"width:320px\"><span class=\"dz-stars\">★★★★★</span><p>Le support répond en quelques minutes.</p><div class=\"dz-person\"><span class=\"dz-avatar dz-avatar-sm\">NR</span><span class=\"dz-person-name\">Nadia R.</span></div></div>\n    <div class=\"dz-card\" style=\"width:320px\"><span class=\"dz-stars\">★★★★★</span><p>On a divisé par deux le temps de saisie.</p><div class=\"dz-person\"><span class=\"dz-avatar dz-avatar-sm\">TG</span><span class=\"dz-person-name\">Thomas G.</span></div></div>\n    <div class=\"dz-card\" style=\"width:320px\"><span class=\"dz-stars\">★★★★★</span><p>Enfin un outil que toute l'équipe utilise.</p><div class=\"dz-person\"><span class=\"dz-avatar dz-avatar-sm\">IF</span><span class=\"dz-person-name\">Inès F.</span></div></div>\n  </div>\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · FAQ · accordéon",
+   "icon": "fas fa-question-circle",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container-narrow",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "FAQ",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Questions fréquentes",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div class=\"dz-faq\">\n  <details open><summary>Puis-je essayer gratuitement ?</summary><div>Oui, 14 jours complets, sans carte bancaire. Vous gardez vos données si vous continuez.</div></details>\n  <details><summary>Mes données sont-elles en sécurité ?</summary><div>Hébergement en France, chiffrement, sauvegardes quotidiennes et double authentification.</div></details>\n  <details><summary>Puis-je annuler à tout moment ?</summary><div>Oui, en un clic depuis votre compte. Aucun engagement.</div></details>\n  <details><summary>Proposez-vous un accompagnement ?</summary><div>Oui : démarrage guidé, formation de l'équipe et support prioritaire sur les offres Pro et Entreprise.</div></details>\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true,
+    "customId": "faq"
+   }
+  },
+  {
+   "name": "DZ · Appel à l'action · bandeau dégradé",
+   "icon": "fas fa-bullhorn",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-cta dz-reveal",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "blank",
+         "contents": "Prêt à passer à la vitesse supérieure ?",
+         "block": true,
+         "customClass": "dz-h2",
+         "textStyle": "h2"
+        },
+        {
+         "type": "blank",
+         "contents": "Rejoignez les équipes qui ont déjà simplifié leur quotidien.",
+         "block": true,
+         "customClass": "dz-lead"
+        },
+        {
+         "type": "blank",
+         "isHTML": true,
+         "contents": "<div class=\"dz-cluster\" style=\"justify-content:center\"><a class=\"dz-btn dz-btn-lg dz-btn-light dz-magnetic\" href=\"#\">Commencer gratuitement <i class=\"fas fa-arrow-right\"></i></a><a class=\"dz-btn dz-btn-lg dz-btn-ghost\" style=\"--_fg:#fff;--_bd:rgba(255,255,255,.4)\" href=\"#\">Réserver une démo</a></div>"
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Capture de leads · zone pour ta vue Edit",
+   "icon": "fas fa-envelope-open-text",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-split",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "container",
+         "customClass": "",
+         "htmlElement": "div",
+         "display": "block",
+         "contents": {
+          "above": [
+           {
+            "type": "blank",
+            "contents": "Contact",
+            "block": false,
+            "customClass": "dz-eyebrow"
+           },
+           {
+            "type": "blank",
+            "contents": "Parlons de votre projet",
+            "block": true,
+            "customClass": "dz-h2",
+            "textStyle": "h2"
+           },
+           {
+            "type": "blank",
+            "contents": "Réponse sous 24 h ouvrées. Premier échange gratuit et sans engagement.",
+            "block": true,
+            "customClass": "dz-lead"
+           },
+           {
+            "type": "blank",
+            "isHTML": true,
+            "contents": "<div class=\"dz-stack\" style=\"margin-top:1.5rem\">\n  <div class=\"dz-cluster\"><span class=\"dz-icon\"><i class=\"fas fa-envelope\"></i></span><div><b>E-mail</b><div class=\"dz-small\">contact@exemple.fr</div></div></div>\n  <div class=\"dz-cluster\"><span class=\"dz-icon\"><i class=\"fas fa-phone\"></i></span><div><b>Téléphone</b><div class=\"dz-small\">01 23 45 67 89</div></div></div>\n  <div class=\"dz-cluster\"><span class=\"dz-icon\"><i class=\"fas fa-map-marker-alt\"></i></span><div><b>Adresse</b><div class=\"dz-small\">Paris, France</div></div></div>\n</div>"
+           }
+          ]
+         }
+        },
+        {
+         "type": "container",
+         "customClass": "dz-card dz-shadow-lg",
+         "htmlElement": "div",
+         "display": "block",
+         "contents": {
+          "above": [
+           {
+            "type": "blank",
+            "contents": "Écrivez-nous",
+            "block": true,
+            "customClass": "dz-h4",
+            "textStyle": "h3"
+           },
+           {
+            "type": "blank",
+            "contents": "⬇ Glisse ici ta vue <b>Edit</b> (table des leads). Le kit met le formulaire en forme tout seul. Supprime ce texte ensuite.",
+            "block": true,
+            "customClass": "dz-callout"
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true,
+    "customId": "contact"
+   }
+  },
+  {
+   "name": "DZ · Newsletter · champ + bouton",
+   "icon": "fas fa-paper-plane",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section-sm",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container-narrow",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-card dz-center dz-bg-mesh",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "blank",
+         "contents": "Recevez nos conseils chaque mois",
+         "block": true,
+         "customClass": "dz-h3",
+         "textStyle": "h3"
+        },
+        {
+         "type": "blank",
+         "contents": "Pas de spam. Désinscription en un clic.",
+         "block": true,
+         "customClass": "dz-text"
+        },
+        {
+         "type": "blank",
+         "contents": "⬇ Glisse ici une vue <b>Edit</b> avec un seul champ e-mail, et ajoute la classe <code>dz-inline-form</code> au conteneur qui l'entoure.",
+         "block": true,
+         "customClass": "dz-small"
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Compte à rebours · lancement",
+   "icon": "fas fa-hourglass-half",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "type": "container",
+      "customClass": "dz-center",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "blank",
+         "contents": "Lancement",
+         "block": false,
+         "customClass": "dz-eyebrow"
+        },
+        {
+         "type": "blank",
+         "contents": "Ouverture des inscriptions dans",
+         "block": true,
+         "customClass": "dz-h2",
+         "textStyle": "h2"
+        },
+        {
+         "type": "blank",
+         "isHTML": true,
+         "contents": "<div class=\"dz-countdown\" data-dz-countdown=\"2026-12-31T23:59:59\" data-dz-done=\"C'est parti !\" style=\"margin:1.5rem 0 2rem\">\n  <div><span data-dz-unit=\"days\">00</span><small>jours</small></div>\n  <div><span data-dz-unit=\"hours\">00</span><small>heures</small></div>\n  <div><span data-dz-unit=\"minutes\">00</span><small>min</small></div>\n  <div><span data-dz-unit=\"seconds\">00</span><small>sec</small></div>\n</div>"
+        },
+        {
+         "type": "link",
+         "text": "Être prévenu",
+         "url": "#",
+         "link_src": "URL",
+         "link_style": "",
+         "link_class": "dz-btn dz-btn-gradient dz-btn-lg",
+         "link_icon": "fas fa-bell"
+        }
+       ]
+      }
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Vidéo · section avec lecteur",
+   "icon": "fas fa-play-circle",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container-narrow",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Démo",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Voyez-le en action (2 min)",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div class=\"dz-video dz-glow-under\" data-dz-reveal=\"zoom\">\n  <iframe src=\"https://www.youtube-nocookie.com/embed/VIDEO_ID\" title=\"Vidéo\" loading=\"lazy\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Équipe · cartes membres",
+   "icon": "fas fa-users",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Équipe",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Les personnes derrière le projet",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "container",
+        "customClass": "dz-grid dz-grid-4 dz-stagger dz-center",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-center",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-avatar dz-avatar-lg\" style=\"margin:0 auto;\">SD</span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Sidy D.",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Fondateur · Data & IA",
+              "block": true,
+              "customClass": "dz-small"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-center",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-avatar dz-avatar-lg\" style=\"margin:0 auto;background:linear-gradient(135deg,#f472b6,#fb923c)\">MK</span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Marie K.",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Design produit",
+              "block": true,
+              "customClass": "dz-small"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-center",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-avatar dz-avatar-lg\" style=\"margin:0 auto;background:linear-gradient(135deg,#22d3ee,#10b981)\">YB</span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Yanis B.",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Développement",
+              "block": true,
+              "customClass": "dz-small"
+             }
+            ]
+           }
+          },
+          {
+           "type": "container",
+           "customClass": "dz-card dz-card-hover dz-center",
+           "htmlElement": "div",
+           "display": "block",
+           "contents": {
+            "above": [
+             {
+              "type": "blank",
+              "isHTML": true,
+              "contents": "<span class=\"dz-avatar dz-avatar-lg\" style=\"margin:0 auto;background:linear-gradient(135deg,#f59e0b,#ef4444)\">LP</span>"
+             },
+             {
+              "type": "blank",
+              "contents": "Léa P.",
+              "block": true,
+              "customClass": "dz-h4",
+              "textStyle": "h4"
+             },
+             {
+              "type": "blank",
+              "contents": "Relation client",
+              "block": true,
+              "customClass": "dz-small"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Avant / après · curseur",
+   "icon": "fas fa-adjust",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-section",
+    "htmlElement": "section",
+    "display": "block",
+    "contents": {
+     "type": "container",
+     "customClass": "dz-container",
+     "htmlElement": "div",
+     "display": "block",
+     "contents": {
+      "above": [
+       {
+        "type": "container",
+        "customClass": "dz-section-head dz-reveal",
+        "htmlElement": "div",
+        "display": "block",
+        "contents": {
+         "above": [
+          {
+           "type": "blank",
+           "contents": "Transformation",
+           "block": false,
+           "customClass": "dz-eyebrow"
+          },
+          {
+           "type": "blank",
+           "contents": "Glissez pour comparer",
+           "block": true,
+           "customClass": "dz-h2",
+           "textStyle": "h2"
+          }
+         ]
+        }
+       },
+       {
+        "type": "blank",
+        "isHTML": true,
+        "contents": "<div class=\"dz-compare\" style=\"max-width:900px;margin:0 auto\">\n  <img src=\"https://picsum.photos/seed/avant/1200/700?grayscale\" alt=\"Avant\">\n  <img src=\"https://picsum.photos/seed/avant/1200/700\" alt=\"Après\">\n</div>"
+       }
+      ]
+     }
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · Pied de page · 4 colonnes",
+   "icon": "fas fa-window-minimize",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-footer",
+    "htmlElement": "footer",
+    "display": "block",
+    "contents": {
+     "type": "blank",
+     "isHTML": true,
+     "contents": "<div class=\"dz-container\">\n  <div class=\"dz-footer-grid\">\n    <div class=\"dz-stack\" style=\"--dz-gap:1rem\">\n      <a class=\"dz-brand\" href=\"/\"><span class=\"dz-brand-mark\"></span>Marque</a>\n      <p class=\"dz-text\" style=\"max-width:34ch;margin:0\">La plateforme qui simplifie le quotidien des équipes ambitieuses.</p>\n      <div class=\"dz-socials\"><a href=\"#\" aria-label=\"LinkedIn\"><i class=\"fab fa-linkedin-in\"></i></a><a href=\"#\" aria-label=\"Instagram\"><i class=\"fab fa-instagram\"></i></a><a href=\"#\" aria-label=\"GitHub\"><i class=\"fab fa-github\"></i></a></div>\n    </div>\n    <div><div class=\"dz-footer-title\">Produit</div><ul><li><a href=\"#fonctionnalites\">Fonctionnalités</a></li><li><a href=\"#tarifs\">Tarifs</a></li><li><a href=\"#\">Nouveautés</a></li></ul></div>\n    <div><div class=\"dz-footer-title\">Société</div><ul><li><a href=\"#\">À propos</a></li><li><a href=\"#\">Blog</a></li><li><a href=\"#contact\">Contact</a></li></ul></div>\n    <div><div class=\"dz-footer-title\">Légal</div><ul><li><a href=\"#\">Mentions légales</a></li><li><a href=\"#\">Confidentialité</a></li><li><a href=\"#\">CGV</a></li></ul></div>\n  </div>\n  <div class=\"dz-footer-bottom\"><span>© 2026 Marque. Tous droits réservés.</span><span>Fait avec soin en France</span></div>\n</div>"
+    },
+    "fullPageWidth": true
+   }
+  },
+  {
+   "name": "DZ · App · en-tête de page + actions",
+   "icon": "fas fa-heading",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-page-head",
+    "htmlElement": "div",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "container",
+       "customClass": "",
+       "htmlElement": "div",
+       "display": "block",
+       "contents": {
+        "above": [
+         {
+          "type": "blank",
+          "contents": "Tableau de bord",
+          "block": false,
+          "customClass": "dz-eyebrow"
+         },
+         {
+          "type": "blank",
+          "contents": "Bonjour 👋",
+          "block": true,
+          "customClass": "dz-h3",
+          "textStyle": "h1"
+         },
+         {
+          "type": "blank",
+          "contents": "Voici ce qui s'est passé depuis votre dernière visite.",
+          "block": true,
+          "customClass": "dz-text"
+         }
+        ]
+       }
+      },
+      {
+       "type": "container",
+       "customClass": "dz-toolbar",
+       "htmlElement": "div",
+       "display": "block",
+       "contents": {
+        "above": [
+         {
+          "type": "link",
+          "text": "Exporter",
+          "url": "#",
+          "link_src": "URL",
+          "link_style": "",
+          "link_class": "dz-btn dz-btn-ghost dz-btn-sm",
+          "link_icon": "fas fa-download"
+         },
+         {
+          "type": "link",
+          "text": "Nouveau",
+          "url": "#",
+          "link_src": "URL",
+          "link_style": "",
+          "link_class": "dz-btn dz-btn-sm",
+          "link_icon": "fas fa-plus"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "DZ · App · rangée de KPI",
+   "icon": "fas fa-tachometer-alt",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<div class=\"dz-grid dz-grid-4 dz-stagger\">\n  <div class=\"dz-kpi\"><div class=\"dz-kpi-label\">Chiffre d'affaires <span class=\"dz-trend dz-trend-up\">▲ 12 %</span></div><div class=\"dz-kpi-value\" data-dz-count=\"48250\" data-dz-suffix=\" €\">0</div><div class=\"dz-progress dz-progress\" data-dz-value=\"72\"><span></span></div></div>\n  <div class=\"dz-kpi\"><div class=\"dz-kpi-label\">Nouveaux clients <span class=\"dz-trend dz-trend-up\">▲ 8 %</span></div><div class=\"dz-kpi-value\" data-dz-count=\"128\">0</div><div class=\"dz-progress\" data-dz-value=\"54\"><span></span></div></div>\n  <div class=\"dz-kpi\"><div class=\"dz-kpi-label\">Tickets ouverts <span class=\"dz-trend dz-trend-down\">▼ 3</span></div><div class=\"dz-kpi-value\" data-dz-count=\"17\">0</div><div class=\"dz-progress\" data-dz-value=\"30\"><span></span></div></div>\n  <div class=\"dz-kpi\"><div class=\"dz-kpi-label\">Satisfaction <span class=\"dz-trend dz-trend-up\">▲ 0,2</span></div><div class=\"dz-kpi-value\" data-dz-count=\"4.8\" data-dz-decimals=\"1\" data-dz-suffix=\"/5\">0</div><div class=\"dz-progress\" data-dz-value=\"96\"><span></span></div></div>\n</div>"
+   }
+  },
+  {
+   "name": "DZ · App · carte pour une vue",
+   "icon": "fas fa-window-maximize",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-card",
+    "htmlElement": "div",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "container",
+       "customClass": "dz-cluster",
+       "htmlElement": "div",
+       "display": "block",
+       "contents": {
+        "above": [
+         {
+          "type": "blank",
+          "contents": "Titre de la carte",
+          "block": true,
+          "customClass": "dz-h4 dz-mb-0",
+          "textStyle": "h3"
+         },
+         {
+          "type": "blank",
+          "contents": "12 éléments",
+          "block": false,
+          "customClass": "dz-badge dz-badge-neutral"
+         }
+        ]
+       }
+      },
+      {
+       "type": "blank",
+       "contents": "⬇ Glisse ici une vue (List, Kanban, Calendrier, Graphique…). Supprime ce texte ensuite.",
+       "block": true,
+       "customClass": "dz-callout"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "DZ · App · deux colonnes (liste + détail)",
+   "icon": "fas fa-columns",
+   "layout": {
+    "besides": [
+     {
+      "type": "container",
+      "customClass": "dz-card",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "blank",
+         "contents": "Liste",
+         "block": true,
+         "customClass": "dz-h4",
+         "textStyle": "h3"
+        },
+        {
+         "type": "blank",
+         "contents": "⬇ Vue List ici",
+         "block": true,
+         "customClass": "dz-callout"
+        }
+       ]
+      }
+     },
+     {
+      "type": "container",
+      "customClass": "dz-card",
+      "htmlElement": "div",
+      "display": "block",
+      "contents": {
+       "above": [
+        {
+         "type": "blank",
+         "contents": "Détail",
+         "block": true,
+         "customClass": "dz-h4",
+         "textStyle": "h3"
+        },
+        {
+         "type": "blank",
+         "contents": "⬇ Vue Show ou Edit ici",
+         "block": true,
+         "customClass": "dz-callout"
+        }
+       ]
+      }
+     }
+    ],
+    "widths": [
+     5,
+     7
+    ],
+    "breakpoints": [
+     "lg",
+     "lg"
+    ],
+    "customClass": "g-4"
+   }
+  },
+  {
+   "name": "DZ · App · état vide",
+   "icon": "fas fa-inbox",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-empty",
+    "htmlElement": "div",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "blank",
+       "isHTML": true,
+       "contents": "<span class=\"dz-icon dz-icon-round\"><i class=\"fas fa-inbox\"></i></span>"
+      },
+      {
+       "type": "blank",
+       "contents": "Rien pour le moment",
+       "block": true,
+       "customClass": "dz-h4 dz-mb-0",
+       "textStyle": "h3"
+      },
+      {
+       "type": "blank",
+       "contents": "Créez votre premier élément pour commencer.",
+       "block": true,
+       "customClass": "dz-text"
+      },
+      {
+       "type": "link",
+       "text": "Créer",
+       "url": "#",
+       "link_src": "URL",
+       "link_style": "",
+       "link_class": "dz-btn dz-btn-sm",
+       "link_icon": "fas fa-plus"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "DZ · App · fil d'activité",
+   "icon": "fas fa-stream",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-card",
+    "htmlElement": "div",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "blank",
+       "contents": "Activité récente",
+       "block": true,
+       "customClass": "dz-h4",
+       "textStyle": "h3"
+      },
+      {
+       "type": "blank",
+       "isHTML": true,
+       "contents": "<div class=\"dz-timeline\" style=\"margin-top:.5rem\">\n  <div><b>Devis #1042 accepté</b><div class=\"dz-small\">par Martin SARL · il y a 5 min</div></div>\n  <div><b>Nouveau lead</b><div class=\"dz-small\">formulaire du site · il y a 1 h</div></div>\n  <div><b>Facture #883 payée</b><div class=\"dz-small\">1 250 € · hier</div></div>\n</div>"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "DZ · App · messages (info, succès, alerte)",
+   "icon": "fas fa-info-circle",
+   "layout": {
+    "type": "container",
+    "customClass": "dz-stack",
+    "htmlElement": "div",
+    "display": "block",
+    "contents": {
+     "above": [
+      {
+       "type": "blank",
+       "contents": "<b>Info :</b> la synchronisation tourne toutes les 5 minutes.",
+       "block": true,
+       "customClass": "dz-callout"
+      },
+      {
+       "type": "blank",
+       "contents": "<b>C'est fait :</b> vos paramètres sont enregistrés.",
+       "block": true,
+       "customClass": "dz-callout dz-callout-success"
+      },
+      {
+       "type": "blank",
+       "contents": "<b>Attention :</b> 3 factures arrivent à échéance cette semaine.",
+       "block": true,
+       "customClass": "dz-callout dz-callout-warning"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "DZ · Mobile · barre d'onglets en bas",
+   "icon": "fas fa-mobile-alt",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<nav class=\"dz-bottom-nav dz-mobile-only\">\n  <a href=\"/\"><i class=\"fas fa-home\"></i>Accueil</a>\n  <a href=\"/page/recherche\"><i class=\"fas fa-search\"></i>Chercher</a>\n  <a href=\"/page/nouveau\"><i class=\"fas fa-plus-circle\"></i>Ajouter</a>\n  <a href=\"/page/notifications\"><i class=\"fas fa-bell\"></i>Alertes</a>\n  <a href=\"/auth/settings\"><i class=\"fas fa-user\"></i>Compte</a>\n</nav>"
+   }
+  },
+  {
+   "name": "DZ · Mobile · bouton flottant",
+   "icon": "fas fa-plus-circle",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<a class=\"dz-fab\" href=\"#\" aria-label=\"Ajouter\"><i class=\"fas fa-plus\"></i></a>"
+   }
+  },
+  {
+   "name": "DZ · Mobile · cartes défilantes (carrousel)",
+   "icon": "fas fa-grip-horizontal",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<div class=\"dz-scroller dz-grid-desktop\">\n  <div class=\"dz-card dz-card-hover\"><span class=\"dz-icon\"><i class=\"fas fa-rocket\"></i></span><b class=\"dz-h4\">Carte 1</b><p>Glissez horizontalement sur mobile.</p></div>\n  <div class=\"dz-card dz-card-hover\"><span class=\"dz-icon\"><i class=\"fas fa-heart\"></i></span><b class=\"dz-h4\">Carte 2</b><p>Grille classique sur ordinateur.</p></div>\n  <div class=\"dz-card dz-card-hover\"><span class=\"dz-icon\"><i class=\"fas fa-star\"></i></span><b class=\"dz-h4\">Carte 3</b><p>Accroche automatique au doigt.</p></div>\n</div>"
+   }
+  },
+  {
+   "name": "DZ · Outil · bouton clair / sombre",
+   "icon": "fas fa-moon",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<button class=\"dz-btn dz-btn-ghost dz-icon-btn dz-theme-btn\" data-dz-theme-toggle aria-label=\"Changer de thème\"><i class=\"fas fa-moon dz-moon\"></i><i class=\"fas fa-sun dz-sun\"></i></button>"
+   }
+  },
+  {
+   "name": "DZ · Outil · bouton avec confettis",
+   "icon": "fas fa-birthday-cake",
+   "layout": {
+    "type": "blank",
+    "isHTML": true,
+    "contents": "<button class=\"dz-btn dz-btn-gradient\" data-dz-confetti>Valider 🎉</button>"
+   }
+  }
+ ]
+}
