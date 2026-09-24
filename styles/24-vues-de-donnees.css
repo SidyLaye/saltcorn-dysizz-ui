@@ -345,3 +345,28 @@ a.dzv-ag:hover { background: var(--dzv-primary-soft); }
 .dzv-status-txt small { color: var(--dzv-mute); font-size: .78rem; }
 @keyframes dzv-pulse { 50% { opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .dzv-status-tile.t-danger .dzv-status-ic { animation: none; } }
+
+/* ---------- corps d'e-mail (fieldview dz_mail) ---------- */
+.dzv-mailtext { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; line-height: 1.65; color: var(--dzv-text); max-width: 78ch; }
+.dzv-mailtext .q { color: var(--dzv-mute); }
+.dzv-mailtext a { color: var(--dzv-ink); text-decoration: underline; }
+.dzv-mailframe { border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid var(--dzv-border); }
+.dzv-mailframe iframe { display: block; width: 100%; height: 360px; border: 0; background: #fff; }
+.dzv-mailimg { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .55rem .8rem; background: var(--dzv-surface-2); color: var(--dzv-soft); font-size: .82rem; border-bottom: 1px solid var(--dzv-border); }
+.dzv-mailimg button { margin-left: auto; border: 1px solid var(--dzv-border); background: var(--dzv-surface); border-radius: 99px; padding: .2rem .7rem; font-size: .8rem; font-weight: 600; color: var(--dzv-text); }
+/* lecteur de mail complet */
+.dzv-mail { max-width: 900px; }
+.dzv-mail-top { display: flex; gap: .8rem; align-items: center; }
+.dzv-mail-av { width: 42px; height: 42px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; background: var(--dzv-primary); text-transform: uppercase; }
+.dzv-mail-who { display: flex; flex-direction: column; min-width: 0; }
+.dzv-mail-n { font-weight: 650; }
+.dzv-mail-a { color: var(--dzv-mute); font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dzv-mail-when { margin-left: auto; color: var(--dzv-mute); font-size: .82rem; white-space: nowrap; }
+.dzv-mail-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.dzv-mail-actions .btn { border-radius: 99px; }
+/* bandeau « à régler » des solutions (Me…) */
+.dzv-top { flex-wrap: wrap; }
+.dzv-setup-hint { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; padding: .6rem .9rem; border-radius: 12px; background: color-mix(in srgb, var(--dzv-warning) 16%, var(--dzv-surface)); border: 1px solid color-mix(in srgb, var(--dzv-warning) 40%, transparent); font-size: .88rem; }
+.dzv-setup-hint[hidden] { display: none; }
+.dzv-setup-hint i { color: color-mix(in srgb, var(--dzv-warning) 75%, var(--dzv-text)); }
+.dzv-setup-hint a { margin-left: auto; }

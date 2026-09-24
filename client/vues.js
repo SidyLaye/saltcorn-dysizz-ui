@@ -137,7 +137,25 @@
     logApply(box);
   });
 
-  function start() { chips(); boards(); hello(); }
+  /* DZ mail : hauteur du cadre ajustée au contenu, images distantes à la demande */
+  function mailFrames() {
+    doc.querySelectorAll(".dzv-mailframe iframe:not([data-dzv-ok])").forEach(function (f) {
+      f.setAttribute("data-dzv-ok", "1");
+      var fit = function () { try { var d = f.contentDocument; if (d && d.body) f.style.height = Math.min(Math.max(d.documentElement.scrollHeight, 120), 4000) + "px"; } catch (e) { f.style.height = "70vh"; } };
+      f.addEventListener("load", function () { fit(); setTimeout(fit, 400); setTimeout(fit, 1500); });
+      fit();
+    });
+  }
+  doc.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-dzv-mailimg]");
+    if (!b) return;
+    var box = b.closest(".dzv-mailframe"), f = box.querySelector("iframe");
+    f.removeAttribute("data-dzv-ok");
+    f.srcdoc = f.srcdoc.replace("img-src data: cid:", "img-src data: cid: https: http:");
+    b.parentNode.remove(); mailFrames();
+  });
+
+  function start() { chips(); boards(); hello(); mailFrames(); }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start); else start();
   /* le contenu chargé en fenêtre ou rechargé par Saltcorn */
   doc.addEventListener("shown.bs.modal", start);

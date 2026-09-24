@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.4.0
+
+- **Accueil façon Windows 8** sur `/dysizz` : une tuile par appli (Me et ses modules), outil Dysizz (kit UI, workflows) et page d'administration Saltcorn, avec des infos en direct (mails non lus, workflows en erreur…), recherche au clavier, clair / sombre. Ajouté en tête du menu Saltcorn ; bouton « Ouvrir ici à la connexion ». Les autres plugins ajoutent leurs tuiles avec l'export `dysizz_hub`.
+- Affichage de champ **dz_mail** : corps d'e-mail HTML dans un cadre isolé (aucun script, images distantes bloquées jusqu'au clic, liens dans un nouvel onglet), ou texte lisible (retours à la ligne, liens, citations).
+- Bandeau « à régler » pour les solutions, graphique plus lisible sur téléphone.
+
 ## 3.3.0
 
 - 4 nouvelles vues : **DZ Graphique** (courbe, aire, barres dans le temps, regroupement fait par Postgres, plusieurs séries), **DZ Calendrier** (mois en grille, ajout et modification en fenêtre), **DZ Journal** (fil d'événements filtrable), **DZ Statut** (état des services). Voir docs/VUES.md.
