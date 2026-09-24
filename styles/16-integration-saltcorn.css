@@ -45,3 +45,11 @@ html.dz-builder .builder-library .card { max-height: 62vh; overflow-y: auto; pad
 /* aperçu des liens dans le builder : un <button> neutre, les classes du kit décident */
 :where(html.dz-builder button.is-builder-link) { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-align: inherit; }
 .with-link { cursor: pointer; }
+
+/* pages de démo par famille (dz-famille-*) */
+.dz-demo-fams{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.25rem}
+.dz-demo-fams .dz-chip{text-decoration:none}
+.dz-demo-label{max-width:var(--dz-container,1200px);margin:4rem auto .5rem;padding:1rem 1rem 0;border-top:1px solid var(--dz-border);font:600 .8rem/1.4 var(--dz-font-mono,ui-monospace,monospace);color:var(--dz-text-mute);letter-spacing:.02em}
+.dz-demo-note{display:inline-block;margin-left:.5rem;padding:.1rem .5rem;border-radius:999px;background:var(--dz-surface-2,rgba(127,127,127,.12));font-weight:500}
+.dz-demo-frame{position:relative;transform:translateZ(0);contain:layout paint;min-height:120px;border-block:1px dashed var(--dz-border)}
+.dz-demo-frame :is(.dz-cmdk,.dz-drawer,.dz-sheet){position:absolute}

@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.1.0
+
+- Une page de démo par famille (`dz-famille-<famille>`, 17 pages) : tous les blocs de la famille, avec leur nom, modifiables et copiables dans l'éditeur de pages. Navigation entre familles en haut de chaque page.
+- Le catalogue (`dz-catalogue`) ouvre ces pages ; la galerie admin reste accessible (`/dysizz-ui/galerie?f=all`).
+- Les éléments fixes (barres, tiroirs, boutons flottants) sont montrés dans un cadre pour ne pas recouvrir la page.
+
 ## 3.0.1 — 2026-09-24
 
 ### Corrigé

@@ -1025,7 +1025,7 @@ library = [{"name": b["name"], "icon": b["icon"], "layout": b["layout"]} for b i
 # ---- page dz-catalogue : l'index de TOUTES les familles (générée) ----
 from html import escape as _esc
 _cards = "".join(
-    f'<a class="dz-card dz-card-hover dz-card-link" href="/dysizz-ui/galerie?f={k}">'
+    f'<a class="dz-card dz-card-hover dz-card-link" href="/page/dz-famille-{k}">'
     f'<span class="dz-icon"><i class="{v["icon"]}"></i></span>'
     f'<h3 class="dz-h4">{_esc(v["label"])} <span class="dz-badge dz-badge-neutral">{len(v["blocks"])} blocs</span></h3>'
     f'<p class="dz-text">{_esc(v["description"])}</p></a>'
@@ -1034,12 +1034,39 @@ CATALOGUE["layout"] = convert_layout({"type": "blank", "isHTML": True, "contents
 <section class="dz-section"><div class="dz-container">
   <div class="dz-section-head"><span class="dz-eyebrow">Catalogue</span>
     <h1 class="dz-h1">Les {len(LIB)} blocs du kit</h1>
-    <p class="dz-lead">{sum(1 for v in fam_index.values() if v["blocks"])} familles. Clique sur une famille pour voir tous ses blocs, rendus en vrai. Tout voir d'un coup : <a href="/dysizz-ui/galerie?f=all">galerie complète</a>.</p></div>
+    <p class="dz-lead">{sum(1 for v in fam_index.values() if v["blocks"])} familles. Clique sur une famille pour ouvrir sa page de démo (modifiable dans l'éditeur). Tout voir d'un coup : <a href="/dysizz-ui/galerie?f=all">galerie complète</a> (admin).</p></div>
   <div class="dz-grid dz-grid-3">{_cards}</div>
 </div></section>"""})
+# ---- une page de démo par famille : tous ses blocs, modifiables dans le builder ----
+import re as _re
+_FIXED = _re.compile(r"dz-(nav|cookie|bottom-nav|bottomnav|fab|cmdk|drawer|sheet|to-top|scroll-progress|topbar)\b")
+_fam_nav = "".join(f'<a class="dz-chip" href="/page/dz-famille-{k}">{_esc(v["label"])}</a>'
+                   for k, v in fam_index.items() if v["blocks"])
+FAMILY_PAGES = []
+for k, v in fam_index.items():
+    if not v["blocks"]:
+        continue
+    head_html = f"""<section class="dz-section dz-demo-head"><div class="dz-container">
+  <div class="dz-section-head"><span class="dz-eyebrow"><a href="/page/dz-catalogue">Catalogue</a> · famille</span>
+    <h1 class="dz-h1">{_esc(v["label"])}</h1>
+    <p class="dz-lead">{_esc(v["description"])} — {len(v["blocks"])} blocs. Ouvre cette page dans l'éditeur pour modifier ou copier un bloc.</p></div>
+  <div class="dz-demo-fams">{_fam_nav}</div>
+</div></section>"""
+    blocks = [convert_layout({"type": "blank", "isHTML": True, "contents": head_html})]
+    for b in LIB:
+        if b["family"] != k:
+            continue
+        fixed = bool(_FIXED.search(json.dumps(b["layout"])))
+        label = text(_esc(b["name"]) + (' <span class="dz-demo-note">élément fixe ou qui s\'ouvre au clic : montré dans un cadre</span>' if fixed else ""),
+                     )
+        blocks.append(box("dz-demo-label", label))
+        blocks.append(box("dz-demo-frame", b["layout"]) if fixed else b["layout"])
+    FAMILY_PAGES.append(page(f"dz-famille-{k}", f"Famille · {v['label']}", f"Tous les blocs de la famille {v['label']}",
+                             blocks, no_menu=True, fluid=True))
+
 json.dump({"tables": [], "views": [], "plugins": [], "pages": [], "triggers": [], "roles": [], "library": library,
            "families": fam_index, "previous": PREVIOUS},
           open(os.path.join(OUT, "blocks.json"), "w"), ensure_ascii=False, indent=1)
-json.dump({"tables": [], "views": [], "plugins": [], "pages": [LANDING, PORTRAIT_PAGE, AGENCY, DASH, MOBILE, PAGE404_PAGE, CATALOGUE], "triggers": [], "roles": [], "library": []},
+json.dump({"tables": [], "views": [], "plugins": [], "pages": [LANDING, PORTRAIT_PAGE, AGENCY, DASH, MOBILE, PAGE404_PAGE, CATALOGUE] + FAMILY_PAGES, "triggers": [], "roles": [], "library": []},
           open(os.path.join(OUT, "demo-pages.json"), "w"), ensure_ascii=False, indent=1)
-print(len(LIB), "blocs ;", sum(1 for f in fam_index.values() if f["blocks"]), "familles ;", 7, "pages")
+print(len(LIB), "blocs ;", sum(1 for f in fam_index.values() if f["blocks"]), "familles ;", 7 + len(FAMILY_PAGES), "pages")
