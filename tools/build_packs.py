@@ -1021,6 +1021,22 @@ LIB.sort(key=lambda b: (ORDER.index(b["family"]), b["name"]))
 fam_index = {f: {"label": FAMILIES[f][0], "icon": FAMILIES[f][1], "description": FAMILIES[f][2],
                  "blocks": [b["name"] for b in LIB if b["family"] == f]} for f in ORDER}
 library = [{"name": b["name"], "icon": b["icon"], "layout": b["layout"]} for b in LIB]
+
+# ---- page dz-catalogue : l'index de TOUTES les familles (générée) ----
+from html import escape as _esc
+_cards = "".join(
+    f'<a class="dz-card dz-card-hover dz-card-link" href="/dysizz-ui/galerie?f={k}">'
+    f'<span class="dz-icon"><i class="{v["icon"]}"></i></span>'
+    f'<h3 class="dz-h4">{_esc(v["label"])} <span class="dz-badge dz-badge-neutral">{len(v["blocks"])} blocs</span></h3>'
+    f'<p class="dz-text">{_esc(v["description"])}</p></a>'
+    for k, v in fam_index.items() if v["blocks"])
+CATALOGUE["layout"] = convert_layout({"type": "blank", "isHTML": True, "contents": f"""
+<section class="dz-section"><div class="dz-container">
+  <div class="dz-section-head"><span class="dz-eyebrow">Catalogue</span>
+    <h1 class="dz-h1">Les {len(LIB)} blocs du kit</h1>
+    <p class="dz-lead">{sum(1 for v in fam_index.values() if v["blocks"])} familles. Clique sur une famille pour voir tous ses blocs, rendus en vrai. Tout voir d'un coup : <a href="/dysizz-ui/galerie?f=all">galerie complète</a>.</p></div>
+  <div class="dz-grid dz-grid-3">{_cards}</div>
+</div></section>"""})
 json.dump({"tables": [], "views": [], "plugins": [], "pages": [], "triggers": [], "roles": [], "library": library,
            "families": fam_index, "previous": PREVIOUS},
           open(os.path.join(OUT, "blocks.json"), "w"), ensure_ascii=False, indent=1)

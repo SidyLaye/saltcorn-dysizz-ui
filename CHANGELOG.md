@@ -2,6 +2,13 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.0.1 — 2026-09-24
+
+### Corrigé
+- La page `dz-catalogue` liste maintenant les 17 familles et les 390 blocs (elle ne montrait que les blocs de la v2).
+- Galerie : option « Tout » (`/dysizz-ui/galerie?f=all`) ; les éléments fixes (menu, bandeau cookies, palette, tiroirs) sont montrés dans un cadre au lieu de disparaître.
+- Cartes cliquables : plus de texte souligné.
+
 ## 3.0.0 — 2026-09-24
 
 ### Ajouté

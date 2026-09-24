@@ -94,21 +94,40 @@ const installPages = async (req, res) => {
   res.redirect("/dysizz-ui?ok=" + encodeURIComponent(`${src.pages.length} pages de démo installées.`));
 };
 
-/* galerie d'une famille : tous ses blocs rendus sur une seule page */
+/* galerie : tous les blocs d'une famille (ou de toutes : f=all), rendus en vrai */
 const galerie = async (req, res) => {
   if (!isAdmin(req)) return denied(res);
   const pack = readPack("blocks.json");
   const f = (req.query && req.query.f) || "site";
-  const fam = pack.families[f];
-  if (!fam) return res.redirect("/dysizz-ui");
+  const fams = f === "all" ? Object.keys(pack.families) : [f];
+  if (!fams.every((k) => pack.families[k])) return res.redirect("/dysizz-ui");
   const render = require("@saltcorn/markup/layout");
   const { pub } = require("../core");
-  const blocks = pack.library.filter((l) => fam.blocks.includes(l.name));
-  const body = blocks.map((l) => `<div class="dzg-item"><div class="dzg-label">${esc(l.name)}</div>${render({ blockDispatch: {}, layout: l.layout, role: 1, req })}</div>`).join("");
-  const nav = Object.entries(pack.families).filter(([, x]) => x.blocks.length).map(([k, x]) => `<a class="dz-chip${k === f ? " dz-active" : ""}" href="?f=${k}">${esc(x.label)} (${x.blocks.length})</a>`).join("");
-  res.sendWrap({ title: `Galerie · ${fam.label}`, requestFluidLayout: true, headers: [{ css: pub(`dz-f-${f}.css`) }] }, { above: [{ type: "blank", contents: `
-<style>.dzg-item{position:relative;margin:0 0 3rem}.dzg-label{position:sticky;top:0;z-index:5;display:inline-block;margin:0 0 .5rem 1rem;padding:.25rem .7rem;border-radius:99px;background:var(--dz-text);color:var(--dz-bg);font:600 .78rem var(--dz-font-mono)}</style>
-<div class="dz-container" style="padding:1rem 0"><a href="/dysizz-ui" class="small">← Kit de design</a><h1 class="dz-h2">${esc(fam.label)}</h1><p class="dz-lead">${esc(fam.description)}</p><div class="dz-chips" style="flex-wrap:wrap;gap:.4rem">${nav}</div></div>${body}` }] });
+  const { EMBED } = require("../assets");
+  const FIXED = /dz-(nav|cookie|bottom-nav|bottomnav|fab|cmdk|drawer|sheet|to-top|scroll-progress|topbar)\b/;
+  const body = fams.map((k) => {
+    const fam = pack.families[k];
+    const blocks = pack.library.filter((l) => fam.blocks.includes(l.name));
+    return `<h2 class="dz-h2 dzg-fam" id="fam-${esc(k)}">${esc(fam.label)} <span class="dz-small">${blocks.length} blocs</span></h2>` +
+      blocks.map((l) => {
+        const html = render({ blockDispatch: {}, layout: l.layout, role: 1, req });
+        const note = FIXED.test(html) ? '<span class="dzg-note">élément fixe ou qui s\'ouvre au clic : montré dans un cadre</span>' : "";
+        return `<div class="dzg-item"><div class="dzg-label">${esc(l.name)}${note}</div><div class="dzg-frame">${html}</div></div>`;
+      }).join("");
+  }).join("");
+  const nav = [["all", "Tout", pack.library.length], ...Object.entries(pack.families).filter(([, x]) => x.blocks.length).map(([k, x]) => [k, x.label, x.blocks.length])]
+    .map(([k, l, n]) => `<a class="dz-chip${k === f ? " dz-active" : ""}" href="?f=${k}">${esc(l)} (${n})</a>`).join("");
+  const headers = fams.filter((k) => EMBED[`dz-f-${k}.css`]).map((k) => ({ css: pub(`dz-f-${k}.css`) }));
+  res.sendWrap({ title: `Galerie · ${f === "all" ? "tout" : pack.families[f].label}`, requestFluidLayout: true, headers }, { above: [{ type: "blank", contents: `
+<style>
+.dzg-item{margin:0 0 2.5rem}
+.dzg-label{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:0 1rem .5rem;font:600 .8rem var(--dz-font-mono)}
+.dzg-note{font:400 .72rem var(--dz-font-body);color:var(--dz-text-mute)}
+.dzg-frame{position:relative;transform:translateZ(0);contain:layout paint;min-height:90px;border-block:1px dashed var(--dz-border)}
+.dzg-frame :is(.dz-cmdk,.dz-drawer,.dz-sheet,.dz-lightbox){position:absolute}
+.dzg-fam{margin:3rem 1rem 1.5rem}
+</style>
+<div class="dz-container" style="padding:1rem 0"><a href="/dysizz-ui" class="small">← Kit de design</a><h1 class="dz-h2">Galerie</h1><div class="dz-chips" style="flex-wrap:wrap;gap:.4rem">${nav}</div></div>${body}` }] });
 };
 
 module.exports = { adminPage, saveFamilies, installPages, galerie, emptyPack };

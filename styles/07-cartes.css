@@ -40,3 +40,4 @@
 .dz-icon-gradient { background: var(--dz-gradient); color: var(--dz-on-primary); box-shadow: var(--dz-shadow-glow); }
 .dz-icon-lg { width: 60px; height: 60px; font-size: 1.5rem; }
 .dz-icon-round { border-radius: 50%; }
+a.dz-card, a.dz-card-link, a.dz-card:hover, a.dz-card-link:hover { text-decoration: none; color: inherit; }
