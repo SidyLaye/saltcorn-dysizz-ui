@@ -1,0 +1,151 @@
+/* ---------------------------------------------------------------------
+   2. UNIVERS (html[data-dz-preset="…"]) ET STYLES (html[data-dz-style="…"])
+   Un univers = une identité complète : couleurs claires ET sombres,
+   polices, forme des boutons, graisse des titres. Le style ajuste
+   ensuite la matière (ombres, verre, bordures).
+   --------------------------------------------------------------------- */
+
+/* NOCTURNE — noir profond, accent citron, sur-titres en mono. Tech / SaaS / agence */
+[data-dz-preset="nocturne"] {
+  --dz-primary-ink: #4a6800;
+  --dz-primary: #c8f23c; --dz-on-primary: #0b0c07; --dz-accent: #7cf7d4; --dz-accent-2: #f2f2ee;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 600; --dz-heading-tracking: -.045em;
+  --dz-radius: 12px; --dz-btn-radius: 10px;
+  --dz-bg: #f6f6f2; --dz-bg-soft: #ededE7; --dz-surface: #ffffff; --dz-surface-2: #f1f1ec;
+  --dz-text: #0b0c0a; --dz-text-soft: #4a4c45; --dz-text-mute: #8a8c82;
+  --dz-border: rgba(11,12,10,.1); --dz-border-strong: rgba(11,12,10,.2);
+  --dz-gradient: linear-gradient(120deg, #c8f23c, #7cf7d4);
+  --dz-gradient-3: linear-gradient(100deg, #0b0c0a 0%, #3d4a12 60%, #0b0c0a 100%);
+}
+[data-dz-preset="nocturne"][data-bs-theme="dark"] {
+  --dz-primary-ink: #c8f23c;
+  --dz-bg: #0a0a0b; --dz-bg-soft: #111113; --dz-surface: #131315; --dz-surface-2: #1a1a1d;
+  --dz-text: #f2f2ee; --dz-text-soft: #a7a8a1; --dz-text-mute: #6d6e68;
+  --dz-border: rgba(255,255,255,.08); --dz-border-strong: rgba(255,255,255,.16);
+  --dz-glass: rgba(10,10,11,.6); --dz-glass-border: rgba(255,255,255,.07);
+  --dz-gradient-3: linear-gradient(100deg, #f2f2ee 0%, #c8f23c 55%, #f2f2ee 100%);
+  --dz-shadow-glow: 0 0 0 1px rgba(200,242,60,.25), 0 10px 40px -10px rgba(200,242,60,.35);
+}
+
+/* ÉDITORIAL — papier crème, encre, orange vif, titres serif italiques. Marque perso / consultant / média */
+[data-dz-preset="editorial"] {
+  --dz-primary: #ff4f1f; --dz-on-primary: #fff; --dz-accent: #141210; --dz-accent-2: #ff4f1f;
+  --dz-font-accent: "Instrument Serif", "Fraunces", Georgia, serif; --dz-accent-style: italic;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 500; --dz-heading-tracking: -.035em;
+  --dz-radius: 6px; --dz-btn-radius: 999px;
+  --dz-bg: #f3efe6; --dz-bg-soft: #ebe5d8; --dz-surface: #fbf9f4; --dz-surface-2: #efe9dd;
+  --dz-text: #141210; --dz-text-soft: #4f4a42; --dz-text-mute: #8d867a;
+  --dz-border: rgba(20,18,16,.12); --dz-border-strong: rgba(20,18,16,.28);
+  --dz-gradient: linear-gradient(120deg, #ff4f1f, #ff8a3d);
+  --dz-gradient-3: linear-gradient(100deg, #ff4f1f, #ff8a3d);
+  --dz-shadow-sm: 0 1px 0 rgba(20,18,16,.06); --dz-shadow: 0 1px 0 rgba(20,18,16,.08), 0 12px 30px -18px rgba(20,18,16,.25);
+}
+[data-dz-preset="editorial"][data-bs-theme="dark"] {
+  --dz-bg: #141210; --dz-bg-soft: #1b1916; --dz-surface: #1e1b18; --dz-surface-2: #26221e;
+  --dz-text: #f3efe6; --dz-text-soft: #c2baab; --dz-text-mute: #8d867a; --dz-accent: #f3efe6;
+  --dz-border: rgba(243,239,230,.1); --dz-border-strong: rgba(243,239,230,.22);
+  --dz-glass: rgba(20,18,16,.7); --dz-glass-border: rgba(243,239,230,.08);
+}
+
+/* STUDIO — blanc, noir, bleu électrique, angles vifs, titres très gras. Portfolio / créatif / produit */
+[data-dz-preset="studio"] {
+  --dz-primary: #2447ff; --dz-on-primary: #fff; --dz-accent: #ff3ea5; --dz-accent-2: #ffd21f;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 800; --dz-heading-tracking: -.05em; --dz-heading-case: none;
+  --dz-radius: 2px; --dz-btn-radius: 0px; --dz-border-w: 1.5px;
+  --dz-bg: #ffffff; --dz-bg-soft: #f4f4f1; --dz-surface: #ffffff; --dz-surface-2: #f4f4f1;
+  --dz-text: #0a0a0a; --dz-text-soft: #3d3d3d; --dz-text-mute: #858585;
+  --dz-border: #0a0a0a; --dz-border-strong: #0a0a0a;
+  --dz-gradient: linear-gradient(120deg, #2447ff, #ff3ea5);
+  --dz-gradient-3: linear-gradient(100deg, #2447ff, #ff3ea5, #ffd21f);
+  --dz-shadow-sm: 3px 3px 0 #0a0a0a; --dz-shadow: 5px 5px 0 #0a0a0a; --dz-shadow-lg: 8px 8px 0 #0a0a0a; --dz-shadow-glow: 5px 5px 0 #2447ff;
+}
+[data-dz-preset="studio"][data-bs-theme="dark"] {
+  --dz-bg: #0a0a0a; --dz-bg-soft: #141414; --dz-surface: #111; --dz-surface-2: #1a1a1a;
+  --dz-text: #fafafa; --dz-text-soft: #bdbdbd; --dz-text-mute: #7a7a7a;
+  --dz-border: #fafafa; --dz-border-strong: #fafafa;
+  --dz-shadow-sm: 3px 3px 0 #fafafa; --dz-shadow: 5px 5px 0 #fafafa; --dz-shadow-lg: 8px 8px 0 #fafafa;
+}
+
+/* AURORA — violet / cyan, dégradés, verre. SaaS grand public / IA */
+[data-dz-preset="aurora"] {
+  --dz-primary: #6d5efc; --dz-accent: #22d3ee; --dz-accent-2: #f472b6;
+}
+
+/* TERRE — sable, olive, terracotta, serif doux. Artisans / bien-être / immobilier / restauration */
+[data-dz-preset="terre"] {
+  --dz-primary: #5a6b34; --dz-on-primary: #fbf7ef; --dz-accent: #c65a3a; --dz-accent-2: #d9a441;
+  --dz-font-accent: "Fraunces", Georgia, serif; --dz-accent-style: italic;
+  --dz-heading-weight: 600; --dz-heading-tracking: -.025em;
+  --dz-radius: 20px; --dz-btn-radius: 999px;
+  --dz-bg: #f4eee3; --dz-bg-soft: #ebe3d4; --dz-surface: #fbf7ef; --dz-surface-2: #efe7d8;
+  --dz-text: #2a2419; --dz-text-soft: #5e5445; --dz-text-mute: #948973;
+  --dz-border: rgba(42,36,25,.12); --dz-border-strong: rgba(42,36,25,.24);
+  --dz-gradient: linear-gradient(135deg, #5a6b34, #c65a3a);
+  --dz-gradient-3: linear-gradient(100deg, #c65a3a, #d9a441);
+}
+[data-dz-preset="terre"][data-bs-theme="dark"] {
+  --dz-primary-ink: #a8bb6c;
+  --dz-primary: #a8bb6c; --dz-on-primary: #1a1710;
+  --dz-bg: #1a1710; --dz-bg-soft: #211d15; --dz-surface: #242018; --dz-surface-2: #2d281e;
+  --dz-text: #f4eee3; --dz-text-soft: #c9bfae; --dz-text-mute: #948973;
+  --dz-border: rgba(244,238,227,.1); --dz-border-strong: rgba(244,238,227,.2);
+  --dz-glass: rgba(26,23,16,.7); --dz-glass-border: rgba(244,238,227,.08);
+}
+
+/* LUXE — noir chaud, or, serif, espace. Hôtellerie / mode / premium */
+[data-dz-preset="luxe"] {
+  --dz-primary-ink: #8a6a2f;
+  --dz-primary: #b8914a; --dz-on-primary: #0e0c09; --dz-accent: #e6d3a8; --dz-accent-2: #b8914a;
+  --dz-font-accent: "Playfair Display", Georgia, serif; --dz-accent-style: italic;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 400; --dz-heading-tracking: -.02em;
+  --dz-radius: 2px; --dz-btn-radius: 2px;
+  --dz-bg: #f7f3ec; --dz-bg-soft: #efe8dc; --dz-surface: #fffdf8; --dz-surface-2: #f2ebdf;
+  --dz-text: #0e0c09; --dz-text-soft: #4d463b; --dz-text-mute: #8f8577;
+  --dz-border: rgba(14,12,9,.12); --dz-border-strong: rgba(14,12,9,.25);
+  --dz-gradient: linear-gradient(120deg, #8a6a2f, #d9b97a);
+  --dz-gradient-3: linear-gradient(100deg, #8a6a2f, #e6d3a8, #8a6a2f);
+  --dz-shadow-sm: none; --dz-shadow: 0 30px 60px -30px rgba(14,12,9,.25); --dz-shadow-glow: none;
+}
+[data-dz-preset="luxe"][data-bs-theme="dark"] {
+  --dz-primary-ink: #d9b97a;
+  --dz-bg: #0e0c09; --dz-bg-soft: #15120e; --dz-surface: #17140f; --dz-surface-2: #1f1b15;
+  --dz-text: #f2ead9; --dz-text-soft: #bfb39c; --dz-text-mute: #857a67;
+  --dz-border: rgba(242,234,217,.1); --dz-border-strong: rgba(242,234,217,.22);
+  --dz-glass: rgba(14,12,9,.72); --dz-glass-border: rgba(242,234,217,.08);
+}
+
+/* ---- styles (matière) ---- */
+[data-dz-style="minimal"] {
+  --dz-shadow-sm: none;
+  --dz-shadow: 0 1px 0 var(--dz-border);
+  --dz-shadow-lg: 0 1px 0 var(--dz-border);
+  --dz-shadow-glow: none;
+}
+[data-dz-style="brutal"] {
+  --dz-radius: 4px; --dz-btn-radius: 4px; --dz-border-w: 2px;
+  --dz-border: var(--dz-text); --dz-border-strong: var(--dz-text);
+  --dz-shadow-sm: 3px 3px 0 var(--dz-text); --dz-shadow: 5px 5px 0 var(--dz-text);
+  --dz-shadow-lg: 8px 8px 0 var(--dz-text); --dz-shadow-glow: 5px 5px 0 var(--dz-text);
+}
+[data-dz-style="glass"] .dz-card,
+[data-dz-style="glass"].dz-skin .card {
+  background: var(--dz-glass);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  border-color: var(--dz-glass-border);
+}
+
+/* mots mis en valeur : serif italique dans les univers éditoriaux */
+.dz-accent-word, .dz-h1 em, .dz-h2 em, .dz-display em, .dz-h3 em, h1 em, h2 em {
+  font-family: var(--dz-font-accent);
+  font-style: var(--dz-accent-style);
+  font-weight: inherit;
+  letter-spacing: -.01em;
+}
+[data-dz-preset="editorial"] .dz-h1 em, [data-dz-preset="editorial"] .dz-display em, [data-dz-preset="editorial"] .dz-h2 em,
+[data-dz-preset="terre"] .dz-h1 em, [data-dz-preset="terre"] .dz-display em, [data-dz-preset="terre"] .dz-h2 em,
+[data-dz-preset="luxe"] .dz-h1 em, [data-dz-preset="luxe"] .dz-display em, [data-dz-preset="luxe"] .dz-h2 em { font-weight: 400; color: var(--dz-primary-ink); }

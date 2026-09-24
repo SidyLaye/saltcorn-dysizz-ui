@@ -13,6 +13,7 @@
 
   var doc = document;
   var root = doc.documentElement;
+  var selfSrc = (document.currentScript && document.currentScript.src) || "";
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   /* réglage « Animations » : on (défaut) | system (suit le réglage du visiteur) | off */
@@ -80,6 +81,54 @@
         if (el.hasAttribute("data-dz-count")) countUp(el, true);
         if (el.classList.contains("dz-progress")) { var b = el.querySelector("span"); if (b) b.style.width = el.dataset.dzValue + "%"; }
       } else io.observe(el);
+    });
+  }
+
+  /* ---------- 1b. classes « sans code » ----------
+     Le builder de Saltcorn ne permet que des classes (pas d'attributs data-*).
+     Chaque comportement du kit existe donc aussi sous forme de classe ; on la
+     traduit ici en attribut, avant toute initialisation. Liste complète :
+       dz-reveal-<up|fade|zoom|blur|left|right|flip>   apparition
+       dz-counter       anime le nombre écrit dans le texte (« 48 250 € »)
+       dz-typewriter    machine à écrire : « mot 1 | mot 2 | mot 3 »
+       dz-countdown     compte à rebours : le texte est la date (2026-12-31 18:00)
+       dz-progress-<0..100>  barre de progression
+       dz-parallax-<slow|fast|reverse>  parallaxe
+       dz-open-<id> / dz-close  ouvre / ferme un panneau (#id)
+       dz-theme-toggle, dz-dismiss, dz-copy, dz-confetti, dz-tilt, dz-magnetic,
+       dz-cookie, dz-menu-toggle, dz-cmdk-open, dz-tabs-auto, dz-hscroll, dz-slider,
+       dz-zoomable (image agrandie au clic), dz-letters (lettres qui montent), dz-words */
+  var CLASS_FLAGS = { "dz-theme-toggle": "data-dz-theme-toggle", "dz-dismiss": "data-dz-dismiss", "dz-copy": "data-dz-copy", "dz-confetti": "data-dz-confetti", "dz-tilt": "data-dz-tilt", "dz-cookie": "data-dz-cookie", "dz-menu-toggle": "data-dz-menu-toggle", "dz-cmdk-open": "data-dz-cmdk-open", "dz-tabs-auto": "data-dz-autoplay", "dz-hscroll": "data-dz-hscroll", "dz-slider": "data-dz-slider", "dz-close": "data-dz-close", "dz-zoomable": "data-dz-lightbox", "dz-words": "data-dz-words", "dz-letters": "data-dz-split" };
+  function parseNumberText(t) {
+    var m = String(t).match(/^([^\d-]*?)(-?\d[\d\s  .,]*\d|-?\d)(.*)$/);
+    if (!m) return null;
+    var raw = m[2].replace(/[\s  ]/g, ""), dec = 0;
+    var d = raw.match(/[.,](\d{1,2})$/);
+    if (d && !(raw.split(/[.,]/).length > 2)) { dec = d[1].length; raw = raw.slice(0, -d[0].length).replace(/[.,]/g, "") + "." + d[1]; }
+    else raw = raw.replace(/[.,]/g, "");
+    return { prefix: m[1], value: raw, decimals: dec, suffix: m[3] };
+  }
+  function classesToData(scope) {
+    withSelf(scope, "[class*='dz-']").forEach(function (el) {
+      if (el._dzCls) return;
+      el._dzCls = 1;
+      var cl = el.classList;
+      for (var i = 0; i < cl.length; i++) {
+        var c = cl[i], m;
+        if (CLASS_FLAGS[c] && !el.hasAttribute(CLASS_FLAGS[c])) el.setAttribute(CLASS_FLAGS[c], c === "dz-copy" ? "" : "");
+        else if ((m = c.match(/^dz-reveal-(up|fade|zoom|blur|left|right|flip)$/)) && !el.hasAttribute("data-dz-reveal")) el.setAttribute("data-dz-reveal", m[1]);
+        else if ((m = c.match(/^dz-open-([A-Za-z][\w-]*)$/)) && !el.hasAttribute("data-dz-open")) el.setAttribute("data-dz-open", "#" + m[1]);
+        else if ((m = c.match(/^dz-progress-(\d{1,3})$/)) && !el.hasAttribute("data-dz-value")) { el.setAttribute("data-dz-value", m[1]); cl.add("dz-progress"); if (!el.firstElementChild) el.appendChild(doc.createElement("span")); }
+        else if ((m = c.match(/^dz-parallax-(slow|fast|reverse)$/)) && !el.hasAttribute("data-dz-parallax")) el.setAttribute("data-dz-parallax", { slow: "0.1", fast: "0.35", reverse: "-0.2" }[m[1]]);
+        else if (c === "dz-counter" && !el.hasAttribute("data-dz-count")) {
+          var n = parseNumberText(el.textContent.trim());
+          if (n) { el.setAttribute("data-dz-count", n.value); if (n.decimals) el.setAttribute("data-dz-decimals", n.decimals); if (n.prefix) el.setAttribute("data-dz-prefix", n.prefix); if (n.suffix) el.setAttribute("data-dz-suffix", n.suffix); }
+        } else if (c === "dz-typewriter" && !el.hasAttribute("data-dz-typed")) el.setAttribute("data-dz-typed", el.textContent.trim());
+        else if (c === "dz-countdown" && !el.hasAttribute("data-dz-countdown")) {
+          var t = el.textContent.trim().replace(" ", "T");
+          if (!isNaN(new Date(t).getTime())) { el.setAttribute("data-dz-countdown", t); el.textContent = ""; }
+        }
+      }
     });
   }
 
@@ -169,39 +218,71 @@
     });
   }
 
-  /* ---------- 7. parallaxe + état de défilement ---------- */
+  /* ---------- 7. parallaxe + état de défilement ----------
+     Règle d'or : rien n'est calculé à chaque image pendant le défilement.
+     - navigateurs récents : parallaxe, mots, défilement horizontal et barre de
+       progression sont animés par le CSS (animation-timeline), hors du JS ;
+     - « défilé / défilé loin » : deux sentinelles + IntersectionObserver ;
+     - vieux navigateurs : repli JS, lectures groupées puis écritures groupées,
+       et jamais de variable posée sur <html> (ça recalculerait toute la page). */
+  var cssSDA = !!(window.CSS && CSS.supports && CSS.supports("animation-timeline: view()"));
   var parallaxEls = [];
   function initParallax(scope) {
     withSelf(scope, "[data-dz-parallax],.dz-parallax").forEach(function (el) {
       if (!once(el, "Par")) return;
-      parallaxEls.push(el);
+      var sp = parseFloat(el.getAttribute("data-dz-parallax"));
+      if (!isNaN(sp)) el.style.setProperty("--dz-speed", sp);
+      if (!cssSDA) parallaxEls.push(el);
     });
+  }
+  function initScrollState() {
+    if (!("IntersectionObserver" in window)) return;
+    [[12, "dz-scrolled"], [700, "dz-scrolled-far"]].forEach(function (d) {
+      var s = doc.createElement("div");
+      s.setAttribute("aria-hidden", "true");
+      s.style.cssText = "position:absolute;left:0;width:1px;height:1px;pointer-events:none;visibility:hidden;top:" + d[0] + "px";
+      doc.body.appendChild(s);
+      new IntersectionObserver(function (en) {
+        var e = en[en.length - 1];
+        root.classList.toggle(d[1], !e.isIntersecting && e.boundingClientRect.top < 0);
+      }).observe(s);
+    });
+  }
+  /* bandeau d'annonce au-dessus de la barre fixe : mesuré au chargement / redimensionnement seulement */
+  var topbarH = 0, navs = [], lastNavTop = -1;
+  function measureTopbar() {
+    var tb = doc.querySelector(".dz-topbar:not(.dz-dismissed)");
+    topbarH = tb ? tb.offsetTop + tb.offsetHeight : 0;
+    navs = $all(".dz-nav");
+    lastNavTop = -1;
   }
   var ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function () {
-      var y = window.scrollY || window.pageYOffset;
-      root.classList.toggle("dz-scrolled", y > 12);
-      /* bandeau d'annonce au-dessus de la barre fixe : la barre descend d'autant, puis remonte au défilement */
-      var tb = doc.querySelector(".dz-topbar:not(.dz-dismissed)");
-      root.style.setProperty("--dz-nav-top", tb ? Math.max(0, tb.getBoundingClientRect().bottom) + "px" : "0px");
-      root.classList.toggle("dz-scrolled-far", y > 700);
-      var h = doc.documentElement.scrollHeight - window.innerHeight;
-      root.style.setProperty("--dz-progress", h > 0 ? (y / h).toFixed(4) : 0);
-      if (!motionOff()) {
-        parallaxEls = parallaxEls.filter(function (el) { return doc.body.contains(el); });
-        parallaxEls.forEach(function (el) {
-          var speed = parseFloat(el.getAttribute("data-dz-parallax")) || 0.2;
-          var r = el.getBoundingClientRect();
-          var center = r.top + r.height / 2 - window.innerHeight / 2;
-          el.style.transform = "translate3d(0," + (-center * speed).toFixed(1) + "px,0)";
-        });
-      }
-      if (wordEls.length) updateWords();
-      if (hscrolls.length) updateHScroll();
       ticking = false;
+      var y = window.scrollY || window.pageYOffset;
+      /* 1. la barre suit le bandeau (écrit seulement si la valeur change) */
+      var nt = topbarH ? Math.max(0, topbarH - y) : 0;
+      if (nt !== lastNavTop) { lastNavTop = nt; for (var i = 0; i < navs.length; i++) navs[i].style.setProperty("--dz-nav-top", nt + "px"); }
+      if (cssSDA || motionOff()) return;
+      /* 2. repli pour les navigateurs sans animation-timeline : toutes les lectures, puis toutes les écritures */
+      var vh = window.innerHeight, reads = [];
+      var bar = doc.querySelector(".dz-scroll-progress");
+      if (bar) { var h = doc.documentElement.scrollHeight - vh; reads.push([bar, "transform", "scaleX(" + (h > 0 ? (y / h).toFixed(4) : 0) + ")"]); }
+      parallaxEls = parallaxEls.filter(function (el) { return el.isConnected; });
+      parallaxEls.forEach(function (el) {
+        var r = el.getBoundingClientRect(), speed = parseFloat(el.getAttribute("data-dz-parallax")) || 0.2;
+        if (r.bottom < -200 || r.top > vh + 200) return;
+        reads.push([el, "transform", "translate3d(0," + (-(r.top + r.height / 2 - vh / 2) * speed).toFixed(1) + "px,0)"]);
+      });
+      if (wordEls.length) readWords(reads, vh);
+      if (hscrolls.length) readHScroll(reads, vh);
+      for (var j = 0; j < reads.length; j++) {
+        var w = reads[j];
+        if (w[1] === "fn") w[2](); else w[0].style[w[1]] = w[2];
+      }
     });
   }
 
@@ -251,14 +332,22 @@
   function initTabs(scope) {
     withSelf(scope, ".dz-tabs").forEach(function (box) {
       if (!once(box, "Tabs")) return;
-      var btns = $all(".dz-tabs-nav [data-tab]", box);
-      var panels = $all(".dz-tab-panel[data-tab]", box);
+      /* avec data-tab (code) ou sans : alors le n-ième bouton ouvre le n-ième panneau
+         (version sans code : un conteneur dz-tabs-nav avec des boutons, puis des
+         conteneurs dz-tab-panel, et la classe dz-active sur l'onglet ouvert) */
+      var nav = box.querySelector(".dz-tabs-nav");
+      var btns = nav ? Array.prototype.filter.call(nav.querySelectorAll("button, a, .dz-tab"), function (b) { return b.closest(".dz-tabs-nav") === nav; }) : [];
+      var panels = $all(".dz-tab-panel", box).filter(function (p) { return p.closest(".dz-tabs") === box; });
+      if (!btns.length || !panels.length) return;
+      btns.forEach(function (b, i) { if (!b.dataset.tab) b.dataset.tab = String(i); });
+      panels.forEach(function (p, i) { if (!p.dataset.tab) p.dataset.tab = String(i); });
       function show(id) {
-        btns.forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === id ? "true" : "false"); });
+        btns.forEach(function (b) { var on = b.dataset.tab === id; b.setAttribute("aria-selected", on ? "true" : "false"); b.classList.toggle("dz-active", on); });
         panels.forEach(function (p) { p.hidden = p.dataset.tab !== id; });
       }
-      btns.forEach(function (b) { b.type = "button"; b.setAttribute("role", "tab"); b.addEventListener("click", function () { show(b.dataset.tab); }); });
-      if (btns[0]) show((btns.filter(function (b) { return b.getAttribute("aria-selected") === "true"; })[0] || btns[0]).dataset.tab);
+      btns.forEach(function (b) { if (b.tagName === "BUTTON") b.type = "button"; b.setAttribute("role", "tab"); b.addEventListener("click", function (e) { e.preventDefault(); show(b.dataset.tab); }); });
+      var first = btns.filter(function (b) { return b.getAttribute("aria-selected") === "true" || b.classList.contains("dz-active"); })[0] || btns[0];
+      show(first.dataset.tab);
     });
   }
 
@@ -283,7 +372,9 @@
         e.preventDefault();
         var v = el.getAttribute("data-dz-copy");
         var target = v && v.charAt(0) === "#" ? doc.querySelector(v) : null;
-        var text = target ? (target.value || target.textContent) : v;
+        var scopeEl = el.closest(".dz-code, .dz-copy-scope, pre, .dz-card") || el.parentNode;
+        var code = scopeEl && scopeEl.querySelector && scopeEl.querySelector("code, pre, input, textarea");
+        var text = target ? (target.value || target.textContent) : v || (code ? (code.value || code.textContent) : el.textContent);
         (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
           .then(function () { toast(el.dataset.dzCopied || "Copié ✓"); })
           .catch(function () { toast("Copie impossible"); });
@@ -456,7 +547,7 @@
       var box = b.closest(b.getAttribute("data-dz-dismiss") || ".dz-topbar") || b.parentElement;
       var key = "dz-dismiss-" + (box.id || (box.textContent || "").trim().slice(0, 40));
       try { if (localStorage.getItem(key)) box.classList.add("dz-dismissed"); } catch (e) {}
-      b.addEventListener("click", function () { box.classList.add("dz-dismissed"); try { localStorage.setItem(key, "1"); } catch (e) {} onScroll(); });
+      b.addEventListener("click", function () { box.classList.add("dz-dismissed"); try { localStorage.setItem(key, "1"); } catch (e) {} measureTopbar(); onScroll(); });
     });
   }
 
@@ -468,7 +559,9 @@
       el.classList.add("dz-words");
       splitTextNodes(el, function (word) { var s = doc.createElement("span"); s.className = "dz-w"; s.textContent = word; return s; });
       el._dzW = $all(".dz-w", el);
-      wordEls.push(el);
+      var n = el._dzW.length;
+      el._dzW.forEach(function (w, i) { w.style.setProperty("--p", (i / Math.max(1, n)).toFixed(3)); });
+      if (!cssSDA) wordEls.push(el);
     });
   }
   function splitTextNodes(el, make) {
@@ -482,13 +575,16 @@
       n.parentNode.replaceChild(frag, n);
     });
   }
-  function updateWords() {
-    wordEls = wordEls.filter(function (el) { return doc.body.contains(el); });
+  function readWords(out, vh) {
+    wordEls = wordEls.filter(function (el) { return el.isConnected; });
     wordEls.forEach(function (el) {
-      var r = el.getBoundingClientRect(), vh = window.innerHeight;
+      var r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) return;
       var p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       var n = el._dzW.length, lit = Math.round(p * n);
-      for (var i = 0; i < n; i++) el._dzW[i].style.setProperty("--o", i < lit ? 1 : 0.15);
+      if (lit === el._dzLit) return;
+      el._dzLit = lit;
+      out.push([el, "fn", function () { for (var i = 0; i < n; i++) el._dzW[i].classList.toggle("dz-lit", i < lit); }]);
     });
   }
 
@@ -525,16 +621,18 @@
     if (window.innerWidth < 768 || motionOff()) { el.style.height = ""; track.style.transform = ""; return; }
     var dist = Math.max(0, track.scrollWidth - window.innerWidth);
     el._dzDist = dist;
+    el.style.setProperty("--dz-hs-dist", dist + "px");
     el.style.height = (window.innerHeight + dist) + "px";
   }
-  function updateHScroll() {
-    hscrolls = hscrolls.filter(function (el) { return doc.body.contains(el); });
+  function readHScroll(out, vh) {
+    hscrolls = hscrolls.filter(function (el) { return el.isConnected; });
     hscrolls.forEach(function (el) {
       var track = el.querySelector(".dz-hscroll-track");
       if (!track || !el._dzDist || window.innerWidth < 768) return;
       var r = el.getBoundingClientRect();
-      var p = Math.min(1, Math.max(0, -r.top / (r.height - window.innerHeight || 1)));
-      track.style.transform = "translate3d(" + (-p * el._dzDist).toFixed(1) + "px,0,0)";
+      if (r.bottom < 0 || r.top > vh) return;
+      var p = Math.min(1, Math.max(0, -r.top / (r.height - vh || 1)));
+      out.push([track, "transform", "translate3d(" + (-p * el._dzDist).toFixed(1) + "px,0,0)"]);
     });
   }
 
@@ -742,11 +840,86 @@
     });
   }
 
+  /* ---------- 27. réglages de page + transitions entre sections ----------
+     Lu une seule fois au chargement ; ensuite le CSS fait tout. */
+  function pageSetting(name) {
+    var el = doc.querySelector("[data-dz-page-" + name + "]");
+    if (el) return el.getAttribute("data-dz-page-" + name);
+    var c = doc.querySelector("[class*='dz-page-" + name + "-']");
+    if (c) {
+      var m = String(c.className).match(new RegExp("(?:^|\\s)dz-page-" + name + "-([a-z0-9]+)"));
+      if (m) return m[1];
+    }
+    return null;
+  }
+  var TR = ["none", "fade", "rise", "zoom", "blur", "tilt", "curtain", "wipe", "cover", "stack", "depth", "fadeout"];
+  var TR_EXIT = { cover: 1, stack: 1, depth: 1 };
+  function ownTr(el) {
+    var a = el.getAttribute("data-dz-transition");
+    if (a && TR.indexOf(a) >= 0) return a;
+    var m = String(el.className || "").match(/(?:^|\s)dz-tr-([a-z]+)(?:\s|$)/);
+    return m && TR.indexOf(m[1]) >= 0 ? m[1] : null;
+  }
+  function isClear(el) {
+    var bg = getComputedStyle(el).backgroundColor;
+    return !bg || bg === "transparent" || /,\s*0\)$/.test(bg);
+  }
+  function morphColor(el) {
+    var v = el.getAttribute("data-dz-bg");
+    if (!v) { var m = String(el.className || "").match(/(?:^|\s)dz-morph-([a-z0-9-]+)/); v = m && m[1]; }
+    if (!v) return "";
+    return /^[a-z0-9-]+$/.test(v) && !/^(red|blue|green|black|white|transparent)$/.test(v) ? "var(--dz-" + v + ")" : v;
+  }
+  function initTransitions() {
+    var snap = pageSetting("snap");
+    if (snap === "off") root.removeAttribute("data-dz-snap");
+    else if (snap) root.setAttribute("data-dz-snap", snap);
+    var def = pageSetting("tr") || root.getAttribute("data-dz-tr") || "none";
+    if (TR.indexOf(def) < 0) def = "none";
+    var units = [], vh = window.innerHeight;
+    $all(".dz-section, [data-dz-transition], [class*='dz-tr-'], [data-dz-bg], [class*='dz-morph-']").forEach(function (sec) {
+      if (!sec.classList.contains("dz-section") && !ownTr(sec) && !morphColor(sec)) return;
+      if (sec.closest("[data-dz-tr-unit]") || sec.closest(".dz-app, .dz-app-shell, .modal, .dz-sheet, .dz-cmdk, .dz-page-settings")) return;
+      var u = sec;
+      while (u.parentElement && u.parentElement !== doc.body && u.parentElement.children.length === 1 && !/^(MAIN|FORM)$/.test(u.parentElement.tagName) && u.parentElement.id !== "page-inner-content") u = u.parentElement;
+      if (u.hasAttribute("data-dz-tr-unit")) return;
+      var type = ownTr(sec) || ownTr(u) || def;
+      /* un élément fixe (menu, bandeau…) dans une section déplacée ne serait plus fixe */
+      if (u.querySelector(".dz-nav, .dz-topbar, .dz-bottom-nav, .dz-bottomnav, .dz-scroll-progress, .dz-cookie, .dz-fab, .dz-to-top")) type = "none";
+      if (TR_EXIT[type] && u.querySelector(".dz-hscroll, [data-dz-hscroll], .dz-stack-cards")) type = "fade";
+      if (!TR_EXIT[type] && type !== "none" && u.getBoundingClientRect().top < vh * 0.9) type = "none"; /* déjà à l'écran au chargement */
+      u.setAttribute("data-dz-tr-unit", type);
+      if (TR_EXIT[type] && isClear(u) && isClear(sec)) u.classList.add("dz-tr-opaque");
+      units.push([u, sec]);
+    });
+    /* fond qui change de couleur */
+    var morph = pageSetting("bgmorph") || root.getAttribute("data-dz-bgmorph");
+    var coloured = units.filter(function (x) { return morphColor(x[1]) || morphColor(x[0]); });
+    if (morph !== "off" && coloured.length && "IntersectionObserver" in window) {
+      var layer = doc.createElement("div");
+      layer.className = "dz-bgmorph";
+      layer.setAttribute("aria-hidden", "true");
+      doc.body.insertBefore(layer, doc.body.firstChild);
+      root.classList.add("dz-bgmorph-on");
+      var io = new IntersectionObserver(function (en) {
+        en.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          layer.style.backgroundColor = e.target._dzColor || "";
+        });
+      }, { rootMargin: "-50% 0px -50% 0px" });
+      units.forEach(function (x) {
+        x[0]._dzColor = morphColor(x[1]) || morphColor(x[0]);
+        if (x[0]._dzColor) { x[0].setAttribute("data-dz-bg", x[0].getAttribute("data-dz-bg") || "1"); if (x[1] !== x[0]) x[1].setAttribute("data-dz-bg", x[1].getAttribute("data-dz-bg") || "1"); }
+        io.observe(x[0]);
+      });
+    }
+  }
+
   /* initialisation en deux temps : l'essentiel tout de suite, le reste quand
      le navigateur est libre (le chargement reste fluide) */
   function init(scope, deferRest) {
     scope = scope || doc;
-    var critical = [initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop];
+    var critical = [classesToData, initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop];
     var rest = [initSpotlight, initTilt, initMagnetic, initParallax, initCopy, initCountdown, initCompare, initConfettiTriggers, initSlider, initFilter, initChips, initLightbox, initCookie, initPanels, initCmdk, initTabsAutoplay];
     function run(list) { list.forEach(function (fn) { try { fn(scope); } catch (e) { if (window.console) console.warn("[dysizz-ui]", fn.name, e); } }); }
     run(critical);
@@ -755,15 +928,43 @@
 
   window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "2.2.0" };
 
+  /* CSS d'une famille de blocs pas encore activée pour ce tenant : chargé à la demande */
+  function loadFamilies() {
+    var F = window.__dzFam;
+    if (!F || !F.map) return;
+    Object.keys(F.map).forEach(function (pre) {
+      var fam = F.map[pre], href = F.url + fam + ".css";
+      if (doc.querySelector('link[href="' + href + '"]')) return;
+      if (!doc.querySelector('[class*="' + pre + '-"]')) return;
+      var l = doc.createElement("link");
+      l.rel = "stylesheet";
+      l.href = href;
+      doc.head.appendChild(l);
+    });
+  }
+
   function start() {
     if (inBuilder) { initThemeToggle(doc); return; }
+    loadFamilies();
     pageFlags();
+    try { initTransitions(); } catch (e) { if (window.console) console.warn("[dysizz-ui] transitions", e); }
+    /* une page qui demande le défilement doux alors que le tenant ne l'a pas activé : on charge le module à la demande */
+    var ps = pageSetting("smooth");
+    if (ps && ps !== "off" && !root.hasAttribute("data-dz-smooth") && selfSrc) {
+      var sm = doc.createElement("script");
+      sm.src = selfSrc.replace(/dz\.js(\?.*)?$/, "dz-smooth.js");
+      sm.defer = true;
+      doc.head.appendChild(sm);
+    }
     init(doc, true);
     initCursor();
+    initScrollState();
+    measureTopbar();
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", function () { hscrolls.forEach(sizeHScroll); onScroll(); }, { passive: true });
-    window.addEventListener("load", function () { hscrolls.forEach(sizeHScroll); onScroll(); });
+    var rz = null;
+    window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { $all(".dz-hscroll").forEach(sizeHScroll); measureTopbar(); onScroll(); }, 150); }, { passive: true });
+    window.addEventListener("load", function () { $all(".dz-hscroll").forEach(sizeHScroll); measureTopbar(); onScroll(); });
     /* Saltcorn recharge des vues en ajax : on initialise ce qui arrive (par lots) */
     if ("MutationObserver" in window) {
       var pending = [], timer = null;

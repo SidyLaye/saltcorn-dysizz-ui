@@ -1,0 +1,50 @@
+/* ---------------------------------------------------------------------
+   14. UTILITAIRES
+   --------------------------------------------------------------------- */
+.dz-glass { background: var(--dz-glass); -webkit-backdrop-filter: blur(12px) saturate(150%); backdrop-filter: blur(12px) saturate(150%); border: 1px solid var(--dz-glass-border); }
+.dz-rounded { border-radius: var(--dz-radius) !important; }
+.dz-rounded-lg { border-radius: var(--dz-radius-lg) !important; }
+.dz-shadow { box-shadow: var(--dz-shadow) !important; }
+.dz-shadow-lg { box-shadow: var(--dz-shadow-lg) !important; }
+.dz-border { border: 1px solid var(--dz-border) !important; }
+.dz-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--dz-border-strong), transparent); border: 0; margin-block: var(--dz-space-7); }
+.dz-text-primary { color: var(--dz-primary-ink) !important; }
+.dz-text-soft { color: var(--dz-text-soft) !important; }
+.dz-text-mute { color: var(--dz-text-mute) !important; }
+.dz-bg-surface { background: var(--dz-surface) !important; }
+.dz-bg-soft { background: var(--dz-bg-soft) !important; }
+.dz-bg-gradient { background: var(--dz-gradient) !important; color: var(--dz-on-primary); }
+.dz-mask-fade-b { -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
+.dz-aspect-video { aspect-ratio: 16 / 9; } .dz-aspect-square { aspect-ratio: 1; }
+.dz-cover { object-fit: cover; width: 100%; height: 100%; }
+.dz-mt-0 { margin-top: 0 !important; } .dz-mb-0 { margin-bottom: 0 !important; }
+.dz-mx-auto { margin-inline: auto !important; }
+.dz-w-full { width: 100%; }
+.dz-sticky { position: sticky; top: calc(var(--dz-nav-h) + 1rem); }
+@media (max-width: 767.98px) { .dz-hide-mobile { display: none !important; } .dz-mobile-center { text-align: center; } .dz-mobile-center .dz-cluster { justify-content: center; } }
+@media (min-width: 768px) { .dz-only-mobile { display: none !important; } }
+
+/* accessibilité : réglage « Animations » du plugin
+   data-dz-motion="system" → on suit le réglage « réduire les animations » du visiteur
+   data-dz-motion="off"    → tout est figé
+   data-dz-motion="on"     → toujours animé (défaut) */
+@media (prefers-reduced-motion: reduce) {
+  [data-dz-motion="system"] *, [data-dz-motion="system"] *::before, [data-dz-motion="system"] *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  [data-dz-motion="system"] [data-dz-reveal], [data-dz-motion="system"] .dz-reveal, [data-dz-motion="system"] .dz-stagger > * { opacity: 1 !important; transform: none !important; filter: none !important; }
+}
+[data-dz-motion="off"] *, [data-dz-motion="off"] *::before, [data-dz-motion="off"] *::after { animation: none !important; transition: none !important; }
+[data-dz-motion="off"] [data-dz-reveal], [data-dz-motion="off"] .dz-reveal, [data-dz-motion="off"] .dz-stagger > * { opacity: 1 !important; transform: none !important; filter: none !important; }
+/* animations en pause quand la section n'est pas à l'écran (économise le processeur) */
+.dz-offscreen *, .dz-offscreen *::before, .dz-offscreen *::after, .dz-offscreen::before, .dz-offscreen::after { animation-play-state: paused !important; }
+
+/* impression */
+@media print {
+  .dz-nav, .dz-bottom-nav, .dz-fab, .dz-to-top, .dz-scroll-progress, .dz-aurora, .dz-toasts { display: none !important; }
+  .dz-js [data-dz-reveal], .dz-js .dz-reveal, .dz-js .dz-stagger > * { opacity: 1 !important; transform: none !important; }
+}
+
+/* animations en boucle réutilisables (classes perso de l'éditeur visuel) */
+@keyframes dz-k-float { 50% { transform: translateY(-8px); } }
+@keyframes dz-k-pulse { 50% { transform: scale(1.04); } }
+@keyframes dz-k-spin { to { transform: rotate(360deg); } }
+@keyframes dz-k-glow { 50% { box-shadow: 0 0 0 6px var(--dz-primary-soft); } }

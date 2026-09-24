@@ -1,0 +1,121 @@
+/* ---------------------------------------------------------------------
+   1. JETONS
+   --------------------------------------------------------------------- */
+:root {
+  /* couleurs de marque (écrasées par la config du plugin) */
+  --dz-primary: #6d5efc;
+  --dz-accent: #22d3ee;
+  --dz-accent-2: #f472b6;
+  --dz-success: #10b981;
+  --dz-warning: #f59e0b;
+  --dz-danger: #ef4444;
+  --dz-info: #3b82f6;
+
+  /* polices */
+  --dz-font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --dz-font-heading: var(--dz-font-body);
+  --dz-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --dz-font-accent: var(--dz-font-heading);   /* mots mis en valeur (italique serif dans certains univers) */
+  --dz-font-eyebrow: var(--dz-font-body);     /* petits sur-titres (mono dans certains univers) */
+  --dz-heading-weight: 750;
+  --dz-heading-tracking: -.03em;
+  --dz-heading-case: none;
+  --dz-btn-radius: 999px;
+  --dz-border-w: 1px;
+  --dz-accent-style: normal;                  /* italic dans les univers éditoriaux */
+
+  /* arrondis */
+  --dz-radius: 14px;
+  --dz-radius-sm: calc(var(--dz-radius) * .6);
+  --dz-radius-lg: calc(var(--dz-radius) * 1.6);
+  --dz-radius-pill: 999px;
+
+  /* surfaces — thème clair */
+  --dz-bg: #fbfbfd;
+  --dz-bg-soft: #f3f4f8;
+  --dz-surface: #ffffff;
+  --dz-surface-2: #f7f7fb;
+  --dz-text: #0f1222;
+  --dz-text-soft: #4b5068;
+  --dz-text-mute: #8a8fa6;
+  --dz-border: rgba(15, 18, 34, .09);
+  --dz-border-strong: rgba(15, 18, 34, .18);
+  --dz-glass: rgba(255, 255, 255, .62);
+  --dz-glass-border: rgba(255, 255, 255, .7);
+  --dz-on-primary: #ffffff;
+  --dz-primary-ink: var(--dz-primary);  /* couleur principale lisible en texte */
+
+  /* dérivés */
+  --dz-primary-soft: color-mix(in srgb, var(--dz-primary) 12%, transparent);
+  --dz-primary-softer: color-mix(in srgb, var(--dz-primary) 6%, transparent);
+  --dz-primary-hover: color-mix(in srgb, var(--dz-primary) 86%, #000);
+  --dz-accent-soft: color-mix(in srgb, var(--dz-accent) 14%, transparent);
+  --dz-gradient: linear-gradient(135deg, var(--dz-primary) 0%, var(--dz-accent) 100%);
+  --dz-gradient-3: linear-gradient(120deg, var(--dz-primary), var(--dz-accent-2), var(--dz-accent));
+  --dz-ring: 0 0 0 4px color-mix(in srgb, var(--dz-primary) 28%, transparent);
+
+  /* ombres */
+  --dz-shadow-xs: 0 1px 2px rgba(15, 18, 34, .06);
+  --dz-shadow-sm: 0 1px 2px rgba(15, 18, 34, .04), 0 2px 8px rgba(15, 18, 34, .06);
+  --dz-shadow: 0 2px 4px rgba(15, 18, 34, .04), 0 10px 30px -8px rgba(15, 18, 34, .12);
+  --dz-shadow-lg: 0 4px 8px rgba(15, 18, 34, .04), 0 24px 60px -12px rgba(15, 18, 34, .22);
+  --dz-shadow-glow: 0 10px 40px -10px color-mix(in srgb, var(--dz-primary) 60%, transparent);
+
+  /* espacements (échelle fluide) */
+  --dz-space-1: .25rem;
+  --dz-space-2: .5rem;
+  --dz-space-3: .75rem;
+  --dz-space-4: 1rem;
+  --dz-space-5: 1.5rem;
+  --dz-space-6: 2rem;
+  --dz-space-7: 3rem;
+  --dz-space-8: 4rem;
+  --dz-section-y: clamp(3rem, 7vw, 6rem);
+  --dz-container: 1200px;
+  --dz-container-narrow: 820px;
+  --dz-gutter: clamp(1rem, 4vw, 2rem);
+
+  /* typographie fluide */
+  --dz-fs-xs: .78rem;
+  --dz-fs-sm: .9rem;
+  --dz-fs-base: 1rem;
+  --dz-fs-lg: clamp(1.06rem, 1rem + .3vw, 1.2rem);
+  --dz-fs-xl: clamp(1.2rem, 1.05rem + .6vw, 1.5rem);
+  --dz-fs-h3: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+  --dz-fs-h2: clamp(1.8rem, 1.3rem + 2vw, 3rem);
+  --dz-fs-h1: clamp(2.2rem, 1.4rem + 3vw, 4rem);
+  --dz-fs-display: clamp(2.8rem, 1.6rem + 6vw, 6.5rem);
+
+  /* mouvement */
+  --dz-ease: cubic-bezier(.22, 1, .36, 1);
+  --dz-ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dz-dur-fast: .18s;
+  --dz-dur: .35s;
+  --dz-dur-slow: .8s;
+
+  /* hauteurs utiles */
+  --dz-nav-h: 68px;
+  --dz-bottomnav-h: 64px;
+  --dz-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* thème sombre : suit l'attribut Bootstrap posé par le thème Saltcorn */
+[data-bs-theme="dark"] {
+  --dz-bg: #0a0b12;
+  --dz-bg-soft: #10121c;
+  --dz-surface: #141726;
+  --dz-surface-2: #1a1e30;
+  --dz-text: #eef0fb;
+  --dz-text-soft: #b3b8d2;
+  --dz-text-mute: #7a809c;
+  --dz-border: rgba(255, 255, 255, .08);
+  --dz-border-strong: rgba(255, 255, 255, .16);
+  --dz-glass: rgba(20, 23, 38, .55);
+  --dz-glass-border: rgba(255, 255, 255, .08);
+  --dz-primary-soft: color-mix(in srgb, var(--dz-primary) 20%, transparent);
+  --dz-primary-softer: color-mix(in srgb, var(--dz-primary) 10%, transparent);
+  --dz-shadow-xs: 0 1px 2px rgba(0, 0, 0, .4);
+  --dz-shadow-sm: 0 1px 2px rgba(0, 0, 0, .3), 0 2px 8px rgba(0, 0, 0, .3);
+  --dz-shadow: 0 2px 4px rgba(0, 0, 0, .3), 0 12px 32px -8px rgba(0, 0, 0, .5);
+  --dz-shadow-lg: 0 4px 8px rgba(0, 0, 0, .3), 0 28px 70px -12px rgba(0, 0, 0, .7);
+}

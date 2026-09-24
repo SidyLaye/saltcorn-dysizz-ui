@@ -1,0 +1,84 @@
+/* =====================================================================
+   22. TRANSITIONS ENTRE SECTIONS
+   Réglage par défaut du tenant : <html data-dz-tr="…"> (réglages du kit).
+   Par page : un élément portant la classe dz-page-tr-<nom> (ou
+   data-dz-page-tr="<nom>") n'importe où dans la page.
+   Par section : classe dz-tr-<nom> (ou data-dz-transition="<nom>").
+   Le JS repère une fois, au chargement, le « bloc » qui porte chaque section
+   (data-dz-tr-unit) ; ensuite tout est animé par le navigateur sur le thread
+   de composition (transform, opacity, filter, clip-path) : zéro JS au
+   défilement.
+     fade    fondu               rise    montée douce       zoom    zoom
+     blur    brume               tilt    bascule 3D         curtain rideau
+     wipe    balayage            cover   recouvrement       stack   cartes empilées
+     depth   profondeur          fadeout fondu enchaîné     none    aucune
+   ===================================================================== */
+[data-dz-tr-unit] { position: relative; z-index: 0; }
+[data-dz-tr-unit].dz-tr-opaque { background: var(--dz-bg); }
+
+@supports (animation-timeline: view()) {
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit]:not([data-dz-tr-unit="none"]) {
+    animation-timeline: view();
+    animation-fill-mode: both;
+    animation-timing-function: linear;
+    animation-duration: auto;
+  }
+  /* --- entrées : la section arrive --- */
+  html:not([data-dz-motion="off"]) :is([data-dz-tr-unit="fade"], [data-dz-tr-unit="rise"], [data-dz-tr-unit="zoom"], [data-dz-tr-unit="blur"], [data-dz-tr-unit="tilt"], [data-dz-tr-unit="curtain"], [data-dz-tr-unit="wipe"]) {
+    animation-range: entry 0% entry 55vh;
+  }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="fade"] { animation-name: dz-tr-fade; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="rise"] { animation-name: dz-tr-rise; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="zoom"] { animation-name: dz-tr-zoom; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="blur"] { animation-name: dz-tr-blur; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="tilt"] { animation-name: dz-tr-tilt; transform-origin: 50% 0; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="curtain"] { animation-name: dz-tr-curtain; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="wipe"] { animation-name: dz-tr-wipe; }
+  /* --- sorties : la section s'efface sous la suivante --- */
+  html:not([data-dz-motion="off"]) :is([data-dz-tr-unit="cover"], [data-dz-tr-unit="stack"], [data-dz-tr-unit="depth"]) { animation-range: exit 0% exit 100%; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="cover"] { animation-name: dz-tr-cover; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="stack"] { animation-name: dz-tr-stack; transform-origin: 50% 100%; }
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="depth"] { animation-name: dz-tr-depth; }
+  /* --- entrée + sortie --- */
+  html:not([data-dz-motion="off"]) [data-dz-tr-unit="fadeout"] { animation-name: dz-tr-in, dz-tr-out; animation-range: entry 0% entry 50vh, exit 30% exit 100%; animation-fill-mode: both, forwards; }
+}
+
+@keyframes dz-tr-fade { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: none; } }
+@keyframes dz-tr-rise { from { opacity: 0; transform: translate3d(0, 14vh, 0) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes dz-tr-zoom { from { opacity: .35; transform: scale(.86); } to { opacity: 1; transform: none; } }
+@keyframes dz-tr-blur { from { opacity: 0; filter: blur(16px); transform: translate3d(0, 20px, 0); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes dz-tr-tilt { from { opacity: .2; transform: perspective(1400px) rotateX(16deg) translate3d(0, 10vh, 0) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes dz-tr-curtain { from { clip-path: inset(12% 9% 12% 9% round 44px); } to { clip-path: inset(0 0 0 0 round 0); } }
+@keyframes dz-tr-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes dz-tr-cover { from { transform: none; } to { transform: translate3d(0, 100vh, 0); } }
+@keyframes dz-tr-stack { from { transform: none; opacity: 1; } to { transform: translate3d(0, 88vh, 0) scale(.9); opacity: .35; } }
+@keyframes dz-tr-depth { from { transform: none; opacity: 1; } to { transform: translate3d(0, 42vh, 0); opacity: .15; } }
+@keyframes dz-tr-in { from { opacity: 0; transform: translate3d(0, 24px, 0); } to { opacity: 1; transform: none; } }
+@keyframes dz-tr-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* réduire les animations : aucune transition */
+@media (prefers-reduced-motion: reduce) {
+  [data-dz-motion="system"] [data-dz-tr-unit] { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
+}
+[data-dz-motion="off"] [data-dz-tr-unit] { animation: none !important; }
+
+/* ---------- sections aimantées (scroll-snap) ---------- */
+html[data-dz-snap="soft"] { scroll-snap-type: y proximity; }
+html[data-dz-snap="strict"] { scroll-snap-type: y mandatory; }
+html[data-dz-snap] { scroll-padding-top: var(--dz-nav-h, 0px); }
+html[data-dz-snap] [data-dz-tr-unit] { scroll-snap-align: start; }
+html[data-dz-snap] .dz-smooth-on { scroll-snap-type: none; }
+
+/* ---------- fond qui change de couleur au fil des sections ---------- */
+.dz-bgmorph { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--dz-bg); transition: background-color .9s var(--dz-ease, ease); }
+html.dz-bgmorph-on [data-dz-bg] { background: transparent !important; }
+
+/* ---------- repères visibles dans le builder (invisibles sur la page) ---------- */
+.dz-page-settings { display: none; }
+html.dz-builder .dz-page-settings { display: block; padding: .6rem .9rem; border: 1px dashed var(--dz-border-strong, #888); border-radius: 10px; font: 500 .8rem/1.4 var(--dz-font-mono, monospace); color: var(--dz-muted); }
+
+/* ---------- défilement doux (Lenis) ---------- */
+html.dz-smooth-on { scroll-behavior: auto !important; }
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }

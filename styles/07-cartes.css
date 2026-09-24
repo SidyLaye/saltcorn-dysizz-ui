@@ -1,0 +1,42 @@
+/* ---------------------------------------------------------------------
+   7. CARTES
+   --------------------------------------------------------------------- */
+.dz-card {
+  position: relative; display: flex; flex-direction: column; gap: .75rem;
+  padding: clamp(1.25rem, 2.5vw, 1.9rem);
+  background: var(--dz-surface); color: var(--dz-text);
+  border: 1px solid var(--dz-border); border-radius: var(--dz-radius-lg);
+  box-shadow: var(--dz-shadow-sm);
+  transition: transform var(--dz-dur) var(--dz-ease), box-shadow var(--dz-dur) var(--dz-ease), border-color var(--dz-dur);
+  overflow: hidden;
+}
+.dz-card > :last-child { margin-bottom: 0; }
+.dz-card-hover:hover { transform: translateY(-6px); box-shadow: var(--dz-shadow-lg); border-color: color-mix(in srgb, var(--dz-primary) 35%, var(--dz-border)); }
+.dz-card-flat { box-shadow: none; }
+.dz-card-soft { background: var(--dz-surface-2); border-color: transparent; box-shadow: none; }
+.dz-card-glass { background: var(--dz-glass); -webkit-backdrop-filter: blur(12px) saturate(150%); backdrop-filter: blur(12px) saturate(150%); border-color: var(--dz-glass-border); }
+.dz-card-brand { --dz-primary-ink: var(--dz-on-primary); background: var(--dz-gradient); color: var(--dz-on-primary); border: 0; --dz-text: var(--dz-on-primary); --dz-text-soft: color-mix(in srgb, var(--dz-on-primary) 82%, transparent); }
+.dz-card-link { cursor: pointer; }
+.dz-card h3, .dz-card h4, .dz-card .dz-h4 { margin: 0; }
+.dz-card p { margin: 0; color: var(--dz-text-soft); line-height: 1.65; }
+
+/* carte avec halo qui suit la souris (JS : data-dz-spotlight) */
+.dz-spotlight::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity var(--dz-dur);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--dz-primary) 16%, transparent), transparent 45%);
+}
+.dz-spotlight:hover::before { opacity: 1; }
+/* bord lumineux qui suit la souris */
+.dz-border-glow { border: 1px solid transparent; background:
+  linear-gradient(var(--dz-surface), var(--dz-surface)) padding-box,
+  radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), var(--dz-primary), var(--dz-border) 70%) border-box; }
+
+/* icône de fonctionnalité */
+.dz-icon {
+  display: inline-grid; place-items: center; flex: none;
+  width: 48px; height: 48px; border-radius: calc(var(--dz-radius) * .9);
+  background: var(--dz-primary-soft); color: var(--dz-primary-ink); font-size: 1.2rem;
+}
+.dz-icon-gradient { background: var(--dz-gradient); color: var(--dz-on-primary); box-shadow: var(--dz-shadow-glow); }
+.dz-icon-lg { width: 60px; height: 60px; font-size: 1.5rem; }
+.dz-icon-round { border-radius: 50%; }

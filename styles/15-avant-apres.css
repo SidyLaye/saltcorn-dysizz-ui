@@ -1,0 +1,31 @@
+/* ---------------------------------------------------------------------
+   15. AVANT / APRÈS, ANCRES, VIDÉO, COMPTE À REBOURS
+   --------------------------------------------------------------------- */
+.dz-compare { --pos: 50%; position: relative; overflow: hidden; border-radius: var(--dz-radius-lg); box-shadow: var(--dz-shadow); user-select: none; }
+.dz-compare > img { display: block; width: 100%; }
+.dz-compare > img:nth-of-type(2) { position: absolute; inset: 0; height: 100%; object-fit: cover; clip-path: inset(0 0 0 var(--pos)); }
+.dz-compare::after { content: ""; position: absolute; top: 0; bottom: 0; left: var(--pos); width: 3px; margin-left: -1.5px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 0 20px rgba(0,0,0,.3); pointer-events: none; }
+.dz-compare input[type="range"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+[id] { scroll-margin-top: calc(var(--dz-nav-h) + 1rem); }
+.dz-video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--dz-radius-lg); overflow: hidden; box-shadow: var(--dz-shadow-lg); background: #000; }
+.dz-video iframe, .dz-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.dz-countdown { display: inline-flex; gap: .75rem; }
+.dz-countdown > div { display: grid; justify-items: center; min-width: 72px; padding: .9rem .6rem; border-radius: var(--dz-radius); background: var(--dz-surface); border: 1px solid var(--dz-border); box-shadow: var(--dz-shadow-sm); }
+.dz-countdown [data-dz-unit] { font: 750 2rem/1 var(--dz-font-heading); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.dz-countdown small { margin-top: .35rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--dz-text-mute); }
+/* bouton thème */
+.dz-theme-btn .dz-sun { display: none; } .dz-theme-btn .dz-moon { display: inline; }
+[data-bs-theme="dark"] .dz-theme-btn .dz-sun { display: inline; } [data-bs-theme="dark"] .dz-theme-btn .dz-moon { display: none; }
+/* galerie masonry */
+.dz-masonry { columns: 3 260px; column-gap: 1rem; }
+.dz-masonry > * { break-inside: avoid; margin-bottom: 1rem; border-radius: var(--dz-radius); overflow: hidden; display: block; }
+/* contenus longs (articles, docs, markdown) */
+.dz-prose { max-width: 72ch; font-size: 1.06rem; line-height: 1.8; color: var(--dz-text-soft); }
+.dz-prose h2, .dz-prose h3 { color: var(--dz-text); font-family: var(--dz-font-heading); letter-spacing: -.02em; margin: 2.2em 0 .6em; line-height: 1.2; }
+.dz-prose a { color: var(--dz-primary-ink); text-underline-offset: 3px; }
+.dz-prose img { border-radius: var(--dz-radius); margin-block: 1.5em; }
+.dz-prose blockquote { border-left: 3px solid var(--dz-primary); padding: .3em 0 .3em 1.2em; margin: 1.5em 0; color: var(--dz-text); font-style: italic; }
+.dz-prose code { font-family: var(--dz-font-mono); font-size: .9em; background: var(--dz-surface-2); padding: .15em .4em; border-radius: 5px; }
+
+/* espacement entre blocs posés directement dans une page d'application */
+.page-section > [class^="container"] > :is(.dz-page-head, .dz-grid, .dz-stack, .dz-card, .dz-empty, .dz-scroller, .row) { margin-bottom: 1.5rem; }

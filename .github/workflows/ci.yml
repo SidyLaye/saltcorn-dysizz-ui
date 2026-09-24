@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow pyyaml
+      - name: Outils
+        working-directory: tools
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Tests du convertisseur
+        run: python tests/test_html2layout.py
+      - name: Construction
+        working-directory: tools
+        run: node build.mjs
+      - name: index.js est à jour dans le dépôt
+        run: git diff --exit-code -- index.js || (echo "::error::index.js n'est pas à jour : lance « cd tools && node build.mjs » puis commit." && exit 1)
+      - name: Chargement du plugin (sans Saltcorn)
+        run: node tests/load-plugin.cjs
+      - name: Contrôle visuel de tous les blocs (débordement mobile, erreurs JS, écart natif)
+        working-directory: tools
+        run: node preview.mjs all
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: planches-de-controle
+          path: build/preview/*.png

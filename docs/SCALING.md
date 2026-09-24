@@ -8,16 +8,20 @@ Guide vérifié dans le code de Saltcorn 1.6.2. Objectif : plusieurs SaaS
 | Couche | Rôle | Où ça se règle |
 |---|---|---|
 | Navigateur | fluidité (animations, 1er affichage) | le kit (v2.1+ : fait) |
-| CDN | pages publiques et fichiers statiques servis sans toucher le serveur | Cloudflare (ou autre) |
-| Traefik | HTTPS, répartition de charge, limites de débit | Dokploy / labels |
+| Traefik | HTTPS, en-têtes de sécurité, limites de débit (partagées dans Redis) | labels du compose |
+| Cache (nginx) | fichiers et pages publiques servis depuis la mémoire | service `cache` du compose |
 | Saltcorn | N conteneurs × N workers | variables d'environnement |
 | Postgres | le vrai goulot : connexions, index | `postgresql.conf` |
 | Fichiers | partagés entre conteneurs | S3 (déjà configuré chez toi) |
 
-Saltcorn 1.6.2 **n'utilise pas Redis**. Sessions, synchronisation entre
-serveurs et élection du « chef » passent par Postgres. Redis reste utile
-à côté (n8n en mode queue, cache applicatif de tes propres services),
-mais le brancher ne rend pas Saltcorn plus rapide.
+Saltcorn 1.6.2 **n'utilise pas Redis** : sessions, synchronisation entre
+serveurs et élection du « chef » passent par Postgres, en dur dans le code.
+Dans le compose, Redis sert donc là où il est le bon outil : les **limites
+de débit de Traefik partagées** entre instances (option `redis` du
+middleware `ratelimit`, Traefik ≥ 3.4). Il reste disponible pour tes autres
+services (n8n en mode queue…). Le cache HTTP, lui, est un **nginx** en
+mémoire devant Saltcorn : c'est l'outil standard pour ça, gratuit, sans
+CDN.
 
 ## 2. Plusieurs serveurs Saltcorn (load balancing)
 
@@ -74,20 +78,29 @@ ex. 3 conteneurs × 4 workers → ~130   →   max_connections = 200
 - Sauvegardes : `pg_dump` quotidien hors du serveur (S3) + sauvegarde
   Saltcorn par tenant (Paramètres → Sauvegarde, planifiable).
 
-## 4. CDN : le plus gros gain pour les landing pages
+## 4. Le cache HTTP (sans CDN)
 
-- Mets Cloudflare (ou équivalent) devant le domaine.
-- Fichiers du kit (`/dysizz-ui/a/…`) et de Saltcorn (`/static_assets/…`) :
-  déjà servis avec `Cache-Control: immutable` et versionnés. Le CDN les
-  garde, le serveur ne les sert qu'une fois.
-- **Pages publiques** : Utilisateurs et sécurité → HTTP →
-  « Public cache TTL (minutes) ». Ne s'applique qu'aux visiteurs non
-  connectés. Mets 5 à 10 min et une règle Cloudflare « Cache Everything »
-  sur les chemins des landing pages : des milliers de visiteurs
-  = quelques requêtes vers Saltcorn.
-  Attention : une page qui contient un formulaire (contact, inscription)
-  embarque un jeton CSRF. Garde-la hors cache CDN, ou le formulaire
-  échouera pour les visiteurs suivants.
+Le service `cache` du compose (nginx, en mémoire) se place entre Traefik et
+Saltcorn :
+
+- **Fichiers** (`/static_assets`, `/plugins/public`, `/dysizz-ui/a`) : gardés
+  30 jours, servis sans réveiller Saltcorn. Les fichiers du kit sont
+  versionnés et marqués `immutable` : les navigateurs ne les redemandent
+  même plus. Vérifier : en-tête `X-Cache: HIT` au 2e chargement.
+- **Pages publiques** : Saltcorn pose un cookie de session sur **toutes**
+  ses réponses, même aux visiteurs anonymes (et crée une ligne de session en
+  base à chaque fois). Une page ne peut donc être gardée que si on ignore ce
+  cookie, ce qui n'est sûr que pour une page **sans formulaire** (un
+  formulaire a besoin de son jeton CSRF lié à la session). Le compose
+  contient un exemple commenté (`location = /page/accueil`) : décommente-le
+  par landing page, avec 5 min de cache.
+- Visiteur connecté (cookie `connect.sid`) : jamais de cache.
+- WebSocket (temps réel) : transmis tel quel.
+- Plusieurs nœuds : nginx résout le nom `saltcorn` toutes les 10 s et
+  répartit entre `primary` et toutes les copies de `web`.
+
+Les sessions anonymes s'accumulent dans `_sc_session` : garde
+« Prune session interval » (Utilisateurs et sécurité → HTTP) actif.
 
 ## 5. Sécurité : la liste à cocher
 
@@ -125,7 +138,44 @@ Ailleurs :
 - [ ] Mises à jour : Saltcorn et modules testés sur un tenant de test,
       puis déployés.
 
-## 6. Répartir les SaaS
+## 6. À vérifier sur ton instance : les transactions
+
+Ton application racine est servie sur `web.allinone.ovh` alors que le
+multi-tenant est actif. Saltcorn lit alors « web » comme nom de tenant ; ce
+tenant n'existe pas, et sur les requêtes HTTP **les transactions ne
+s'appliquent pas** (un `tryCatchInTransaction` n'annule rien, un
+`forupdate` ne verrouille rien). Tout le reste marche, d'où l'invisibilité.
+Les tâches de fond ne sont pas touchées.
+
+Solutions en gardant le multi-tenant : servir la racine sur le domaine de
+base (`allinone.ovh`), ou créer un vrai tenant `web` et y restaurer
+l'application. Sonde de 30 secondes (déclencheur `run_js_code`, lancé par
+« Test run ») :
+
+```js
+let id = null;
+await tryCatchInTransaction(async () => {
+  const p = await MetaData.create({ name: "probe_" + Date.now(), type: "probe", user_id: user.id, body: {} });
+  id = p.id;
+  throw new Error("rollback");
+}, () => {});
+const reste = await MetaData.findOne({ id });
+if (reste) await reste.delete();
+return { host: request_headers?.host, transaction_active: !reste };
+```
+
+`transaction_active: false` confirme le problème.
+
+## 7. Monter de version
+
+- Saltcorn 1.7 supprime l'authentification JWT (`SALTCORN_JWT_SECRET`
+  devient inutile) et passe une grande partie du code en TypeScript / ESM :
+  tester d'abord sur une instance jetable restaurée depuis une sauvegarde.
+- Une version mineure à la fois ; désinstaller les modules inutilisés avant.
+- Le kit : `index.js` est reconstruit par la CI à chaque changement ; mettre
+  à jour le module, puis « Installer / mettre à jour » sur `/dysizz-ui`.
+
+## 8. Répartir les SaaS
 
 - Tous les tenants partagent les mêmes conteneurs : c'est efficace tant
   qu'aucun ne domine.
@@ -136,9 +186,9 @@ Ailleurs :
   connexions Postgres (`select count(*) from pg_stat_activity`), requêtes
   lentes (`log_min_duration_statement = 500`).
 
-## 7. Ordre conseillé
+## 9. Ordre conseillé
 
 1. Sécurité du §5 (15 min, sans risque).
-2. Cloudflare + cache public des landing pages.
+2. Service `cache` + Redis (compose) ; cache des landing pages sans formulaire.
 3. Index sur les tables des SaaS.
 4. Passage multi-nœud quand un seul conteneur dépasse ~60 % CPU en charge.

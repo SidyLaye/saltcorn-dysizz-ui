@@ -1,0 +1,8 @@
+/* =====================================================================
+   46. OUTILS (préfixe dz-ot-)
+   ===================================================================== */
+.dz-ot-space { height: var(--h); }
+.dz-ot-space-s { --h: clamp(1rem, 2vw, 1.5rem); } .dz-ot-space-m { --h: clamp(2rem, 5vw, 4rem); } .dz-ot-space-l { --h: clamp(4rem, 10vw, 8rem); }
+html.dz-builder .dz-ot-space { outline: 1px dashed var(--dz-border-strong); }
+.dz-ot-slot { display: flex; gap: 1rem; align-items: center; padding: 1.4rem 1.6rem; border: 2px dashed var(--dz-border-strong); border-radius: var(--dz-radius-lg); color: var(--dz-text-soft); background: var(--dz-surface); }
+.dz-ot-slot > i { font-size: 1.6rem; color: var(--dz-primary-ink); }

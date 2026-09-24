@@ -1,0 +1,75 @@
+/* ---------------------------------------------------------------------
+   13. ANIMATIONS D'APPARITION
+   Navigateurs récents (Chrome, Edge, Opera, Safari 26+) : animation pilotée
+   par le défilement, 100 % CSS, calculée par la carte graphique. Rien n'est
+   caché au chargement : ce qui est déjà à l'écran s'affiche tout de suite.
+   Autres navigateurs : repli en JavaScript (classe .dz-in).
+   --------------------------------------------------------------------- */
+@keyframes dz-rv-up { from { opacity: 0; transform: translateY(28px); } }
+@keyframes dz-rv-fade { from { opacity: 0; } }
+@keyframes dz-rv-zoom { from { opacity: 0; transform: scale(.94); } }
+@keyframes dz-rv-blur { from { opacity: 0; transform: translateY(12px); filter: blur(10px); } }
+@keyframes dz-rv-left { from { opacity: 0; transform: translateX(-40px); } }
+@keyframes dz-rv-right { from { opacity: 0; transform: translateX(40px); } }
+@keyframes dz-rv-flip { from { opacity: 0; transform: perspective(900px) rotateX(18deg) translateY(20px); } }
+@supports (animation-timeline: view()) {
+  html:not([data-dz-motion="off"]) :is([data-dz-reveal], .dz-reveal, .dz-stagger > *) {
+    animation: dz-rv-up linear both; animation-timeline: view(); animation-range: entry 0% entry 90%;
+  }
+  html:not([data-dz-motion="off"]) .dz-stagger > * { animation-range: entry calc(var(--dz-i, 0) * 6%) entry calc(80% + var(--dz-i, 0) * 6%); }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="fade"] { animation-name: dz-rv-fade; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="zoom"] { animation-name: dz-rv-zoom; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="blur"] { animation-name: dz-rv-blur; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="left"] { animation-name: dz-rv-left; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="right"] { animation-name: dz-rv-right; }
+  html:not([data-dz-motion="off"]) [data-dz-reveal="flip"] { animation-name: dz-rv-flip; transform-origin: top; }
+}
+@supports not (animation-timeline: view()) {
+  .dz-js [data-dz-reveal], .dz-js .dz-reveal { opacity: 0; transform: translateY(28px); transition: opacity var(--dz-dur-slow) var(--dz-ease), transform var(--dz-dur-slow) var(--dz-ease), filter var(--dz-dur-slow) var(--dz-ease); transition-delay: var(--dz-delay, 0s); }
+  .dz-js [data-dz-reveal="fade"] { transform: none; }
+  .dz-js [data-dz-reveal="zoom"] { transform: scale(.94); }
+  .dz-js [data-dz-reveal="blur"] { transform: translateY(12px); filter: blur(12px); }
+  .dz-js [data-dz-reveal="left"] { transform: translateX(-40px); }
+  .dz-js [data-dz-reveal="right"] { transform: translateX(40px); }
+  .dz-js [data-dz-reveal="flip"] { transform: perspective(900px) rotateX(18deg) translateY(20px); transform-origin: top; }
+  .dz-js [data-dz-reveal].dz-in, .dz-js .dz-reveal.dz-in { opacity: 1; transform: none; filter: none; }
+  .dz-js .dz-stagger > * { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--dz-ease), transform .7s var(--dz-ease); transition-delay: calc(var(--dz-i, 0) * 90ms); }
+  .dz-js .dz-stagger.dz-in > * { opacity: 1; transform: none; }
+}
+
+/* sections hors écran : le navigateur ne calcule ni leur mise en page ni leur
+   dessin tant qu'elles ne sont pas proches de l'écran (énorme gain sur les
+   longues pages). Ajoute la classe dz-no-cv pour désactiver sur une section. */
+.dz-section:not(.dz-no-cv) { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+html.dz-builder .dz-section { content-visibility: visible; }
+
+/* flottement / effets continus */
+.dz-float { animation: dz-float 6s ease-in-out infinite; }
+.dz-float-slow { animation: dz-float 9s ease-in-out infinite; }
+.dz-spin-slow { animation: dz-spin 20s linear infinite; }
+.dz-pulse { animation: dz-pulse 2.4s ease-in-out infinite; }
+.dz-tilt { transform-style: preserve-3d; transition: transform .2s ease-out; will-change: transform; }
+.dz-hover-lift { transition: transform var(--dz-dur) var(--dz-ease), box-shadow var(--dz-dur); }
+.dz-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--dz-shadow); }
+.dz-hover-zoom { overflow: hidden; }
+.dz-hover-zoom img { transition: transform .8s var(--dz-ease); }
+.dz-hover-zoom:hover img { transform: scale(1.06); }
+
+@property --dz-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes dz-spin-angle { to { --dz-angle: 360deg; } }
+@keyframes dz-spin { to { transform: rotate(360deg); } }
+@keyframes dz-gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes dz-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-100% - var(--dz-gap, 3.5rem))); } }
+@keyframes dz-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes dz-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@keyframes dz-ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes dz-blink { 50% { opacity: 0; } }
+@keyframes dz-shimmer { to { transform: translateX(100%); } }
+@keyframes dz-blob { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(8%, 10%) scale(1.1); } 66% { transform: translate(-6%, 4%) scale(.92); } }
+@keyframes dz-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes dz-fade-down { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes dz-toast-in { from { opacity: 0; transform: translateY(20px) scale(.95); } to { opacity: 1; transform: none; } }
+@keyframes dz-toast-out { to { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* machine à écrire sans code : en attendant le JS, la liste de mots ne prend pas de place */
+html.dz-js .dz-typewriter:not([data-dz-typed]) { display: inline-block; width: 0; overflow: hidden; white-space: nowrap; vertical-align: bottom; visibility: hidden; }

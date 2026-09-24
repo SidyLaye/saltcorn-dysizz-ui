@@ -1,0 +1,8 @@
+/* =====================================================================
+   DYSIZZ UI — design system pour Saltcorn
+   dz-core.css : jetons, mise en page, composants, animations, utilitaires
+   Préfixe de toutes les classes : dz-
+   Les couleurs, polices et arrondis viennent de la config du plugin
+   (injectés en variables CSS). Ce fichier ne contient que des valeurs
+   par défaut.
+   ===================================================================== */

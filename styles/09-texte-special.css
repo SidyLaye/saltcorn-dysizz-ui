@@ -1,0 +1,11 @@
+/* ---------------------------------------------------------------------
+   9. TEXTE SPÉCIAL
+   --------------------------------------------------------------------- */
+.dz-gradient-text { background: var(--dz-gradient-3); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent !important; -webkit-text-fill-color: transparent; }
+.dz-gradient-text.dz-anim { animation: dz-gradient-shift 8s ease infinite; }
+.dz-underline { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--dz-accent) 45%, transparent) 62%); padding: 0 .1em; }
+.dz-highlight { position: relative; white-space: nowrap; }
+.dz-highlight::after { content: ""; position: absolute; left: -2%; right: -2%; bottom: .06em; height: .18em; background: var(--dz-gradient); border-radius: 2px; transform-origin: left; transform: scaleX(0); transition: transform 1s var(--dz-ease) .3s; }
+.dz-in .dz-highlight::after, .dz-highlight.dz-in::after { transform: scaleX(1); }
+.dz-typed::after { content: "|"; margin-left: 2px; color: var(--dz-primary-ink); animation: dz-blink 1s step-end infinite; }
+.dz-stroke-text { color: transparent; -webkit-text-stroke: 1.5px var(--dz-text); }

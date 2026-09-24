@@ -1,0 +1,40 @@
+/* ---------------------------------------------------------------------
+   8. HERO ET FONDS
+   --------------------------------------------------------------------- */
+.dz-hero { position: relative; padding-block: clamp(4.5rem, 12vw, 10rem) clamp(3.5rem, 8vw, 7rem); overflow: hidden; isolation: isolate; }
+.dz-hero-full { min-height: 100svh; display: flex; align-items: center; }
+.dz-hero .dz-lead { font-size: var(--dz-fs-xl); }
+.dz-hero-visual { position: relative; border-radius: var(--dz-radius-lg); overflow: hidden; box-shadow: var(--dz-shadow-lg); border: 1px solid var(--dz-border); background: var(--dz-surface); }
+.dz-hero-visual img { display: block; width: 100%; }
+.dz-browser { border-radius: var(--dz-radius-lg); overflow: hidden; background: var(--dz-surface); border: 1px solid var(--dz-border); box-shadow: var(--dz-shadow-lg); }
+.dz-browser::before { content: ""; display: block; height: 34px; background:
+  radial-gradient(circle at 18px 17px, #ff5f57 5px, transparent 6px),
+  radial-gradient(circle at 36px 17px, #febc2e 5px, transparent 6px),
+  radial-gradient(circle at 54px 17px, #28c840 5px, transparent 6px), var(--dz-surface-2);
+  border-bottom: 1px solid var(--dz-border); }
+
+/* fonds décoratifs — à poser sur une section */
+.dz-bg-grid { background-image:
+  linear-gradient(var(--dz-border) 1px, transparent 1px),
+  linear-gradient(90deg, var(--dz-border) 1px, transparent 1px);
+  background-size: 56px 56px; background-position: center top;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%); }
+.dz-bg-dots { background-image: radial-gradient(var(--dz-border-strong) 1px, transparent 1px); background-size: 22px 22px; }
+.dz-bg-mesh { background:
+  radial-gradient(at 12% 18%, color-mix(in srgb, var(--dz-primary) 28%, transparent) 0, transparent 48%),
+  radial-gradient(at 88% 12%, color-mix(in srgb, var(--dz-accent) 24%, transparent) 0, transparent 46%),
+  radial-gradient(at 70% 92%, color-mix(in srgb, var(--dz-accent-2) 20%, transparent) 0, transparent 50%),
+  var(--dz-bg); }
+/* aurora animée : un conteneur .dz-aurora vide, placé en premier dans la section */
+.dz-aurora { position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1; pointer-events: none; opacity: .5; overflow: hidden; contain: strict; }
+.dz-aurora::before, .dz-aurora::after { content: ""; position: absolute; width: 70%; aspect-ratio: 1; border-radius: 50%; will-change: transform; }
+.dz-aurora::before { left: -5%; top: -10%; background: radial-gradient(closest-side, color-mix(in srgb, var(--dz-primary) 70%, transparent), transparent); animation: dz-blob 22s ease-in-out infinite; }
+.dz-aurora::after { right: -5%; top: 0; background: radial-gradient(closest-side, color-mix(in srgb, var(--dz-accent) 60%, transparent), transparent); animation: dz-blob 26s ease-in-out infinite reverse; }
+[data-bs-theme="dark"] .dz-aurora { opacity: .4; }
+/* grain léger */
+.dz-noise::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: .06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* lueur sous un élément */
+.dz-glow-under { position: relative; }
+.dz-glow-under::before { content: ""; position: absolute; inset: 10% 10% -8%; z-index: -1; background: var(--dz-gradient); filter: blur(60px); opacity: .45; border-radius: 50%; }

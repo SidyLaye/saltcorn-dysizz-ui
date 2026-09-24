@@ -1,0 +1,47 @@
+/* ---------------------------------------------------------------------
+   5. BOUTONS
+   --------------------------------------------------------------------- */
+.dz-btn {
+  --_bg: var(--dz-primary); --_fg: var(--dz-on-primary); --_bd: transparent;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  padding: .8rem 1.35rem; min-height: 46px;
+  font: 600 .95rem/1 var(--dz-font-body); letter-spacing: -.005em;
+  color: var(--_fg) !important; background: var(--_bg); border: var(--dz-border-w) solid var(--_bd);
+  border-radius: var(--dz-btn-radius); text-decoration: none !important; cursor: pointer;
+  transition: transform var(--dz-dur-fast) var(--dz-ease), box-shadow var(--dz-dur) var(--dz-ease), background var(--dz-dur) var(--dz-ease), color var(--dz-dur);
+  box-shadow: var(--dz-shadow-sm);
+  white-space: nowrap; overflow: hidden; isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+.dz-btn:hover { transform: translateY(-2px); box-shadow: var(--dz-shadow-glow); }
+.dz-btn:active { transform: translateY(0) scale(.98); }
+.dz-btn i, .dz-btn svg { transition: transform var(--dz-dur) var(--dz-ease); }
+.dz-btn:hover .fa-arrow-right, .dz-btn:hover .dz-arrow { transform: translateX(3px); }
+.dz-btn-lg { padding: 1rem 1.7rem; min-height: 54px; font-size: 1.02rem; }
+.dz-btn-sm { padding: .55rem .95rem; min-height: 36px; font-size: .85rem; }
+.dz-btn-block { width: 100%; }
+.dz-btn-gradient { --_bg: var(--dz-gradient); --_fg: var(--dz-on-primary); background-size: 150% 150%; transition: background-position .6s var(--dz-ease), transform var(--dz-dur-fast) var(--dz-ease), box-shadow var(--dz-dur) var(--dz-ease); }
+.dz-btn-gradient:hover { background-position: 100% 50%; }
+.dz-btn-dark { --_bg: var(--dz-text); --_fg: var(--dz-bg); }
+.dz-btn-light { --_bg: #fff; --_fg: #0f1222; }
+.dz-btn-ghost { --_bg: transparent; --_fg: var(--dz-text); --_bd: var(--dz-border-strong); box-shadow: none; }
+.dz-btn-ghost:hover { --_bg: var(--dz-surface-2); box-shadow: none; }
+.dz-btn-soft { --_bg: var(--dz-primary-soft); --_fg: var(--dz-primary); box-shadow: none; }
+.dz-btn-link { --_bg: transparent; --_fg: var(--dz-primary); box-shadow: none; padding-inline: 0; }
+.dz-btn-link:hover { box-shadow: none; transform: none; text-decoration: underline !important; }
+/* reflet qui passe au survol */
+.dz-btn-shine::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  transform: translateX(-120%); transition: transform .8s var(--dz-ease);
+}
+.dz-btn-shine:hover::after { transform: translateX(120%); }
+/* bouton lumineux avec bord animé */
+.dz-btn-glow { --_bg: var(--dz-surface); --_fg: var(--dz-text); border: 0; }
+.dz-btn-glow::before {
+  content: ""; position: absolute; inset: -2px; z-index: -2; border-radius: inherit;
+  background: conic-gradient(from var(--dz-angle, 0deg), var(--dz-primary), var(--dz-accent), var(--dz-accent-2), var(--dz-primary));
+  animation: dz-spin-angle 4s linear infinite;
+}
+.dz-btn-glow::after { content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: inherit; background: var(--_bg); }
+.dz-icon-btn { width: 42px; height: 42px; padding: 0; min-height: 0; border-radius: 50%; }

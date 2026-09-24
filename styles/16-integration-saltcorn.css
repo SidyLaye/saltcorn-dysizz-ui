@@ -1,0 +1,47 @@
+/* ---------------------------------------------------------------------
+   16. INTÉGRATION SALTCORN (pages pleine largeur, barre fixe, builder)
+   --------------------------------------------------------------------- */
+html, body { overflow-x: clip; }
+.dz-nav-spacer { height: var(--dz-nav-h); }
+html.dz-has-hero .dz-nav-spacer { display: none; }
+.page-section.dz-flush { padding-top: 0 !important; }
+
+/* ---- Builder : même rendu que la page publiée ----
+   Dans l'éditeur, Saltcorn glisse deux div entre un conteneur et ses enfants
+   (.kontainer > div > .canvas > enfants). Les grilles et flex sont donc
+   reportés sur .canvas : ces règles sont GÉNÉRÉES automatiquement à la
+   construction (tools/build.mjs → builderParity), pour toutes les classes
+   de mise en page du kit et les classes perso. */
+html.dz-builder [data-dz-reveal], html.dz-builder .dz-reveal, html.dz-builder .dz-stagger > * { opacity: 1 !important; transform: none !important; filter: none !important; }
+html.dz-builder .dz-nav { position: relative; }
+html.dz-builder .dz-mobile-menu, html.dz-builder .dz-scroll-progress, html.dz-builder .dz-cursor { display: none; }
+html.dz-builder .full-page-width { width: auto; left: auto; right: auto; margin-left: 0; margin-right: 0; }
+html.dz-builder .dz-bottom-nav, html.dz-builder .dz-fab { position: relative; }
+html.dz-builder .dz-hscroll { height: auto !important; }
+html.dz-builder .dz-hscroll-sticky { position: relative; height: auto; overflow-x: auto; }
+html.dz-builder #builder-main-canvas span.is-html-block { display: block; min-width: 0; border-color: color-mix(in srgb, var(--dz-primary) 40%, transparent); }
+html.dz-builder #builder-main-canvas span.is-html-block > div:first-child { font: 600 9px/1 var(--dz-font-mono); letter-spacing: .08em; opacity: .5; padding: 2px 4px; }
+
+/* ---- Builder : panneau Library lisible (une ligne par bloc) ---- */
+html.dz-builder .builder-library .toolbar-row { display: block !important; border-top: 0 !important; }
+html.dz-builder .builder-library .wrap-builder-elem {
+  display: flex !important; width: 100% !important; height: auto !important; min-height: 34px;
+  justify-content: flex-start !important; align-items: center !important; gap: .55rem;
+  padding: .35rem .5rem; border: 0 !important; border-bottom: 1px solid rgba(128,128,128,.25) !important;
+  cursor: grab; border-radius: 6px;
+}
+html.dz-builder .builder-library .wrap-builder-elem:hover { background: rgba(128,128,128,.14); }
+html.dz-builder .builder-library .wrap-builder-elem .inner { flex: none; width: 20px; text-align: center; font-size: 12px; opacity: .8; }
+html.dz-builder .builder-library .wrap-builder-elem .inner i.fa-lg { font-size: 1em; }
+html.dz-builder .builder-library .wrap-builder-elem label {
+  position: static !important; text-transform: none !important; font-size: 11.5px !important; line-height: 1.25;
+  text-align: left; white-space: normal; cursor: grab; font-weight: 500;
+}
+html.dz-builder .builder-library .card { max-height: 62vh; overflow-y: auto; padding: 2px; }
+
+/* Saltcorn ajoute d-inline-block aux liens dont le style contient « btn » :
+   les boutons du kit restent en inline-flex (icône + texte alignés) */
+[class*="dz-"][class*="btn"].d-inline-block { display: inline-flex !important; }
+/* aperçu des liens dans le builder : un <button> neutre, les classes du kit décident */
+:where(html.dz-builder button.is-builder-link) { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-align: inherit; }
+.with-link { cursor: pointer; }

@@ -1,0 +1,28 @@
+/* ---------------------------------------------------------------------
+   17. MAQUETTE D'APPLICATION EN CSS (visuel de hero sans image)
+   --------------------------------------------------------------------- */
+.dz-mock { display: grid; grid-template-columns: 58px 1fr; min-height: 340px; background: var(--dz-surface); text-align: left; }
+.dz-mock-side { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0; background: var(--dz-surface-2); border-right: 1px solid var(--dz-border); }
+.dz-mock-side i { width: 26px; height: 26px; border-radius: 8px; background: var(--dz-border); display: block; }
+.dz-mock-side i:first-child { background: var(--dz-gradient); }
+.dz-mock-main { padding: 18px; display: grid; gap: 14px; align-content: start; }
+.dz-mock-top { display: flex; justify-content: space-between; align-items: center; }
+.dz-mock-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.dz-mock-kpis > div { padding: 12px; border-radius: 12px; border: 1px solid var(--dz-border); background: var(--dz-surface); display: grid; gap: 6px; }
+.dz-mock-kpis b { font: 750 1.15rem var(--dz-font-heading); letter-spacing: -.02em; }
+.dz-mock-line { display: block; height: 8px; border-radius: 8px; background: var(--dz-surface-2); width: var(--w, 60%); }
+.dz-mock-line.dz-dark { background: var(--dz-border-strong); }
+.dz-mock-chart { display: flex; align-items: flex-end; gap: 7px; height: 130px; padding: 12px; border-radius: 12px; border: 1px solid var(--dz-border); }
+.dz-mock-chart span { flex: 1; height: var(--h, 50%); border-radius: 6px 6px 3px 3px; background: var(--dz-gradient); opacity: .9; transform-origin: bottom; animation: dz-grow 1.4s var(--dz-ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.dz-mock-chart span:nth-child(odd) { opacity: .55; }
+.dz-mock-rows { display: grid; gap: 8px; }
+.dz-mock-rows > div { display: grid; grid-template-columns: 22px 1fr 60px; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--dz-surface-2); }
+.dz-mock-rows > div > i { width: 22px; height: 22px; border-radius: 50%; background: var(--dz-primary-soft); display: block; }
+@keyframes dz-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (max-width: 575px) { .dz-mock { grid-template-columns: 1fr; } .dz-mock-side { display: none; } .dz-mock-kpis { grid-template-columns: repeat(2, 1fr); } .dz-mock-kpis > div:nth-child(3) { display: none; } }
+/* notification flottante posée sur un visuel */
+.dz-float-card { position: absolute; display: flex; align-items: center; gap: .7rem; padding: .75rem 1rem; border-radius: var(--dz-radius); background: var(--dz-surface); border: 1px solid var(--dz-border); box-shadow: var(--dz-shadow-lg); font-size: .88rem; z-index: 2; }
+.dz-float-card b { display: block; font-size: .95rem; }
+@media (max-width: 767px) { .dz-float-card { display: none; } }
+/* barre « Page … Edit » des admins : on la pose en bas à gauche quand la page a une barre fixe */
+html.dz-has-nav .admin-edit-bar { position: fixed; left: 1rem; bottom: 1rem; z-index: 1050; margin: 0 !important; width: auto; box-shadow: var(--dz-shadow-lg); border-radius: var(--dz-radius); }

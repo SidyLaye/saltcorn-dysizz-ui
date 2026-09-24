@@ -1,0 +1,41 @@
+/* =====================================================================
+   23. BORDS DE SECTIONS : vagues, pentes, courbes, fondus, coins arrondis
+   Classes à poser sur une section (conteneur) :
+     dz-edge-wave | slant | curve | arc | zigzag | steps   → bas découpé
+     dz-edge-top-wave | … (mêmes formes)                   → haut découpé
+     dz-edge-fade | dz-edge-fade-top | dz-edge-fade-bottom → fondu dans le fond
+     dz-edge-round-top                                     → la section monte
+                                                             sur la précédente,
+                                                             coins arrondis
+   Hauteur de la découpe : --dz-edge-h (défaut : 32 à 90 px selon l'écran).
+   Tout est statique (masque dessiné une fois) : aucun coût au défilement.
+   ===================================================================== */
+[class*="dz-edge-"] { --dz-edge-h: clamp(32px, 6vw, 90px); }
+.dz-edge-wave { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V55C1200 105 960 105 720 60S240 5 0 55Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-wave { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V55C1200 105 960 105 720 60S240 5 0 55Z'/%3E%3C/g%3E%3C/svg%3E"); }
+.dz-edge-slant { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V8L0 100Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-slant { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V8L0 100Z'/%3E%3C/g%3E%3C/svg%3E"); }
+.dz-edge-curve { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V15Q720 185 0 15Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-curve { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V15Q720 185 0 15Z'/%3E%3C/g%3E%3C/svg%3E"); }
+.dz-edge-arc { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V100Q720 -70 0 100Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-arc { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V100Q720 -70 0 100Z'/%3E%3C/g%3E%3C/svg%3E"); }
+.dz-edge-zigzag { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V60L1380 100L1320 60L1260 100L1200 60L1140 100L1080 60L1020 100L960 60L900 100L840 60L780 100L720 60L660 100L600 60L540 100L480 60L420 100L360 60L300 100L240 60L180 100L120 60L60 100L0 60Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-zigzag { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V60L1380 100L1320 60L1260 100L1200 60L1140 100L1080 60L1020 100L960 60L900 100L840 60L780 100L720 60L660 100L600 60L540 100L480 60L420 100L360 60L300 100L240 60L180 100L120 60L60 100L0 60Z'/%3E%3C/g%3E%3C/svg%3E"); }
+.dz-edge-steps { --dz-edge-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H1440V40H1080V70H720V100H360V70H0Z'/%3E%3C/svg%3E"); }
+.dz-edge-top-steps { --dz-edge-t: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cg transform='matrix%281 0 0 -1 0 100%29'%3E%3Cpath d='M0 0H1440V40H1080V70H720V100H360V70H0Z'/%3E%3C/g%3E%3C/svg%3E"); }
+
+:is(.dz-edge-wave, .dz-edge-slant, .dz-edge-curve, .dz-edge-arc, .dz-edge-zigzag, .dz-edge-steps) {
+  padding-bottom: calc(var(--dz-edge-h) + clamp(1rem, 3vw, 2.5rem));
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - var(--dz-edge-h) + 1px) no-repeat, var(--dz-edge-b) bottom / 100% var(--dz-edge-h) no-repeat;
+          mask: linear-gradient(#000 0 0) top / 100% calc(100% - var(--dz-edge-h) + 1px) no-repeat, var(--dz-edge-b) bottom / 100% var(--dz-edge-h) no-repeat;
+}
+:is(.dz-edge-top-wave, .dz-edge-top-slant, .dz-edge-top-curve, .dz-edge-top-arc, .dz-edge-top-zigzag, .dz-edge-top-steps) {
+  padding-top: calc(var(--dz-edge-h) + clamp(1rem, 3vw, 2.5rem));
+  -webkit-mask: linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--dz-edge-h) + 1px) no-repeat, var(--dz-edge-t) top / 100% var(--dz-edge-h) no-repeat;
+          mask: linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--dz-edge-h) + 1px) no-repeat, var(--dz-edge-t) top / 100% var(--dz-edge-h) no-repeat;
+}
+.dz-edge-fade { -webkit-mask: linear-gradient(to bottom, transparent, #000 clamp(40px, 10%, 140px), #000 calc(100% - clamp(40px, 10%, 140px)), transparent); mask: linear-gradient(to bottom, transparent, #000 clamp(40px, 10%, 140px), #000 calc(100% - clamp(40px, 10%, 140px)), transparent); }
+.dz-edge-fade-top { -webkit-mask: linear-gradient(to bottom, transparent, #000 clamp(40px, 12%, 160px)); mask: linear-gradient(to bottom, transparent, #000 clamp(40px, 12%, 160px)); }
+.dz-edge-fade-bottom { -webkit-mask: linear-gradient(to top, transparent, #000 clamp(40px, 12%, 160px)); mask: linear-gradient(to top, transparent, #000 clamp(40px, 12%, 160px)); }
+.dz-edge-round-top { --dz-edge-r: clamp(24px, 4vw, 64px); position: relative; z-index: 1; border-radius: var(--dz-edge-r) var(--dz-edge-r) 0 0; margin-top: calc(-1 * var(--dz-edge-r)); box-shadow: 0 -30px 60px -40px rgb(0 0 0 / .45); }
+html.dz-builder [class*="dz-edge-"] { -webkit-mask: none !important; mask: none !important; }

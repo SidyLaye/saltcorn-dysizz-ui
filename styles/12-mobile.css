@@ -1,0 +1,28 @@
+/* ---------------------------------------------------------------------
+   12. MOBILE : barre du bas, bouton flottant, feuilles
+   --------------------------------------------------------------------- */
+.dz-bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1040; height: calc(var(--dz-bottomnav-h) + var(--dz-safe-bottom)); padding-bottom: var(--dz-safe-bottom); display: flex; justify-content: space-around; align-items: stretch; background: var(--dz-glass); -webkit-backdrop-filter: blur(12px) saturate(150%); backdrop-filter: blur(12px) saturate(150%); border-top: 1px solid var(--dz-border); }
+.dz-bottom-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .68rem; font-weight: 600; color: var(--dz-text-mute); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.dz-bottom-nav a i { font-size: 1.15rem; transition: transform var(--dz-dur) var(--dz-ease-spring); }
+.dz-bottom-nav a.dz-active { color: var(--dz-primary-ink); }
+.dz-bottom-nav a.dz-active i { transform: translateY(-2px) scale(1.1); }
+@media (min-width: 992px) { .dz-bottom-nav.dz-mobile-only { display: none; } }
+html.dz-has-bottomnav body { padding-bottom: calc(var(--dz-bottomnav-h) + var(--dz-safe-bottom)); }
+@media (min-width: 992px) { html.dz-has-bottomnav-mobile body { padding-bottom: 0; } }
+.dz-fab { position: fixed; right: 1.25rem; bottom: calc(1.25rem + var(--dz-safe-bottom)); z-index: 1041; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: var(--dz-gradient); color: var(--dz-on-primary) !important; font-size: 1.35rem; box-shadow: var(--dz-shadow-glow), var(--dz-shadow); text-decoration: none; transition: transform var(--dz-dur) var(--dz-ease-spring); }
+.dz-fab:hover { transform: scale(1.07) rotate(-4deg); }
+html.dz-has-bottomnav .dz-fab { bottom: calc(var(--dz-bottomnav-h) + 1rem + var(--dz-safe-bottom)); }
+.dz-to-top { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1039; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--dz-border); background: var(--dz-surface); color: var(--dz-text); box-shadow: var(--dz-shadow); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: translateY(12px); pointer-events: none; transition: all var(--dz-dur) var(--dz-ease); }
+.dz-scrolled-far .dz-to-top { opacity: 1; transform: none; pointer-events: auto; }
+.dz-scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 2000; background: var(--dz-gradient); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; will-change: transform; }
+/* défilement horizontal type app (cartes) */
+.dz-scroller { display: grid; grid-auto-flow: column; grid-auto-columns: min(82%, 320px); gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .5rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.dz-scroller::-webkit-scrollbar { display: none; }
+.dz-scroller > * { scroll-snap-align: start; }
+@media (min-width: 992px) { .dz-scroller.dz-grid-desktop { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; } }
+
+/* toasts (JS : DZ.toast) */
+.dz-toasts { position: fixed; z-index: 3000; right: 1rem; bottom: calc(1rem + var(--dz-safe-bottom)); display: grid; gap: .5rem; max-width: min(92vw, 380px); }
+.dz-toast { display: flex; align-items: center; gap: .75rem; padding: .85rem 1rem; border-radius: var(--dz-radius); background: var(--dz-text); color: var(--dz-bg); box-shadow: var(--dz-shadow-lg); font-size: .92rem; animation: dz-toast-in .45s var(--dz-ease-spring); }
+.dz-toast.dz-out { animation: dz-toast-out .3s var(--dz-ease) forwards; }
+@media (max-width: 575px) { .dz-toasts { left: 1rem; right: 1rem; max-width: none; } }

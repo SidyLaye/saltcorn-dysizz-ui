@@ -2,16 +2,14 @@
 
 Plugin Saltcorn (1.6.x) qui apporte :
 
-- un **design system** chargé sur toutes les pages du tenant, clair et sombre ;
-- l'**habillage des vues natives** (List, Edit, Show, Filter, menus, modales, alertes, pagination…) ;
-- un **moteur d'animations** sans dépendance, piloté par des classes et des attributs `data-dz-*` ;
-- **6 univers visuels** complets (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) ;
-- **73 blocs prêts** dans le panneau *Library* du builder : sites, applications web / bureau, mobile ;
-- **7 pages de démo** : landing SaaS, présentation perso, studio, application (menu + Ctrl K), app mobile, 404, catalogue ;
-- un **atelier de blocs** (`/dysizz-ui/blocks`) : crée tes blocs en HTML / CSS / JS avec aperçu en direct, exporte / importe-les entre tenants ;
-- un **guide de production** (`docs/SCALING.md`) et un compose multi-nœud (`deploy/`).
-
-Testé de bout en bout sur un vrai Saltcorn 1.6.2 : installation, réglages, blocs dans la Library, pages de démo.
+- un **design system** clair / sombre en **6 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) et l'habillage des vues natives ;
+- **390 blocs** en **17 familles** : Site, App, Projet, Support, Mail, Commerce, Finance, Données, Agenda, Social, Contenu, Média, Compte, Équipe, Mobile, Outil, Insolite ;
+- des blocs **modifiables sans code** dans le builder (éléments natifs : clic sur un texte pour l'écrire, sur un conteneur pour ses classes, couleurs, marges, animation) ;
+- un **atelier visuel** pour créer ou modifier des blocs (sans code ou en code) ;
+- une page **Classes** : ce qu'il y a derrière chaque classe, et **tes propres classes** (éditeur visuel ou code) ;
+- des **transitions entre sections**, le **défilement doux**, l'aimantation, des **bords de sections** ;
+- un moteur d'animations léger, qui ne calcule rien pendant le défilement ;
+- un **guide de production** (plusieurs serveurs, cache, Redis, sécurité) et un compose prêt.
 
 ---
 
@@ -40,22 +38,23 @@ Dans le tenant racine : **Settings → Site structure → Multitenancy** (`/tena
 
 Ensuite, ouvre `/dysizz-ui` :
 
-1. **Installer les blocs** : ils apparaissent dans le builder, panneau *Library*.
-2. **Installer les pages de démo** (visibles par les admins seulement).
-3. **Ouvrir les réglages** : couleurs, polices, style.
+1. **Coche les familles de blocs** utiles à ce tenant, puis « Installer / mettre à jour ».
+2. **Installe les pages de démo** si tu veux des exemples (visibles par les admins seulement).
+3. **Ouvre les réglages** : univers, couleurs, polices, transitions.
 
 ### d. Le tenant modèle (pour tous les futurs tenants)
 
 1. Crée un tenant `modele` (**Settings → Site structure → Tenants**, `/tenant/list`).
-2. Dedans : installe le plugin, clique sur les deux boutons de `/dysizz-ui`, règle le thème de base.
+2. Dedans : installe le plugin, coche les familles voulues sur `/dysizz-ui`, règle le thème de base.
 3. Ajoute ce qui doit être partout : pages légales, page de connexion, rôles, menu, réglages de sécurité.
 4. Dans le tenant racine, **New tenant template** = `modele`.
 
 Chaque nouveau tenant démarre alors avec le plugin, les blocs, les pages et le thème. Saltcorn copie le modèle par une sauvegarde + restauration puis supprime les utilisateurs copiés (vérifié dans `admin-models/models/tenant.js`, `copy_tenant_template`).
 
-Pour un tenant **déjà existant** : installe le plugin, puis `/dysizz-ui` → les deux boutons.
+Pour un tenant **déjà existant** : installe le plugin, puis `/dysizz-ui` → coche les familles.
 
 ---
+
 
 ## 2. Utilisation au quotidien
 
@@ -76,200 +75,87 @@ Ensuite, **Matière** (moderne, glass, minimal, brutal) ajuste les ombres et bor
 
 Dans les titres, mets les mots importants en *italique* dans l'éditeur de texte (balise `<em>`) : selon l'univers, ils passent en serif italique, en couleur ou en dégradé.
 
-### Construire une page sans coder
+### Construire une page sans code
 
-1. **Pages → Create page**. Pour une landing : coche **No menu** et **Fluid layout** dans les réglages de la page.
-2. Dans le builder, panneau **Library** : un bloc par ligne, rangés par famille (App, Hero, Mobile, Nav, Outil, Visuel, Web). Glisse-les dans la page.
-3. Clique sur un texte pour le modifier, sur une image pour téléverser la tienne. Les conteneurs, colonnes et boutons se règlent dans le panneau de droite.
-4. Les blocs « HTML code » (tarifs, FAQ, carrousels, palette Ctrl K…) se modifient en code : double-clic, puis change les textes entre les balises.
+1. Page → builder. Panneau **Library** : glisse un bloc (les familles installées apparaissent, préfixées « Site · », « Projet · »…).
+2. Clique sur un texte pour l'écrire, sur un bouton pour son lien, sur une image pour son adresse.
+3. Clique sur un conteneur : panneau de droite → classes (champ *Custom class*), couleurs, marges, animation Saltcorn, visibilité par écran.
+4. Tout ce qui est « technique » (graphique SVG, champ de formulaire, tableau) reste un petit bloc HTML modifiable en code.
 
-Dans le builder, le kit coupe les animations et affiche les grilles comme sur la page publiée. Ce qui bouge (défilements, compteurs, apparitions) ne se voit que sur la page.
+Pour **voir tous les blocs d'une famille** : `/dysizz-ui` → « voir » sur la famille (galerie).
 
-### Mettre ta photo, ta capture d'écran ou ton appli dans un visuel
+### Les classes
 
-Les blocs **Visuel · portrait + cartes**, **Hero · portrait (présentation)**, **Hero · app mobile**, **Visuel · téléphone / navigateur / ordinateur portable** contiennent une vraie image Saltcorn :
+`/dysizz-ui/classes` :
 
-1. Clique sur l'image dans le builder.
-2. Panneau de droite : *Source* → **File** et téléverse ta photo (ou colle une URL).
-3. Les cartes flottantes sont des conteneurs avec du texte : clique dessus pour changer le texte. Leur position se règle dans *Custom CSS* (ex. `left:-18px; bottom:64px`).
-4. Le badge rond qui tourne est un bloc HTML : change le texte entre `<textPath …>` et `</textPath>`.
+- **Classes du kit** : chaque classe, à quoi elle sert, un aperçu, et le CSS exact derrière. Recherche instantanée.
+- **Comportements** : les classes qui ajoutent un effet sans code — `dz-counter` (chiffre animé), `dz-typewriter` (machine à écrire), `dz-reveal-zoom` (apparition), `dz-open-<id>` (ouvre un tiroir), `dz-confetti`, `dz-copy`…
+- **Mes classes** : crée une classe en visuel (couleurs, texte, espacements, bordure, ombre, disposition, survol, animation, version mobile, version sombre) ou en CSS. Elle est active tout de suite sur toutes les pages du tenant. Elle est stockée dans la table Saltcorn `dz_classes` (visible dans *Tables*, sauvegardée avec le tenant) ; export / import JSON pour les autres tenants.
 
-### Mélanger avec tes données
+### L'atelier de blocs
 
-Les blocs avec « ⬇ Glisse ici … » (carte + vue, contact + formulaire, liste + détail, coquille d'app, feuille du bas, tiroir, étapes) ont un emplacement prévu : tu y glisses une vue List, Edit, Show, Kanban, Calendrier ou Filter. Le kit la met en forme tout seul.
+`/dysizz-ui/blocks` :
+
+- **Visuel** : clique un élément de l'aperçu → texte, lien, image, icône, classes (avec autocomplétion de toutes les classes), couleurs, marges, arrondi, taille, apparition ; monter, descendre, dupliquer, supprimer ; palette d'éléments à ajouter ; double-clic pour écrire directement ; annuler / rétablir (Ctrl Z / Ctrl Y).
+- **Code** : HTML, CSS limité au bloc, JS optionnel.
+- **Partir d'un bloc du kit** pour en faire ta version ; export / import entre tenants.
+- Sans l'atelier, dans le builder : sélectionne un élément puis *Library → Add*.
+
+### Transitions et défilement
+
+Réglages du kit (`/plugins/configure/dysizz-ui`) :
+
+| Réglage | Choix |
+|---|---|
+| Transition entre sections | aucune, fondu, montée douce, zoom, brume, bascule 3D, rideau, balayage, recouvrement, cartes empilées, profondeur, fondu enchaîné |
+| Sections aimantées | libre, léger, strict |
+| Défilement | natif, doux, très doux (coupé sur mobile, dans les applis et pour ceux qui réduisent les animations) |
+| Fond qui change | la page prend la couleur de la section (classe `dz-morph-<couleur>` sur une section) |
+
+Par page : bloc **Outil · réglages de la page** (classes `dz-page-tr-<nom>`, `dz-page-smooth-<…>`, `dz-page-snap-<…>`). Par section : classe `dz-tr-<nom>`. Bords : `dz-edge-wave`, `-slant`, `-curve`, `-arc`, `-zigzag`, `-steps`, `-fade`, `-round-top`. Essai en direct : `/dysizz-ui/transitions`.
 
 ### Réglages par tenant
 
-| Réglage | Effet |
-|---|---|
-| Univers, Matière | identité complète + finition |
-| Mes propres couleurs | remplace les couleurs de l'univers |
-| Polices | « (celle de l'univers) » ou 14 polices Google + « Système » (aucun appel externe) |
-| Arrondi, largeur max | 0 = valeur de l'univers |
-| Habiller les éléments Saltcorn | boutons, formulaires, tableaux, cartes, menus, modales **et fond de page** des vues natives |
-| Animations | **toujours** (défaut) · **suivre le réglage du visiteur** · **désactivées** |
-| Curseur personnalisé | rond qui suit la souris et grossit sur les liens (ordinateur seulement) |
-| Retour en haut, thème mémorisé, CSS en plus | options |
-
-À propos des animations : si l'ordinateur du visiteur demande de réduire les animations (Windows : *Paramètres → Accessibilité → Effets visuels → Effets d'animation* désactivé), le choix « suivre le réglage du visiteur » fige tout. C'est ce qui donne l'impression que « rien ne défile ». Le défaut est donc « toujours ».
-
-### Performances
-
-Mesuré sur une page de démo, processeur ralenti ×4 et réseau 4G simulé :
-
-| | v2.0 | v2.1+ |
-|---|---|---|
-| Titre du hero visible | 2,7 s | **0,4 s** (dès le 1er affichage) |
-| Temps bloqué (JS/CSS) | 887 ms | **413 ms** |
-| Page prête (DOMContentLoaded) | 1,6 s | **0,8 s** |
-| Défilement | saccades | 60 i/s |
-
-Ce qui a changé :
-
-- Les apparitions au défilement sont faites **par le navigateur** (CSS `animation-timeline: view()`), sans attendre le JS. Le JS ne sert que de secours pour les vieux navigateurs.
-- Plus aucun sélecteur `:has()` (coûteux à chaque changement de la page) : remplacé par des classes posées une fois.
-- Animations en boucle limitées à `transform` / `opacity` (calculées par la carte graphique), et mises en pause dès que leur section sort de l'écran.
-- Les sections hors écran ne sont pas dessinées tant qu'on n'y arrive pas (`content-visibility`).
-- Le JS s'initialise en deux temps : l'essentiel tout de suite, le reste quand le navigateur est libre.
-- CSS et JS compressés une seule fois en brotli / gzip au démarrage puis servis depuis la mémoire, avec `ETag` et cache d'un an (l'URL change à chaque version).
-- Polices chargées sans bloquer l'affichage.
-- Dans l'éditeur de pages, le moteur JS ne tourne pas du tout.
-
-Pour tenir des milliers d'utilisateurs sur plusieurs SaaS (serveurs multiples, Postgres, CDN, sécurité) : voir **[docs/SCALING.md](docs/SCALING.md)**.
-
-### Modifier un bloc, créer les tiens
-
-Un bloc glissé sur une page est une **copie** : tu la modifies librement, l'original de la Library ne bouge pas.
-
-- **Modifier une instance** : clique le bloc dans le builder. Bloc HTML → panneau de droite, zone de code. Conteneur → classes, CSS, couleurs, espacements dans le panneau.
-- **Sans code** : assemble des éléments dans le builder, sélectionne le conteneur parent, puis *Library → Add* (en haut du panneau Library). Il devient un bloc réutilisable dans ce tenant.
-- **Atelier** (`/dysizz-ui/blocks`) : HTML + CSS + JS avec aperçu en direct (bureau / mobile, clair / sombre).
-  - Le CSS est **limité au bloc** automatiquement : `padding:2rem` vise le bloc, `h2{…}` ses titres, `&:hover{…}` le bloc au survol.
-  - Le JS reçoit `el` (le bloc) et tourne une fois par bloc présent sur la page.
-  - *Partir d'un bloc du kit* copie son code dans l'atelier pour en faire ta version.
-  - *Exporter* / *Importer* : un fichier JSON pour passer tes blocs d'un tenant à l'autre (ou les garder dans Git).
-- **En code, pour tous les tenants** : un fichier `.html` dans `blocks/` devient un bloc du kit à la prochaine version (voir `blocks/README.md`).
-
-Les noms des blocs du kit sont réservés : un bloc perso ne peut pas les écraser, et « Mettre à jour les blocs » ne touche jamais aux tiens.
+Univers, matière, couleurs, polices, arrondi, largeur, habillage des vues, barre en verre, animations (toujours / selon le visiteur / jamais), curseur, bouton retour en haut, mémoire du thème, transitions, CSS en plus.
 
 ---
 
-## 3. Aide-mémoire des classes
+## 3. Performance
 
-### Mise en page
+- Le cœur du kit pèse **17 Ko** compressé ; chaque famille a son propre fichier (6 à 10 Ko), chargé seulement si elle est cochée pour le tenant. Le CSS de l'éditeur n'est chargé que dans l'éditeur.
+- Pendant le défilement, **aucun JavaScript** ne tourne : apparitions, parallaxe, texte mot à mot, défilement horizontal, barre de progression et transitions sont calculés par le navigateur sur le processeur graphique. Mesuré sur la landing (processeur ralenti ×4) : image moyenne 46 ms → 20 ms, images lentes 105 → 9.
+- Fichiers pré-compressés (brotli / gzip) en mémoire, cache d'un an, sans cookie.
+- Boucles d'animation en pause hors écran ; sections hors écran non dessinées.
 
-| Classe | Rôle |
-|---|---|
-| `dz-section` · `dz-section-sm` · `dz-section-alt` · `dz-section-dark` · `dz-section-brand` | bande de page (espacement vertical, fond) |
-| `dz-container` · `dz-container-narrow` | largeur max centrée |
-| `dz-grid` + `dz-grid-2/3/4` | grille responsive automatique |
-| `dz-split` (+ `dz-reverse`) | texte / visuel côte à côte, empilé sur mobile |
-| `dz-bento` + `dz-span-2/4/6`, `dz-row-2` | grille bento |
-| `dz-stack`, `dz-cluster`, `dz-center` | pile verticale, ligne qui passe à la ligne, centrage |
-| `dz-scroller` (+ `dz-grid-desktop`) | cartes qui défilent au doigt sur mobile |
-
-### Composants
-
-`dz-btn` (+ `-lg` `-sm` `-ghost` `-soft` `-dark` `-light` `-gradient` `-glow` `-shine` `-link` `-block`), `dz-badge` (+ `-success` `-warning` `-danger` `-neutral`), `dz-announce`, `dz-card` (+ `-hover` `-glass` `-soft` `-brand` `-flat`), `dz-spotlight`, `dz-border-glow`, `dz-icon` (+ `-gradient` `-lg` `-round`), `dz-stat`, `dz-kpi`, `dz-trend-up/down`, `dz-progress`, `dz-ring`, `dz-pricing`, `dz-price-card` (+ `dz-featured`), `dz-check-list`, `dz-faq`, `dz-steps`, `dz-timeline`, `dz-cta`, `dz-footer`, `dz-nav`, `dz-marquee`, `dz-quote`, `dz-avatar(s)`, `dz-empty`, `dz-list`, `dz-callout` (+ `-success` `-warning` `-danger`), `dz-skeleton`, `dz-tabs`, `dz-compare`, `dz-video`, `dz-countdown`, `dz-masonry`, `dz-prose`, `dz-mock` (maquette d'app en CSS), `dz-browser`, `dz-float-card`, `dz-bottom-nav`, `dz-fab`, `dz-to-top`, `dz-scroll-progress`.
-
-### Nouveaux composants (v2)
-
-Sites : `dz-topbar`, `dz-index`, `dz-marquee-xl`, `dz-words` (+ `dz-words-reveal`), `dz-split-text`, `dz-clip`, `dz-stack-cards`, `data-dz-hscroll` (+ `dz-hscroll-sticky`, `dz-hscroll-track`, `dz-hpanel`), `dz-tabs-v` (+ `data-dz-autoplay="6"`), `dz-ctable`, `dz-orbit`, `data-dz-slider="6"`, `dz-portrait-wrap`, `dz-badge-round`, `dz-phone`, `dz-laptop`, `dz-browser`, `dz-work` + `data-dz-filter`, `dz-post`, `dz-logo-grid`, `dz-wordmark`, `dz-huge`, `data-dz-lightbox`, `data-dz-cookie`.
-
-Applications : `dz-app` (+ `dz-side`, `dz-side-item`, `dz-app-main`, `dz-app-top`, `dz-app-body`, `dz-search`), `data-dz-cmdk` (Ctrl K / ⌘K), `dz-settings` + `dz-setting`, `dz-switch`, `dz-profile`, `dz-stepper`, `dz-chips` + `dz-chip`, `dz-notifs` + `dz-notif`, `dz-chat` + `dz-msg` + `dz-typing`, `dz-checklist` + `dz-check`, `dz-dropzone`, `data-dz-tip`, `dz-window`.
-
-Mobile : `dz-appbar`, `dz-largetitle`, `dz-ios-list` + `dz-cell`, `dz-sheet`, `dz-drawer` (+ `data-dz-open="#id"` / `data-dz-close`), `dz-stories`.
-
-### Titres et textes
-
-`dz-display`, `dz-h1`…`dz-h4`, `dz-lead`, `dz-text`, `dz-small`, `dz-eyebrow`, `dz-gradient-text`, `dz-underline`, `dz-highlight`, `dz-stroke-text`.
-
-### Fonds et effets
-
-`dz-hero` (+ `dz-hero-full`), `dz-aurora` (conteneur vide en premier dans la section), `dz-bg-mesh`, `dz-bg-grid`, `dz-bg-dots`, `dz-noise`, `dz-glow-under`, `dz-glass`, `dz-float`, `dz-float-slow`, `dz-pulse`, `dz-spin-slow`, `dz-hover-lift`, `dz-hover-zoom`.
-
-### Animations et interactions (sans code)
-
-| À poser sur l'élément | Effet |
-|---|---|
-| classe `dz-reveal` ou `data-dz-reveal="fade / zoom / blur / left / right / flip"` | apparition au défilement (`data-dz-delay="200"` en ms) |
-| classe `dz-stagger` sur le parent | les enfants apparaissent l'un après l'autre |
-| `data-dz-count="2400"` (+ `data-dz-suffix`, `data-dz-prefix`, `data-dz-decimals`) | compteur animé |
-| `data-dz-typed="mot 1\|mot 2\|mot 3"` | texte qui s'écrit |
-| `data-dz-tilt="8"` | inclinaison 3D à la souris |
-| classe `dz-magnetic` | bouton attiré par la souris |
-| `data-dz-parallax="0.2"` | parallaxe |
-| `data-dz-theme-toggle` | bouton clair / sombre |
-| `data-dz-price-toggle` + `data-monthly` / `data-yearly` | bascule de prix |
-| `data-dz-menu-toggle="#id"` | ouvre / ferme un menu mobile |
-| `data-dz-countdown="2026-12-31T23:59:59"` | compte à rebours |
-| `data-dz-copy="texte"` ou `"#id"` | copie dans le presse-papier |
-| `data-dz-confetti` | confettis au clic |
-| `.dz-progress[data-dz-value="72"]` | barre qui se remplit à l'affichage |
-| classe `dz-words-reveal` | texte qui s'éclaire mot par mot au défilement |
-| classe `dz-split-text` | titre dont les lettres montent une à une |
-| classe `dz-clip` | image qui se dévoile |
-| `data-dz-hscroll` | section qui défile à l'horizontale |
-| `data-dz-slider="6"` | carrousel (6 = défilement auto toutes les 6 s, 0 = manuel) |
-| `data-dz-filter="#grille"` + `data-filter` / `data-tags` | filtres de portfolio |
-| `data-dz-open="#id"` / `data-dz-close` | ouvre / ferme une feuille ou un tiroir |
-| `data-dz-cmdk` | palette de commandes (Ctrl K) |
-| `data-dz-lightbox` | image ou vidéo YouTube en plein écran |
-| `data-dz-dismiss` | bouton qui ferme un bandeau (mémorisé) |
-
-En JavaScript (bouton d'action, code de page) : `DZ.toast("Enregistré")`, `DZ.confetti()`, `DZ.setTheme("dark")`, `DZ.init(element)`.
-
-Le moteur relance tout seul l'initialisation quand Saltcorn recharge un morceau de page en ajax.
+Production (plusieurs serveurs, Postgres, cache nginx, Redis, sécurité, transactions) : **[docs/SCALING.md](docs/SCALING.md)** et **[deploy/docker-compose.scale.yml](deploy/docker-compose.scale.yml)**.
 
 ---
 
-## 4. Mobile
+## 4. Développer le kit
 
-- Tout est responsive. Les grilles passent en une colonne, les modales deviennent des feuilles qui montent du bas.
-- Blocs mobiles : barre d'onglets en bas (`dz-bottom-nav dz-mobile-only`), bouton flottant, cartes défilantes.
-- Application installable : active la PWA dans Saltcorn (**Settings → Notifications**, `/admin/notifications`, case *pwa_enabled*). Le mobile builder Capacitor marche aussi : le plugin passe ses fichiers en chemins mobiles (`normaliseHeaderForMobile` de Saltcorn).
-
----
-
-## 5. Structure et mise à jour
-
-```
-index.js            ← généré : le plugin complet en UN fichier (CSS, JS, blocs, pages embarqués)
-package.json
-src/plugin.js       ← le code du plugin (à modifier)
-blocks/             ← tes blocs en code (.html), ajoutés au kit
-docs/SCALING.md     ← production : multi-serveurs, Postgres, CDN, sécurité
-deploy/             ← docker-compose multi-nœud pour Dokploy / Traefik
-assets/             ← dz-core.css, dz-skin.css, dz.js, blocks.json, demo-pages.json
-tools/build_packs.py   ← régénère assets/blocks.json et assets/demo-pages.json
-tools/build_index.py   ← reconstruit index.js à partir de src/ et assets/
+```bash
+cd tools && npm install          # une fois
+node build.mjs                   # construit index.js
+node preview.mjs <famille|all>   # captures + contrôles de chaque bloc
+python3 ../tests/test_html2layout.py && node ../tests/load-plugin.cjs
 ```
 
-Pourquoi un seul fichier : l'installeur de Saltcorn peut laisser un dossier de module incomplet (dossier déjà présent et jamais retéléchargé, ou deux workers qui installent en même temps). Avec tout dans `index.js`, le plugin n'a besoin d'aucun autre fichier sur le serveur. Le CSS et le JS sont servis par le plugin lui-même sur `/dysizz-ui/a/<version>/<fichier>`, avec un cache long qui saute à chaque nouvelle version.
+- Écrire des blocs : **[docs/BLOCKS.md](docs/BLOCKS.md)**.
+- Organisation du code : **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+- Versions : **[CHANGELOG.md](CHANGELOG.md)**. La CI GitHub construit, teste et vérifie que `index.js` est à jour.
 
-Pour publier une modification :
-
-1. Modifie `src/plugin.js` ou les fichiers de `assets/`.
-2. Augmente `version` dans `package.json`.
-3. `python3 tools/build_packs.py` (si tu as touché aux blocs), puis `python3 tools/build_index.py`.
-4. Pousse sur GitHub, réinstalle le module dans Saltcorn, puis `/dysizz-ui` → *Mettre à jour les blocs*. Les blocs `DZ · …` sont remplacés, les tiens ne sont pas touchés.
-
-Le bouton de Saltcorn qui met à jour les plugins de **tous les tenants d'un coup** ne traite que les plugins npm (`upgrade_all_tenants_plugins` filtre `source: "npm"`). Tant que le kit est sur GitHub, la mise à jour se fait tenant par tenant.
+Publier : modifier les sources, augmenter `version` dans `package.json`, `node build.mjs`, commit + push, mettre à jour le module dans Saltcorn, puis `/dysizz-ui` → « Installer / mettre à jour ».
 
 ---
 
-## 6. Sécurité et vie privée
+## 5. Sécurité et vie privée
 
-- `/dysizz-ui`, l'atelier et toutes leurs actions sont réservés au rôle admin (`role_id === 1`). Les POST passent par le jeton CSRF de Saltcorn.
-- Le HTML / JS d'un bloc s'exécute tel quel sur les pages : seuls les admins peuvent en créer ou en importer. N'importe que des fichiers de blocs dont tu connais la source.
-- Les pages de démo sont installées en `min_role = 1` (admin). Pense à passer en 100 (public) seulement les pages que tu publies.
-- Les valeurs de réglage sont filtrées (couleurs en hexadécimal, listes fermées pour les polices et styles, bornes pour les nombres).
-- **Google Fonts** : les polices sont chargées depuis les serveurs de Google, et ça fait sortir l'IP du visiteur. Pour un site public européen strict (RGPD), choisis « Système » ou héberge les polices toi-même (téléverse-les et déclare-les dans « CSS en plus » avec `@font-face`).
+- Toutes les pages `/dysizz-ui` sont réservées au rôle admin ; les formulaires passent par le jeton CSRF de Saltcorn.
+- Le HTML / JS d'un bloc et le CSS d'une classe s'exécutent tels quels : seuls les admins peuvent en créer ou en importer.
+- Les pages de démo sont en `min_role = 1` (admin).
+- **Google Fonts** fait sortir l'IP du visiteur : pour un site européen strict, choisis la police « Système » ou héberge tes polices.
 
----
+## 6. Limites connues
 
-## 7. Limites connues
-
-- Les blocs « HTML code » se modifient en code dans le builder. Ils sont regroupés et commentés pour que ce soit simple.
-- Le style `brutal` et le thème Bootswatch *Brite* ont tous les deux des bordures épaisses. Avec le kit, un thème Bootstrap neutre dans *any-bootstrap-theme* rend mieux ; garde Brite seulement si tu choisis le style `brutal`.
-- Sur une page en *Fluid layout* avec menu Saltcorn visible, utilise plutôt les blocs « App ». Les blocs de landing sont pensés pour des pages en *No menu*.
+- Les filtres, onglets et sélections de certains blocs de démonstration sont des états visuels : branche une vraie vue Saltcorn pour les données.
+- Le builder de Saltcorn montre les liens sans leur style exact tant qu'ils n'ont pas de classe ; la page publiée, elle, est exacte.

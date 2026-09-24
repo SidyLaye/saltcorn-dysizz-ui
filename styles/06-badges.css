@@ -1,0 +1,25 @@
+/* ---------------------------------------------------------------------
+   6. BADGES, PILLS, ANNONCES
+   --------------------------------------------------------------------- */
+.dz-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .32rem .7rem; border-radius: var(--dz-radius-pill);
+  font-size: var(--dz-fs-xs); font-weight: 600; line-height: 1;
+  color: var(--dz-primary-ink); background: var(--dz-primary-soft);
+  border: 1px solid color-mix(in srgb, var(--dz-primary) 22%, transparent);
+}
+.dz-badge-success { color: var(--dz-success); background: color-mix(in srgb, var(--dz-success) 13%, transparent); border-color: color-mix(in srgb, var(--dz-success) 25%, transparent); }
+.dz-badge-warning { color: var(--dz-warning); background: color-mix(in srgb, var(--dz-warning) 14%, transparent); border-color: color-mix(in srgb, var(--dz-warning) 25%, transparent); }
+.dz-badge-danger { color: var(--dz-danger); background: color-mix(in srgb, var(--dz-danger) 13%, transparent); border-color: color-mix(in srgb, var(--dz-danger) 25%, transparent); }
+.dz-badge-neutral { color: var(--dz-text-soft); background: var(--dz-surface-2); border-color: var(--dz-border); }
+.dz-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+.dz-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: dz-ping 2s infinite; }
+
+.dz-announce {
+  display: inline-flex; align-items: center; gap: .6rem; padding: .35rem .45rem .35rem .4rem;
+  border-radius: var(--dz-radius-pill); border: 1px solid var(--dz-border); background: var(--dz-surface);
+  font-size: var(--dz-fs-sm); color: var(--dz-text-soft); text-decoration: none !important;
+  box-shadow: var(--dz-shadow-xs); transition: border-color var(--dz-dur), transform var(--dz-dur) var(--dz-ease);
+}
+.dz-announce:hover { border-color: var(--dz-primary); transform: translateY(-1px); }
+.dz-announce > b, .dz-announce > strong { padding: .25rem .6rem; border-radius: var(--dz-radius-pill); background: var(--dz-gradient); color: var(--dz-on-primary); font-size: var(--dz-fs-xs); }

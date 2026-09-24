@@ -11,7 +11,7 @@ Lancer :  python3 tools/build_packs.py
 import json, os, textwrap
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "assets")
+OUT = os.path.join(HERE, "..", "build")
 os.makedirs(OUT, exist_ok=True)
 
 
@@ -962,8 +962,68 @@ for f in sorted(glob.glob(os.path.join(HERE, "..", "blocks", "*.html"))):
     if meta["wrap"] == "full": body = f'<section class="dz-section dz-flush">{src}</section>'
     LIB.append({"name": meta["name"], "icon": meta["icon"], "layout": {"type": "blank", "isHTML": True, "contents": body}})
 
-json.dump({"tables": [], "views": [], "plugins": [], "pages": [], "triggers": [], "roles": [], "library": sorted(LIB, key=lambda b: b["name"]), "previous": []},
+# ---- familles : blocs historiques (renommés) + modules tools/packs/*.py ----
+import sys as _sys, importlib
+_sys.path.insert(0, HERE)
+from families import FAMILIES, ORDER, prefix
+OLD_PREFIX = {"Web · ": ("site", ""), "Hero · ": ("site", "hero "), "Nav · ": ("site", "menu "), "Visuel · ": ("site", "visuel "),
+              "App · ": ("app", ""), "Mobile · ": ("mobile", ""), "Outil · ": ("outils", ""), "Code · ": ("outils", "")}
+PREVIOUS = []
+for b in LIB:
+    for op, (fam, extra) in OLD_PREFIX.items():
+        if b["name"].startswith(op):
+            PREVIOUS.append(b["name"])
+            b["family"] = fam
+            b["name"] = prefix(fam) + extra + b["name"][len(op):]
+            break
+    else:
+        b.setdefault("family", "outils")
+
+
+def wrap_html(h, wrap):
+    h = textwrap.dedent(h).strip()
+    if wrap == "section":
+        return f'<section class="dz-section"><div class="dz-container">{h}</div></section>'
+    if wrap == "narrow":
+        return f'<section class="dz-section"><div class="dz-container-narrow">{h}</div></section>'
+    if wrap == "full":
+        return f'<section class="dz-section dz-flush">{h}</section>'
+    if wrap == "app":
+        return f'<div class="dz-app-pad">{h}</div>'
+    return h
+
+
+for mod_file in sorted(glob.glob(os.path.join(HERE, "packs", "*.py"))):
+    mod_name = os.path.splitext(os.path.basename(mod_file))[0]
+    if mod_name.startswith("_"):
+        continue
+    mod = importlib.import_module("packs." + mod_name)
+    fam = mod.FAMILY
+    assert fam in FAMILIES, f"famille inconnue : {fam} ({mod_file})"
+    for blk in mod.BLOCKS:
+        name = prefix(fam) + blk["name"]
+        assert not any(x["name"] == name for x in LIB), f"nom en double : {name}"
+        seg = {"type": "blank", "isHTML": True, "contents": wrap_html(blk["html"], blk.get("wrap", "section"))}
+        if blk.get("raw"):
+            seg["dz_raw"] = True
+        LIB.append({"name": name, "icon": blk.get("icon", FAMILIES[fam][1]), "layout": seg, "family": fam})
+
+# ---- conversion en éléments natifs du builder (modifiables sans code) ----
+from html2layout import convert_layout
+RAW_OUT = {"library": [dict(b) for b in LIB]}
+json.dump(RAW_OUT, open(os.path.join(OUT, "blocks.raw.json"), "w"), ensure_ascii=False)
+for b in LIB:
+    b["layout"] = convert_layout(b["layout"])
+for P_ in [LANDING, PORTRAIT_PAGE, AGENCY, DASH, MOBILE, PAGE404_PAGE, CATALOGUE]:
+    P_["layout"] = convert_layout(P_["layout"])
+
+LIB.sort(key=lambda b: (ORDER.index(b["family"]), b["name"]))
+fam_index = {f: {"label": FAMILIES[f][0], "icon": FAMILIES[f][1], "description": FAMILIES[f][2],
+                 "blocks": [b["name"] for b in LIB if b["family"] == f]} for f in ORDER}
+library = [{"name": b["name"], "icon": b["icon"], "layout": b["layout"]} for b in LIB]
+json.dump({"tables": [], "views": [], "plugins": [], "pages": [], "triggers": [], "roles": [], "library": library,
+           "families": fam_index, "previous": PREVIOUS},
           open(os.path.join(OUT, "blocks.json"), "w"), ensure_ascii=False, indent=1)
 json.dump({"tables": [], "views": [], "plugins": [], "pages": [LANDING, PORTRAIT_PAGE, AGENCY, DASH, MOBILE, PAGE404_PAGE, CATALOGUE], "triggers": [], "roles": [], "library": []},
           open(os.path.join(OUT, "demo-pages.json"), "w"), ensure_ascii=False, indent=1)
-print(len(LIB), "blocs ;", 7, "pages")
+print(len(LIB), "blocs ;", sum(1 for f in fam_index.values() if f["blocks"]), "familles ;", 7, "pages")

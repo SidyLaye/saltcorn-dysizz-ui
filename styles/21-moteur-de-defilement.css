@@ -1,0 +1,27 @@
+/* =====================================================================
+   21. MOTEUR DE DÉFILEMENT (v2.3) — tout est calculé par le navigateur,
+   sur le thread de composition : zéro JS pendant le défilement.
+   ===================================================================== */
+@supports (animation-timeline: view()) {
+  .dz-scroll-progress { animation: dz-sc-progress linear both; animation-timeline: scroll(root); }
+  @keyframes dz-sc-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  html:not([data-dz-motion="off"]) :is([data-dz-parallax], .dz-parallax) { animation: dz-sc-parallax linear both; animation-timeline: view(); will-change: transform; }
+  @keyframes dz-sc-parallax {
+    from { transform: translate3d(0, calc(var(--dz-speed, .2) * (50vh + 50%)), 0); }
+    to   { transform: translate3d(0, calc(var(--dz-speed, .2) * -1 * (50vh + 50%)), 0); }
+  }
+
+  .dz-words { view-timeline-name: --dz-words; }
+  html:not([data-dz-motion="off"]) .dz-words .dz-w { transition: none; animation: dz-sc-word linear both; animation-timeline: --dz-words; animation-range: cover calc(12% + var(--p, 0) * 42%) cover calc(18% + var(--p, 0) * 42%); }
+  @keyframes dz-sc-word { from { opacity: .15; } to { opacity: 1; } }
+
+  .dz-hscroll { view-timeline-name: --dz-hs; }
+  html:not([data-dz-motion="off"]) .dz-hscroll-track { animation: dz-sc-hs linear both; animation-timeline: --dz-hs; animation-range: contain 0% contain 100%; }
+  @keyframes dz-sc-hs { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(calc(-1 * var(--dz-hs-dist, 0px)), 0, 0); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-dz-motion="system"] :is([data-dz-parallax], .dz-parallax, .dz-hscroll-track) { animation: none !important; transform: none !important; }
+  [data-dz-motion="system"] .dz-words .dz-w { animation: none !important; opacity: 1 !important; }
+}
+[data-dz-motion="off"] .dz-words .dz-w { opacity: 1 !important; }
