@@ -278,8 +278,9 @@ a.dzv-ag:hover { background: var(--dzv-primary-soft); }
 .dzv-g-head span { font: 700 1.3rem/1 var(--dz-font-heading, inherit); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .dzv-g-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .dzv-g-grid { stroke: var(--dzv-border); stroke-width: 1; }
-.dzv-g-ax { fill: var(--dzv-mute); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.dzv-g-ax { fill: var(--dzv-mute); font-size: 12px; font-variant-numeric: tabular-nums; }
 .dzv-g-svg circle { transition: r .12s; } .dzv-g-svg circle:hover { r: 5; }
+@media (max-width: 640px) { .dzv-g-ax { font-size: 21px; } .dzv-g-x2 { display: none; } }
 .dzv-g-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .8rem; color: var(--dzv-soft); }
 .dzv-g-legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; }
 

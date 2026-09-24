@@ -59,7 +59,7 @@ const fmtT = (t, pas) => {
 
 const svg = (series, cfg) => {
   const pas = PAS[cfg.pas] || "day";
-  const W = 720, H = +cfg.hauteur || 240, L = 48, R = 12, T = 12, B = 28;
+  const W = 560, H = +cfg.hauteur || 240, L = 44, R = 12, T = 12, B = 28;
   const ts = [...new Set(series.flatMap((s) => s.points.map((p) => p.t)))].sort((a, b) => a - b);
   const all = series.flatMap((s) => s.points.map((p) => p.v));
   const lo = Math.min(0, ...all), hi = Math.max(...all, 1);
@@ -67,8 +67,10 @@ const svg = (series, cfg) => {
   const y = (v) => T + (1 - (v - lo) / (hi - lo || 1)) * (H - T - B);
   const fmt = cfg.format || "int";
   const grid = [0, 0.25, 0.5, 0.75, 1].map((k) => { const v = lo + (hi - lo) * k; return `<line x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" class="dzv-g-grid"/><text x="${L - 6}" y="${(y(v) + 4).toFixed(1)}" class="dzv-g-ax" text-anchor="end">${esc(nf(v, fmt === "eur" ? "int" : fmt))}</text>`; }).join("");
-  const step = Math.max(1, Math.ceil(ts.length / 7));
-  const xl = ts.map((t, i) => (i % step === 0 || i === ts.length - 1 ? `<text x="${x(t).toFixed(1)}" y="${H - 8}" class="dzv-g-ax" text-anchor="${i === ts.length - 1 && ts.length > 1 ? "end" : i === 0 && ts.length > 1 ? "start" : "middle"}">${esc(fmtT(t, pas))}</text>` : "")).join("");
+  const step = Math.max(1, Math.ceil(ts.length / 5));
+  const long = ts.length > 1 && ts[ts.length - 1] - ts[0] > 2 * 864e5;
+  let nth = 0;
+  const xl = ts.map((t, i) => ((i % step === 0 && ts.length - 1 - i >= step / 2) || i === ts.length - 1 ? `<text x="${x(t).toFixed(1)}" y="${H - 8}" class="dzv-g-ax${nth++ % 2 ? " dzv-g-x2" : ""}" text-anchor="${i === ts.length - 1 && ts.length > 1 ? "end" : i === 0 && ts.length > 1 ? "start" : "middle"}">${esc(pas === "hour" && long ? fmtT(t, "day") : fmtT(t, pas))}</text>` : "")).join("");
   const type = cfg.type || "courbe";
   const bw = Math.max(2, ((W - L - R) / Math.max(ts.length, 1)) * 0.8 / series.length);
   const body = series.map((s, si) => {
