@@ -29,6 +29,8 @@ module.exports = {
   onLoad,
   configuration_workflow,
   headers,
+  /* vues de données, utilisables dans tous les tenants (Vues → Créer) */
+  viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir")],
   routes: () => [
     { url: "/dysizz-ui", method: "get", callback: adminPage },
     { url: "/dysizz-ui/a/:ver/:file", method: "get", callback: serveAsset },

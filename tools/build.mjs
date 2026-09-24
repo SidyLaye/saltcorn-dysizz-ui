@@ -92,7 +92,7 @@ const bundleClient = async (entry, globalName) =>
       logLevel: "warning",
     })
   ).outputFiles[0].text;
-out["dz.js"] = await bundleClient("dz.js");
+out["dz.js"] = (await bundleClient("dz.js")) + "\n" + (await bundleClient("vues.js"));
 out["dz-smooth.js"] = await bundleClient("smooth.js");
 for (const f of fs.readdirSync(r("client")).filter((f) => /^editor.*\.js$/.test(f))) out["dz-" + f] = await bundleClient(f);
 for (const [k, v] of Object.entries(out)) fs.writeFileSync(r("build", k), v);

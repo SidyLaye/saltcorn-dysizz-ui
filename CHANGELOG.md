@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.2.0
+
+- 4 vues de données, disponibles dans tous les tenants : **DZ Indicateurs** (chiffres clés), **DZ Tableau** (kanban glisser-déposer), **DZ Répartition** (barres avec objectif), **DZ À venir** (frise des prochains jours). Voir docs/VUES.md.
+- Styles « vues de données et coquille d'application » (préfixe `dzv-`) : menu latéral, barre du bas mobile, panneaux, cartes, listes, lecteur de mail, articles, vidéos, formulaires. Utilisés par les solutions construites avec le kit.
+- Script : puces de filtre actives, glisser-déposer du kanban, salutation du jour.
+
 ## 3.1.0
 
 - Une page de démo par famille (`dz-famille-<famille>`, 17 pages) : tous les blocs de la famille, avec leur nom, modifiables et copiables dans l'éditeur de pages. Navigation entre familles en haut de chaque page.
