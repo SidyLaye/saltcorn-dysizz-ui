@@ -3,6 +3,7 @@
 Plugin Saltcorn (1.6.x) qui apporte :
 
 - un **design system** clair / sombre en **6 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) et l'habillage des vues natives ;
+- **8 vues de données** branchées sur tes tables : Indicateurs, Tableau (kanban), Répartition, À venir, Graphique, Calendrier, Journal, Statut (voir [docs/VUES.md](docs/VUES.md)) ;
 - **390 blocs** en **17 familles** : Site, App, Projet, Support, Mail, Commerce, Finance, Données, Agenda, Social, Contenu, Média, Compte, Équipe, Mobile, Outil, Insolite ;
 - des blocs **modifiables sans code** dans le builder (éléments natifs : clic sur un texte pour l'écrire, sur un conteneur pour ses classes, couleurs, marges, animation) ;
 - un **atelier visuel** pour créer ou modifier des blocs (sans code ou en code) ;

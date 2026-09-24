@@ -270,3 +270,77 @@ a.dzv-ag:hover { background: var(--dzv-primary-soft); }
   .dzv-panel table.table { display: block; overflow-x: auto; white-space: nowrap; }
   .dzv-mail-subj, .dzv-mail-ext { max-width: 62vw; }
 }
+
+/* ---------- DZ Graphique ---------- */
+.dzv-graph { display: flex; flex-direction: column; gap: .5rem; }
+.dzv-g-head { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; }
+.dzv-g-head b { font-weight: 650; }
+.dzv-g-head span { font: 700 1.3rem/1 var(--dz-font-heading, inherit); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.dzv-g-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.dzv-g-grid { stroke: var(--dzv-border); stroke-width: 1; }
+.dzv-g-ax { fill: var(--dzv-mute); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.dzv-g-svg circle { transition: r .12s; } .dzv-g-svg circle:hover { r: 5; }
+.dzv-g-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .8rem; color: var(--dzv-soft); }
+.dzv-g-legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; }
+
+/* ---------- DZ Calendrier ---------- */
+.dzv-cal-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+.dzv-cal-head b { font: 700 1.05rem/1.2 var(--dz-font-heading, inherit); text-transform: capitalize; min-width: 10ch; text-align: center; }
+.dzv-cal-nav, .dzv-cal-today { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; height: 2rem; padding: 0 .6rem; border-radius: 99px; border: 1px solid var(--dzv-border); color: var(--dzv-soft) !important; text-decoration: none !important; font-size: .85rem; }
+.dzv-cal-nav:hover, .dzv-cal-today:hover { background: var(--dzv-surface-2); }
+.dzv-cal-today { margin-left: auto; }
+.dzv-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--dzv-border); border: 1px solid var(--dzv-border); border-radius: var(--dzv-radius); overflow: hidden; }
+.dzv-cal-wd { background: var(--dzv-surface-2); color: var(--dzv-mute); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: .4rem; text-align: center; }
+.dzv-cal-day { background: var(--dzv-surface); min-height: 6.2rem; padding: .3rem; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dzv-cal-day.out { background: var(--dzv-bg); } .dzv-cal-day.out .dzv-cal-num { opacity: .45; }
+.dzv-cal-num { font-size: .78rem; font-weight: 600; color: var(--dzv-soft); }
+.dzv-cal-num a { color: inherit !important; text-decoration: none !important; display: inline-flex; gap: .3rem; align-items: center; }
+.dzv-cal-num a i { font-size: .6rem; opacity: 0; transition: opacity .12s; } .dzv-cal-day:hover .dzv-cal-num a i { opacity: .6; }
+.dzv-cal-day.today .dzv-cal-num { color: var(--dzv-ink); }
+.dzv-cal-day.today .dzv-cal-num > *:first-child, .dzv-cal-day.today .dzv-cal-num:not(:has(a)) { font-weight: 800; }
+.dzv-cal-ev { --ev: var(--dzv-primary); display: block; font-size: .74rem; line-height: 1.25; padding: .12rem .35rem; border-radius: 6px; background: color-mix(in srgb, var(--ev) 14%, transparent); border-left: 3px solid var(--ev); color: var(--dzv-text) !important; text-decoration: none !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dzv-cal-ev small { color: var(--dzv-mute); font-variant-numeric: tabular-nums; }
+.dzv-cal-more { font-size: .7rem; color: var(--dzv-mute); padding-left: .35rem; }
+@media (max-width: 640px) {
+  .dzv-cal-day { min-height: 3.4rem; padding: .2rem; }
+  .dzv-cal-ev { font-size: 0; padding: 0; height: 5px; border-left: 0; background: var(--ev); border-radius: 3px; }
+  .dzv-cal-ev small { display: none; }
+  .dzv-cal-wd { font-size: .62rem; padding: .3rem .1rem; }
+}
+
+/* ---------- DZ Journal ---------- */
+.dzv-log-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .6rem; }
+.dzv-log-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+.dzv-log-chips button { border: 1px solid var(--dzv-border); background: var(--dzv-surface); color: var(--dzv-soft); border-radius: 99px; padding: .25rem .7rem; font-size: .8rem; font-weight: 600; }
+.dzv-log-chips button.on { background: var(--dzv-text); color: var(--dzv-surface); border-color: var(--dzv-text); }
+.dzv-log-chips small { opacity: .65; margin-left: .15rem; }
+.dzv-log-q { max-width: 220px; margin-left: auto; border-radius: 99px; }
+.dzv-log-day h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--dzv-mute); margin: .9rem 0 .3rem; }
+.dzv-log-day h4::first-letter { text-transform: uppercase; }
+.dzv-log-row { --t: var(--dzv-info); display: grid; grid-template-columns: .6rem 3.2rem minmax(0, 1fr); gap: .5rem; align-items: baseline; padding: .3rem .5rem; border-radius: 8px; color: var(--dzv-text) !important; text-decoration: none !important; font-size: .88rem; }
+.dzv-log-row:hover { background: var(--dzv-surface-2); }
+.dzv-log-row.t-ok { --t: var(--dzv-success); } .dzv-log-row.t-warn { --t: var(--dzv-warning); } .dzv-log-row.t-danger { --t: var(--dzv-danger); }
+.dzv-log-row.t-danger .dzv-log-main { color: var(--dzv-danger); }
+.dzv-log-dot { width: .5rem; height: .5rem; border-radius: 50%; background: var(--t); align-self: center; }
+.dzv-log-row time { color: var(--dzv-mute); font-variant-numeric: tabular-nums; font-size: .8rem; }
+.dzv-log-main { overflow-wrap: anywhere; }
+.dzv-log-main code { font-family: var(--dzv-mono) !important; font-size: .78em !important; color: var(--dzv-soft) !important; background: var(--dzv-surface-2) !important; padding: .05rem .35rem; border-radius: 4px; margin-right: .35rem; white-space: nowrap; }
+.dzv-log-main small { float: right; margin-left: .8rem; color: var(--dzv-mute); font-size: .78rem; font-variant-numeric: tabular-nums; }
+
+/* ---------- DZ Statut ---------- */
+.dzv-status { display: flex; flex-direction: column; gap: .8rem; }
+.dzv-status-banner { --t: var(--dzv-success); display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; padding: .9rem 1.1rem; border-radius: var(--dzv-radius); background: color-mix(in srgb, var(--t) 12%, var(--dzv-surface)); border: 1px solid color-mix(in srgb, var(--t) 30%, transparent); }
+.dzv-status-banner i { color: var(--t); font-size: 1.3rem; }
+.dzv-status-banner b { font-size: 1.02rem; }
+.dzv-status-banner small { color: var(--dzv-soft); margin-left: auto; }
+.dzv-status-banner.t-warn { --t: var(--dzv-warning); } .dzv-status-banner.t-danger { --t: var(--dzv-danger); }
+.dzv-status-grid { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.dzv-status-tile { --t: var(--dzv-mute); display: flex; gap: .7rem; align-items: center; padding: .75rem .9rem; border-radius: var(--dzv-radius); border: 1px solid var(--dzv-border); background: var(--dzv-surface); color: var(--dzv-text) !important; text-decoration: none !important; box-shadow: var(--dzv-shadow); min-width: 0; }
+.dzv-status-tile.t-ok { --t: var(--dzv-success); } .dzv-status-tile.t-warn { --t: var(--dzv-warning); } .dzv-status-tile.t-danger { --t: var(--dzv-danger); border-color: color-mix(in srgb, var(--dzv-danger) 40%, transparent); }
+.dzv-status-ic { color: var(--t); font-size: 1.15rem; }
+.dzv-status-tile.t-danger .dzv-status-ic { animation: dzv-pulse 1.6s ease-in-out infinite; }
+.dzv-status-txt { display: flex; flex-direction: column; min-width: 0; }
+.dzv-status-txt b { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dzv-status-txt small { color: var(--dzv-mute); font-size: .78rem; }
+@keyframes dzv-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .dzv-status-tile.t-danger .dzv-status-ic { animation: none; } }

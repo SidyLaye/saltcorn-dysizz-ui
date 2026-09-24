@@ -2,6 +2,11 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.3.0
+
+- 4 nouvelles vues : **DZ Graphique** (courbe, aire, barres dans le temps, regroupement fait par Postgres, plusieurs séries), **DZ Calendrier** (mois en grille, ajout et modification en fenêtre), **DZ Journal** (fil d'événements filtrable), **DZ Statut** (état des services). Voir docs/VUES.md.
+- Elles vont de pair avec dysizz-flow 2.0 : métriques (`dzf_mesures`), journal (`dzf_journal`), surveillance de sites.
+
 ## 3.2.0
 
 - 4 vues de données, disponibles dans tous les tenants : **DZ Indicateurs** (chiffres clés), **DZ Tableau** (kanban glisser-déposer), **DZ Répartition** (barres avec objectif), **DZ À venir** (frise des prochains jours). Voir docs/VUES.md.

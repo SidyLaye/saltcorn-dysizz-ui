@@ -1,4 +1,4 @@
-# Les 4 vues maison
+# Les 8 vues maison
 
 Elles s'utilisent comme n'importe quelle vue Saltcorn : Vues → Créer une vue → choisis le modèle. Les champs en JSON sont écrits à la main dans la configuration de la vue.
 
@@ -44,3 +44,19 @@ Frise des prochains jours. Chaque source :
 | `retard` | `true` : montre aussi ce qui est passé, en rouge, sur « Aujourd'hui » |
 
 Une source dont la table n'existe pas est ignorée.
+
+## DZ Graphique
+
+L'évolution d'une valeur dans le temps : courbe, aire ou barres. Réglages : champ date, champ valeur (vide = compter les lignes), calcul (somme, moyenne, max, min, compter), période, pas (heure, jour, semaine, mois) et, en option, « une courbe par » un champ (jusqu'à 8 séries). Sur Postgres, le regroupement est fait par la base : même des millions de lignes restent rapides. Idéal avec la table `dzf_mesures` de dysizz-flow (champ date `quand`, valeur `valeur`, une courbe par `nom`).
+
+## DZ Calendrier
+
+Un mois en grille. Réglages : champ date, champ titre, couleur par ligne (facultatif), vue de modification (clic sur un élément) et vue d'ajout (clic sur un jour, date pré-remplie). Navigation avec `?dz_mois=AAAA-MM`. Sur téléphone, les éléments deviennent des petites barres de couleur.
+
+## DZ Journal
+
+Un fil d'événements groupé par jour : logs, erreurs, historique d'activité. Le niveau (ok, info, attention, erreur, ou un booléen) colore chaque ligne et donne des filtres ; une recherche filtre instantanément. Marche tel quel sur `dzf_journal` (date `quand`, message `message`, niveau `ok`, source `bloc`, détail `duree_ms`).
+
+## DZ Statut
+
+L'état de tes services en un coup d'œil : un bandeau (« Tout fonctionne », « 2 en panne ») et une tuile par ligne, les pannes en premier. Reconnaît ok / up / lent / panne / erreur / expiré et les booléens. Fait pour la table de sites du modèle « Surveillance de sites » de dysizz-flow.

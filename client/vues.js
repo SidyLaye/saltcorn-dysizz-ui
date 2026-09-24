@@ -110,6 +110,33 @@
     });
   }
 
+  /* DZ Journal : filtre par niveau + recherche (délégation : un seul écouteur, même après rechargement) */
+  function logApply(box) {
+    var lvl = box.getAttribute("data-lvl") || "tout", q = (box.getAttribute("data-q") || "").toLowerCase();
+    box.querySelectorAll(".dzv-log-row").forEach(function (r) {
+      var ok = (lvl === "tout" || r.getAttribute("data-t") === lvl) && (!q || r.textContent.toLowerCase().indexOf(q) >= 0);
+      r.style.display = ok ? "" : "none";
+    });
+    box.querySelectorAll(".dzv-log-day").forEach(function (d) {
+      var any = Array.prototype.some.call(d.querySelectorAll(".dzv-log-row"), function (r) { return r.style.display !== "none"; });
+      d.style.display = any ? "" : "none";
+    });
+  }
+  doc.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-dzv-log]");
+    if (!b) return;
+    var box = b.closest("[data-dzv-logs]");
+    box.querySelectorAll("[data-dzv-log]").forEach(function (x) { x.classList.toggle("on", x === b); });
+    box.setAttribute("data-lvl", b.getAttribute("data-dzv-log"));
+    logApply(box);
+  });
+  doc.addEventListener("input", function (e) {
+    if (!e.target.matches || !e.target.matches("[data-dzv-log-q]")) return;
+    var box = e.target.closest("[data-dzv-logs]");
+    box.setAttribute("data-q", e.target.value);
+    logApply(box);
+  });
+
   function start() { chips(); boards(); hello(); }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start); else start();
   /* le contenu chargé en fenêtre ou rechargé par Saltcorn */
