@@ -88,6 +88,7 @@ const bundleClient = async (entry, globalName) =>
       target: TARGET_JS,
       write: false,
       legalComments: "inline",
+      loader: { ".css": "text" },
       nodePaths: [r("tools/node_modules")],
       logLevel: "warning",
     })
@@ -95,6 +96,8 @@ const bundleClient = async (entry, globalName) =>
 out["dz.js"] = (await bundleClient("dz.js")) + "\n" + (await bundleClient("vues.js"));
 out["dz-smooth.js"] = await bundleClient("smooth.js");
 for (const f of fs.readdirSync(r("client")).filter((f) => /^editor.*\.js$/.test(f))) out["dz-" + f] = await bundleClient(f);
+/* widgets : un fichier chacun, chargé à la demande (dz-w-<nom>.js) */
+for (const f of fs.readdirSync(r("client", "widgets")).filter((f) => /^[a-z0-9-]+\.js$/.test(f))) out["dz-w-" + f] = await bundleClient(path.join("widgets", f));
 for (const [k, v] of Object.entries(out)) fs.writeFileSync(r("build", k), v);
 
 /* 4. embarqué : assets + packs + catalogue des classes */

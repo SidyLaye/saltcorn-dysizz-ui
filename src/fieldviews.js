@@ -48,4 +48,28 @@ const dz_mail = {
   },
 };
 
-module.exports = { dz_mail, frameDoc, clean };
+/* ---------- champs interactifs : s'appuient sur les widgets du kit (chargés à la demande) ---------- */
+const ea = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const hidden = (nm, v) => `<input type="hidden" name="${ea(nm)}" value="${ea(v)}">`;
+const widget = (name, data, inner = "") => `<div data-dz-widget="${name}"${Object.entries(data).map(([k, v]) => (v === undefined || v === null || v === "" ? "" : ` data-${k}="${ea(typeof v === "object" ? JSON.stringify(v) : v)}"`)).join("")}>${inner}</div>`;
+const H = { name: "hauteur", label: "Hauteur (px)", type: "Integer" };
+const edit = (name, description, render, configFields = []) => ({ type: "String", isEdit: true, description, configFields, run: (nm, v, attrs = {}) => render(nm, v ?? "", attrs) });
+const show = (name, description, render, configFields = []) => ({ type: "String", isEdit: false, description, configFields, run: (v, req, attrs = {}) => render(v ?? "", attrs) });
+
+const dz_signature_saisie = edit("signature", "Signature au doigt ou à la souris (image PNG enregistrée dans le champ)", (nm, v, a) => hidden(nm, v) + widget("signature", { champ: nm, hauteur: a.hauteur }), [H]);
+const dz_signature = show("signature", "Affiche la signature", (v) => (String(v).startsWith("data:image/") ? `<img src="${ea(v)}" alt="signature" style="max-width:100%;max-height:140px;background:#fff">` : '<span class="text-muted">—</span>'));
+const dz_position_carte = edit("carte", "Choisir une position sur une carte (« lat,lon »)", (nm, v, a) => hidden(nm, v) + widget("carte", { mode: "choisir", champ: nm, hauteur: a.hauteur || 320, zoom: a.zoom }), [H, { name: "zoom", label: "Zoom de départ", type: "Integer" }]);
+const dz_carte = show("carte", "Petite carte avec le point (champ « lat,lon »)", (v, a) => (/-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?/.test(v) ? widget("carte", { points: [{ position: v }], hauteur: a.hauteur || 220, zoom: 14 }) : '<span class="text-muted">—</span>'), [H]);
+const dz_tableur_saisie = edit("tableur", "Petit tableur avec formules (enregistré en JSON)", (nm, v, a) => hidden(nm, v) + widget("tableur", { champ: nm, hauteur: a.hauteur, lignes: a.lignes, colonnes: a.colonnes }), [H, { name: "lignes", label: "Lignes", type: "Integer" }, { name: "colonnes", label: "Colonnes", type: "Integer" }]);
+const dz_tableur = show("tableur", "Tableur en lecture", (v, a) => widget("tableur", { lecture: "true", valeur: v, hauteur: a.hauteur }), [H]);
+const dz_tableau_blanc = edit("tableau-blanc", "Tableau blanc (dessins, formes, post-it) enregistré dans le champ", (nm, v, a) => hidden(nm, v) + widget("tableau-blanc", { champ: nm, hauteur: a.hauteur }), [H]);
+const dz_tableau_blanc_vue = show("tableau-blanc", "Tableau blanc (modifs non enregistrées)", (v, a) => widget("tableau-blanc", { hauteur: a.hauteur }, `<input type="hidden" value="${ea(v)}">`), [H]);
+const dz_3d_modeleur = edit("3d", "Modeleur 3D (scène enregistrée dans le champ)", (nm, v, a) => hidden(nm, v) + widget("3d", { mode: "modeleur", champ: nm, hauteur: a.hauteur }), [H]);
+const dz_3d = show("3d", "Visionneuse 3D : scène du modeleur ou adresse d'un fichier .glb/.gltf/.stl/.obj", (v, a) => widget("3d", { src: v, hauteur: a.hauteur || 320, rotation: a.rotation === false ? "false" : "" }), [H, { name: "rotation", label: "Tourner tout seul", type: "Bool" }]);
+const dz_scanner = edit("scanner", "Champ texte + bouton pour scanner un QR code / code-barres", (nm, v, a) => `<input type="text" class="form-control mb-2" name="${ea(nm)}" value="${ea(v)}"${a.placeholder ? ` placeholder="${ea(a.placeholder)}"` : ""}>` + widget("scanner", { champ: nm }), [{ name: "placeholder", label: "Texte d'aide", type: "String" }]);
+const dz_photo = edit("photo", "Prendre une photo avec la caméra (image enregistrée dans le champ)", (nm, v) => hidden(nm, v) + widget("scanner", { mode: "photo", champ: nm }) + (String(v).startsWith("data:image/") ? `<img src="${ea(v)}" alt="" style="max-width:160px;margin-top:6px;border-radius:8px">` : ""));
+const dz_image = show("photo", "Affiche une image enregistrée dans le champ (data:image…)", (v, a) => (String(v).startsWith("data:image/") || /^https?:\/\//.test(v) ? `<img src="${ea(v)}" alt="" style="max-width:100%;${a.hauteur ? `max-height:${+a.hauteur}px;` : ""}border-radius:8px">` : '<span class="text-muted">—</span>'), [H]);
+
+const WIDGET_FIELDVIEWS = { dz_signature_saisie, dz_signature, dz_position_carte, dz_carte, dz_tableur_saisie, dz_tableur, dz_tableau_blanc, dz_tableau_blanc_vue, dz_3d_modeleur, dz_3d, dz_scanner, dz_photo, dz_image };
+
+module.exports = { dz_mail, frameDoc, clean, WIDGET_FIELDVIEWS };

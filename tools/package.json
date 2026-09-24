@@ -16,5 +16,9 @@
     "lenis": "1.3.26",
     "playwright": "^1.55.0",
     "postcss": "^8.5.28"
+  },
+  "dependencies": {
+    "leaflet": "1.9",
+    "three": "^0.170.0"
   }
 }

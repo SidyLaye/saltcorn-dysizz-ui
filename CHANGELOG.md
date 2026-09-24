@@ -2,6 +2,11 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.6.0
+
+- **Blocs interactifs** (famille « Interactif ») chargés seulement là où ils servent : visionneuse et **modeleur 3D** (three.js : formes, déplacer/tourner/taille, couleurs, import GLB/STL/OBJ, export GLB/STL, annuler), **mini-moteur de jeux** avec serpent, casse-briques, 2048, mémoire, morpion, coureur, quiz et jeu à coder soi-même, **carte** (Leaflet/OpenStreetMap, points d'une table, choisir une position), **tableur** (formules en français, copier-coller Excel, CSV), **tableau blanc**, **signature**, **chat IA** (intégré ou en bulle), **portefeuille crypto** (connexion, signature, paiement), **planning Gantt**, **scanner** QR / code-barres et photo.
+- Nouveaux champs (fieldviews) : signature, position sur carte, tableur, tableau blanc, modeleur / visionneuse 3D, scanner, photo, image.
+
 ## 3.5.0
 
 - Nouvelle vue **DZ Disponibilité** : page de statut, une barre par jour et par service, % de disponibilité (calcul fait par Postgres).

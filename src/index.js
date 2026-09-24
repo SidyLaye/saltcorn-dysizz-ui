@@ -12,7 +12,7 @@ const { adminPage, saveFamilies, installPages, galerie } = require("./admin/home
 const { classesPage, saveClass, deleteClass, exportClasses, importClasses, classNames } = require("./admin/classes");
 const { transitionsPage } = require("./admin/transitions");
 const hub = require("./hub");
-const { dz_mail } = require("./fieldviews");
+const { dz_mail, WIDGET_FIELDVIEWS } = require("./fieldviews");
 const { atelierPage, saveBlock, deleteBlock, exportBlocks, importBlocks } = require("./admin/atelier");
 
 const onLoad = async () => {
@@ -33,7 +33,7 @@ module.exports = {
   configuration_workflow,
   headers,
   /* affichages de champs : corps d'e-mail sûr et lisible */
-  fieldviews: () => ({ dz_mail }),
+  fieldviews: () => ({ dz_mail, ...WIDGET_FIELDVIEWS }),
   /* vues de données, utilisables dans tous les tenants (Vues → Créer) */
   viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir"), require("./views/graphique"), require("./views/calendrier"), require("./views/journal"), require("./views/statut"), require("./views/disponibilite")],
   routes: () => [

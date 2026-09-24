@@ -919,11 +919,37 @@
      le navigateur est libre (le chargement reste fluide) */
   function init(scope, deferRest) {
     scope = scope || doc;
-    var critical = [classesToData, initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop];
+    var critical = [classesToData, initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop, initWidgets];
     var rest = [initSpotlight, initTilt, initMagnetic, initParallax, initCopy, initCountdown, initCompare, initConfettiTriggers, initSlider, initFilter, initChips, initLightbox, initCookie, initPanels, initCmdk, initTabsAutoplay];
     function run(list) { list.forEach(function (fn) { try { fn(scope); } catch (e) { if (window.console) console.warn("[dysizz-ui]", fn.name, e); } }); }
     run(critical);
     if (deferRest) idle(function () { run(rest); }, { timeout: 800 }); else run(rest);
+  }
+
+  /* widgets riches (3D, jeux, carte, tableur…) : chacun dans son fichier,
+     chargé seulement sur les pages qui en contiennent un */
+  var wLoading = {};
+  function initWidgets(scope) {
+    var F = window.__dzFam;
+    if (!F || !F.w) return;
+    var els = (scope.matches && scope.matches("[data-dz-widget]") ? [scope] : []).concat($all("[data-dz-widget]", scope));
+    els.forEach(function (el) {
+      if (el.__dzw) return;
+      el.__dzw = true;
+      var name = String(el.getAttribute("data-dz-widget") || "").replace(/[^a-z0-9-]/g, "");
+      if (!name) return;
+      var go = function () { try { window.DZW[name](el); } catch (e) { el.innerHTML = '<div class="dz-wg-err">Ce bloc n\'a pas pu démarrer : ' + String(e.message || e).replace(/</g, "&lt;") + "</div>"; if (window.console) console.warn("[dysizz-ui] widget " + name, e); } };
+      if (window.DZW && window.DZW[name]) return go();
+      if (!wLoading[name]) {
+        wLoading[name] = [];
+        var sc = doc.createElement("script");
+        sc.src = F.w + name + ".js";
+        sc.onload = function () { var q = wLoading[name]; wLoading[name] = null; q.forEach(function (f) { f(); }); };
+        sc.onerror = function () { el.innerHTML = '<div class="dz-wg-err">Bloc « ' + name + ' » introuvable</div>'; };
+        doc.head.appendChild(sc);
+      }
+      if (wLoading[name]) wLoading[name].push(go); else go();
+    });
   }
 
   window.DZ = { __loaded: true, init: init, toast: toast, confetti: confetti, setTheme: setTheme, version: "2.2.0" };
@@ -944,7 +970,7 @@
   }
 
   function start() {
-    if (inBuilder) { initThemeToggle(doc); return; }
+    if (inBuilder) { initThemeToggle(doc); $all("[data-dz-widget]").forEach(function (el) { if (!el.children.length) el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> Bloc interactif « ' + el.getAttribute("data-dz-widget") + ' » (visible sur la page publiée)</div>'; }); return; }
     loadFamilies();
     pageFlags();
     try { initTransitions(); } catch (e) { if (window.console) console.warn("[dysizz-ui] transitions", e); }

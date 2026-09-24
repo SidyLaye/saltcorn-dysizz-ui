@@ -33,7 +33,7 @@ const getPacked = (file) => {
 };
 const serveAsset = (req, res) => {
   const file = req.params.file;
-  const type = ASSETS[file] || (/^dz-f-[a-z]+\.css$/.test(file) ? "text/css; charset=utf-8" : /^classes-[a-z0-9-]+\.json$/.test(file) ? "application/json; charset=utf-8" : /^dz-editor[a-z-]*\.js$/.test(file) ? "application/javascript; charset=utf-8" : null);
+  const type = ASSETS[file] || (/^dz-f-[a-z]+\.css$/.test(file) ? "text/css; charset=utf-8" : /^classes-[a-z0-9-]+\.json$/.test(file) ? "application/json; charset=utf-8" : /^dz-(editor[a-z-]*|w-[a-z0-9-]+)\.js$/.test(file) ? "application/javascript; charset=utf-8" : null);
   if (!type || EMBED[file] === undefined) return res.status(404).send("Not found");
   const etag = `"dz-${VERSION}-${file}"`;
   /* un fichier du kit n'est propre à personne : pas de cookie de session

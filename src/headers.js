@@ -50,6 +50,7 @@ const headers = (rawCfg) => {
     builderCss: pub("dz-builder.css"),
     fam: EMBED["family-prefixes.json"] || {},
     famUrl: pub("dz-f-"),
+    wUrl: pub("dz-w-"),
     tr: c.transition,
     snap: c.snap,
     smooth: c.smooth,
@@ -64,7 +65,7 @@ const headers = (rawCfg) => {
       "h.setAttribute('data-dz-motion',b?'off':f.motion);if(f.cursor)h.setAttribute('data-dz-cursor','on');if(f.top)h.setAttribute('data-dz-totop','on');" +
       "if(f.tr!=='none')h.setAttribute('data-dz-tr',f.tr);if(f.snap!=='off')h.setAttribute('data-dz-snap',f.snap);if(f.smooth!=='off')h.setAttribute('data-dz-smooth',f.smooth);if(!f.morph)h.setAttribute('data-dz-bgmorph','off');" +
       "if(f.remember){try{var t=localStorage.getItem('dz-theme');if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark'||t==='light')h.setAttribute('data-bs-theme',t);}catch(e){}}" +
-      "window.__dzFam={map:f.fam,url:f.famUrl};h.classList.add('dz-js');setTimeout(function(){if(!window.DZ)h.classList.remove('dz-js');},3000);" +
+      "window.__dzFam={map:f.fam,url:f.famUrl,w:f.wUrl};h.classList.add('dz-js');setTimeout(function(){if(!window.DZ)h.classList.remove('dz-js');},3000);" +
       "})(" + JSON.stringify(flags) + ");</script>",
   });
   out.push({ script: pub("dz.js"), defer: true });

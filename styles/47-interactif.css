@@ -1,0 +1,9 @@
+/* =====================================================================
+   47. INTERACTIF (préfixe dz-ix-) — cadre des blocs vivants.
+   Le style des widgets eux-mêmes est livré avec chaque widget (dz-w-*.js).
+   ===================================================================== */
+.dz-ix-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .5rem 1rem; margin-bottom: 1rem; }
+.dz-ix-head p { margin: 0; color: var(--dz-text-soft); max-width: 60ch; }
+.dz-ix-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.dz-ix-tip { font-size: .85rem; color: var(--dz-text-soft); margin-top: .6rem; }
+.dz-ix-tip code { font-size: .8rem; }

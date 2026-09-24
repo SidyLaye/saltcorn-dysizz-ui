@@ -122,6 +122,24 @@ Univers, matière, couleurs, polices, arrondi, largeur, habillage des vues, barr
 
 ---
 
+### Blocs interactifs (famille « Interactif »)
+
+Des blocs vivants, chargés seulement sur les pages qui les utilisent :
+3D (visionneuse et modeleur), jeux (serpent, casse-briques, 2048, mémoire,
+morpion, coureur, quiz, ou ton propre jeu avec le mini-moteur), carte,
+tableur, tableau blanc, signature, chat IA, portefeuille crypto, planning
+Gantt, scanner QR / code-barres et photo.
+
+Chaque bloc est un `<div data-dz-widget="nom" data-…>` : on le règle par ses
+attributs dans le builder. Dans un formulaire, `data-champ="mon_champ"`
+enregistre le résultat dans ce champ. Les mêmes outils existent en
+« fieldviews » à choisir sur un champ texte : `dz_signature_saisie`,
+`dz_position_carte`, `dz_tableur_saisie`, `dz_tableau_blanc`,
+`dz_3d_modeleur`, `dz_3d`, `dz_scanner`, `dz_photo`, `dz_image`…
+
+Le chat IA parle au modèle « Assistant IA pour tes pages » de dysizz-flow,
+qui crée l'adresse `/dzf/api/assistant`.
+
 ## 3. Performance
 
 - Le cœur du kit pèse **17 Ko** compressé ; chaque famille a son propre fichier (6 à 10 Ko), chargé seulement si elle est cochée pour le tenant. Le CSS de l'éditeur n'est chargé que dans l'éditeur.

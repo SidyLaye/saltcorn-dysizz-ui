@@ -16,6 +16,7 @@ FAMILIES = {
     "equipe":   ("Équipe",    "fas fa-sitemap",        "Organigramme, annuaire, fiches membres, congés, recrutement"),
     "mobile":   ("Mobile",    "fas fa-mobile-alt",     "Écrans d'app mobile : barres, listes, feuilles, onglets, stories"),
     "outils":   ("Outil",     "fas fa-toolbox",        "Réglages de page, séparateurs, bascules, effets, utilitaires invisibles"),
+    "interactif": ("Interactif", "fas fa-cubes",       "Blocs vivants : 3D (visionneuse et modeleur), jeux, carte, tableur, tableau blanc, signature, chat IA, portefeuille crypto, planning, scanner"),
     "insolite": ("Insolite",  "fas fa-hat-wizard",     "Blocs surprenants : terminal, billet, polaroid, post-it, platine vinyle, reçu, horloge…"),
 }
 ORDER = list(FAMILIES.keys())
