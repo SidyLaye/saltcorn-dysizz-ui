@@ -141,12 +141,14 @@
   function mailFrames() {
     doc.querySelectorAll(".dzv-mailframe iframe:not([data-dzv-ok])").forEach(function (f) {
       f.setAttribute("data-dzv-ok", "1");
-      var fit = function () { try { var d = f.contentDocument; if (d && d.body) f.style.height = Math.min(Math.max(d.documentElement.scrollHeight, 120), 4000) + "px"; } catch (e) { f.style.height = "70vh"; } };
+      var fit = function () { try { var d = f.contentDocument; if (d && d.body) { f.style.height = Math.min(Math.max(d.documentElement.scrollHeight, 120), 6000) + "px"; var b = f.parentNode.querySelector("[data-dzv-mailhist]"); if (b) b.hidden = !d.querySelector(".gmail_quote,blockquote[type=cite],.yahoo_quoted,#divRplyFwdMsg,#appendonsend,.moz-cite-prefix"); } } catch (e) { f.style.height = "70vh"; } };
       f.addEventListener("load", function () { fit(); setTimeout(fit, 400); setTimeout(fit, 1500); });
       fit();
     });
   }
   doc.addEventListener("click", function (e) {
+    var h = e.target.closest && e.target.closest("[data-dzv-mailhist]");
+    if (h) { var fr = h.parentNode.querySelector("iframe"); try { var bd = fr.contentDocument.body; bd.classList.toggle("dz-all"); h.textContent = bd.classList.contains("dz-all") ? "Masquer l'historique" : "Afficher l'historique"; fr.style.height = Math.min(fr.contentDocument.documentElement.scrollHeight, 6000) + "px"; } catch (x) {} return; }
     var b = e.target.closest && e.target.closest("[data-dzv-mailimg]");
     if (!b) return;
     var box = b.closest(".dzv-mailframe"), f = box.querySelector("iframe");

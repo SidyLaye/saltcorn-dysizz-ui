@@ -35,7 +35,7 @@ module.exports = {
   /* affichages de champs : corps d'e-mail sûr et lisible */
   fieldviews: () => ({ dz_mail }),
   /* vues de données, utilisables dans tous les tenants (Vues → Créer) */
-  viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir"), require("./views/graphique"), require("./views/calendrier"), require("./views/journal"), require("./views/statut")],
+  viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir"), require("./views/graphique"), require("./views/calendrier"), require("./views/journal"), require("./views/statut"), require("./views/disponibilite")],
   routes: () => [
     /* l'accueil façon Windows 8 : toutes les applis, outils Dysizz et l'admin Saltcorn */
     { url: "/dysizz", method: "get", callback: hub.hubPage },

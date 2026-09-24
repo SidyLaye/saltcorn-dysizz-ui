@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.5.0
+
+- Nouvelle vue **DZ Disponibilité** : page de statut, une barre par jour et par service, % de disponibilité (calcul fait par Postgres).
+- Mails : historique des réponses replié (texte et HTML Gmail / Outlook / Apple), bouton pour le déplier.
+- Images d'articles avec vignette de couleur quand il n'y en a pas, logos d'entreprise sur les offres, lien « Ouvrir sur YouTube » sous le lecteur.
+
 ## 3.4.0
 
 - **Accueil façon Windows 8** sur `/dysizz` : une tuile par appli (Me et ses modules), outil Dysizz (kit UI, workflows) et page d'administration Saltcorn, avec des infos en direct (mails non lus, workflows en erreur…), recherche au clavier, clair / sombre. Ajouté en tête du menu Saltcorn ; bouton « Ouvrir ici à la connexion ». Les autres plugins ajoutent leurs tuiles avec l'export `dysizz_hub`.
