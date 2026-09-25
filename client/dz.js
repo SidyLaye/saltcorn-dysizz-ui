@@ -727,7 +727,7 @@
         if (!src) return;
         var box = doc.createElement("div"); box.className = "dz-lightbox";
         var yt = src.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
-        box.innerHTML = yt ? '<iframe src="https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>' : '<img alt="">';
+        box.innerHTML = yt ? '<iframe src="https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1&origin=' + encodeURIComponent(location.origin) + '" referrerpolicy="strict-origin-when-cross-origin" data-dz-yt="1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>' : '<img alt="">';
         if (!yt) box.querySelector("img").src = src;
         doc.body.appendChild(box);
         requestAnimationFrame(function () { box.classList.add("dz-open"); });
@@ -919,7 +919,7 @@
      le navigateur est libre (le chargement reste fluide) */
   function init(scope, deferRest) {
     scope = scope || doc;
-    var critical = [classesToData, initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop, initWidgets];
+    var critical = [classesToData, initReveal, initSplit, initTyped, initThemeToggle, initMenus, initMarquee, initTabs, initPriceToggle, initAnchors, initDismiss, initOffscreen, initWords, initHScroll, initBottomNav, initToTop, initWidgets, initYoutube];
     var rest = [initSpotlight, initTilt, initMagnetic, initParallax, initCopy, initCountdown, initCompare, initConfettiTriggers, initSlider, initFilter, initChips, initLightbox, initCookie, initPanels, initCmdk, initTabsAutoplay];
     function run(list) { list.forEach(function (fn) { try { fn(scope); } catch (e) { if (window.console) console.warn("[dysizz-ui]", fn.name, e); } }); }
     run(critical);
@@ -929,6 +929,22 @@
   /* widgets riches (3D, jeux, carte, tableur…) : chacun dans son fichier,
      chargé seulement sur les pages qui en contiennent un */
   var wLoading = {};
+  /* Lecteurs YouTube : la page Saltcorn envoie « Referrer-Policy: same-origin », donc YouTube
+     ne reçoit pas l'adresse du site et refuse de lire (erreur 153). On donne au cadre sa propre
+     règle (l'origine seule est transmise) et on le recharge une fois. Vaut aussi pour les
+     anciennes vues qui n'ont pas l'attribut. */
+  function initYoutube(scope) {
+    var list = (scope || doc).querySelectorAll ? (scope || doc).querySelectorAll('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]') : [];
+    if (scope && scope.tagName === "IFRAME") list = [scope];
+    Array.prototype.forEach.call(list, function (f) {
+      if (f.getAttribute("referrerpolicy") === "strict-origin-when-cross-origin" && f.getAttribute("data-dz-yt")) return;
+      var src = f.getAttribute("src");
+      src = src.replace(/([?&])origin=(&|$)/, "$1"); if (!/[?&]origin=[^&]/.test(src)) src += (src.indexOf("?") < 0 ? "?" : "&") + "origin=" + encodeURIComponent(location.origin);
+      f.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+      f.setAttribute("data-dz-yt", "1");
+      f.setAttribute("src", src);
+    });
+  }
   function initWidgets(scope) {
     var F = window.__dzFam;
     if (!F || !F.w) return;

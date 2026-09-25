@@ -2,6 +2,10 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.6.2
+
+- Vidéos YouTube : fin de l'erreur 153. Saltcorn envoie « Referrer-Policy: same-origin », donc YouTube ne recevait pas l'adresse du site. Chaque lecteur YouTube de la page (y compris dans les anciennes vues et les fenêtres) reçoit sa propre règle et le paramètre origin, puis se recharge une fois.
+
 ## 3.6.1
 
 - Mails en texte arrivés « à plat » (retours à la ligne perdus) : les lignes de citation et « Le … a écrit : » sont reconstituées, l'historique est replié.
