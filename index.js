@@ -1,4 +1,4 @@
-/* dysizz-ui 3.6.0 — FICHIER GÉNÉRÉ par tools/build.mjs depuis src/, styles/, client/ et blocks/. Ne pas modifier à la main. */
+/* dysizz-ui 3.6.1 — FICHIER GÉNÉRÉ par tools/build.mjs depuis src/, styles/, client/ et blocks/. Ne pas modifier à la main. */
 "use strict";
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __commonJS = (cb, mod) => function __require() {
@@ -10,7 +10,7 @@ var require_core = __commonJS({
   "../src/core.js"(exports2, module2) {
     "use strict";
     var PLUGIN2 = "dysizz-ui";
-    var VERSION = true ? "3.6.0" : "dev";
+    var VERSION = true ? "3.6.1" : "dev";
     var pub = (file) => `/dysizz-ui/a/${VERSION}/${file}`;
     var isAdmin = (req) => !!(req.user && req.user.role_id === 1);
     var esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
@@ -1256,8 +1256,13 @@ var require_fieldviews = __commonJS({
 body:not(.dz-all) .gmail_quote,body:not(.dz-all) blockquote[type=cite],body:not(.dz-all) .yahoo_quoted,body:not(.dz-all) #divRplyFwdMsg,body:not(.dz-all) #divRplyFwdMsg~*,body:not(.dz-all) #appendonsend~*,body:not(.dz-all) .moz-cite-prefix,body:not(.dz-all) .moz-cite-prefix+blockquote{display:none!important}</style></head><body>${html}</body></html>`;
     var linkify = (t) => esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     var HIST = /^(>|(Le |On ).{6,160}(a écrit|wrote)\s*:?\s*$|-{2,}\s*(Original Message|Message d'origine|Forwarded message|Message transféré)|(De|From)\s*:\s.+@)/i;
+    var unflatten = (t) => {
+      const s = String(t);
+      if (s.length < 400 || (s.match(/\n/g) || []).length > s.length / 400) return s;
+      return s.replace(/\s((?:Le |On )(?:lun|mar|mer|jeu|ven|sam|dim|mon|tue|wed|thu|fri|sat|sun|\d)[^\n]{4,200}?(?:a écrit|wrote)\s*:)\s*/gi, "\n$1\n").replace(/\s(\*?(?:De|From)\s*:\*?\s[^\n]{0,80}?@)/g, "\n$1").replace(/[ \t]+(>(?:[ \t]*>)*)[ \t]+/g, "\n$1 ");
+    };
     var textBody = (t) => {
-      const lines = String(t).replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").split("\n");
+      const lines = unflatten(t).replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").split("\n");
       const cut = lines.findIndex((l, i) => i > 0 && HIST.test(l.trim()));
       const fmt = (ls) => ls.map((l) => /^\s*>/.test(l) ? `<span class="q">${linkify(l)}</span>` : linkify(l)).join("\n");
       if (cut < 0) return `<div class="dzv-mailtext">${fmt(lines)}</div>`;
