@@ -2,6 +2,30 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.8.0
+
+### Ajouté — des briques pour construire des outils (famille Interactif)
+- **Parcours** : éditeur visuel de processus (étapes, conditions oui/non, validations, fin, ou palette sur mesure) ; panneau de réglages, souris, doigt, clavier, zoom, contrôle du schéma, lecture seule avec étapes passées et en cours. Exécuté pour de vrai par le bloc dysizz-flow « Exécuter un parcours » (2.4.2).
+- **Formulaire** : constructeur (11 types de questions, aperçu en direct) et remplissage (obligatoires et formats vérifiés en direct, envoi bloqué tant qu'il reste une erreur).
+- **Règles** : conditions « si … et/ou … » par menus, relues en français, expression prête pour les parcours (chaque valeur saisie reste du texte, jamais du code).
+- **Document** : éditeur par blocs façon Notion, menu « / », clavier complet, HTML nettoyé.
+- **Planning** : semaine en glisser-déposer, clavier, un jour à la fois sur téléphone.
+- Chacune : affichages de champ (saisie et lecture) et bloc de démonstration.
+
+### Ajouté — design
+- **8 nouveaux univers** : Néon, Pastel, Institution, Rétro, Nature, Suisse, Océan, Sahel (clair et sombre, polices dédiées), soit 14 identités.
+- Matière **« doux »** (grands arrondis, ombres diffuses).
+- Polices : Unbounded, Nunito, IBM Plex Sans, Rubik, Lora, Syne.
+
+### Corrigé / UX
+- Variables CSS passées en style aux widgets jamais appliquées (couleurs par type restées bleues).
+- « null » affiché sous les questions sans aide.
+- Boutons clés qui perdaient leur libellé sur téléphone.
+- Cibles tactiles d'au moins 44 px au doigt (boutons du kit et des widgets).
+
+### Tests
+- `tests/widgets.test.mjs` : chaque brique utilisée comme un humain dans Chromium (clics, glisser, clavier, mobile), dans `npm test` et la CI.
+
 ## 3.7.0
 
 ### Ajouté

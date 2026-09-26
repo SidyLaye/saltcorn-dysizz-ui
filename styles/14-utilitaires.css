@@ -54,3 +54,10 @@
    qui défile horizontalement, il élargissait alors toute la page sur mobile. Ancré en haut
    à gauche de son bloc conteneur, il reste invisible et ne pousse plus rien. */
 .visually-hidden:not(:focus):not(:focus-within), .sr-only:not(:focus):not(:focus-within) { top: 0; left: 0; }
+
+/* Au doigt : des cibles d'au moins 44 px (recommandation d'accessibilité), sans rien
+   changer à la souris. */
+@media (pointer: coarse) {
+  .dz-btn, .dzw-b { min-height: 44px; }
+  .dzw-b { padding-left: 12px; padding-right: 12px; }
+}

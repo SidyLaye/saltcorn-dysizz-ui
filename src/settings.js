@@ -19,6 +19,12 @@ const FONTS = {
   "Playfair Display": { g: "Playfair+Display:wght@400;500;600;700", stack: '"Playfair Display", Georgia, serif' },
   "Instrument Serif": { g: "Instrument+Serif:ital@0;1", stack: '"Instrument Serif", Georgia, serif' },
   "Inter Tight": { g: "Inter+Tight:wght@400;500;600;700", stack: '"Inter Tight", system-ui, sans-serif' },
+  "Unbounded": { g: "Unbounded:wght@400;500;600;700;800", stack: '"Unbounded", system-ui, sans-serif' },
+  "Nunito": { g: "Nunito:wght@400;600;700;800;900", stack: '"Nunito", system-ui, sans-serif' },
+  "IBM Plex Sans": { g: "IBM+Plex+Sans:wght@400;500;600;700", stack: '"IBM Plex Sans", system-ui, sans-serif' },
+  "Rubik": { g: "Rubik:wght@400;500;600;700;800;900", stack: '"Rubik", system-ui, sans-serif' },
+  "Lora": { g: "Lora:ital,wght@0,400;0,500;0,600;0,700;1,400", stack: '"Lora", Georgia, serif' },
+  "Syne": { g: "Syne:wght@400;500;600;700;800", stack: '"Syne", system-ui, sans-serif' },
   "Système (aucun téléchargement)": { g: null, stack: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif' },
 };
 const FONT_AUTO = "(celle de l'univers)";
@@ -34,9 +40,17 @@ const PRESETS = {
   aurora: { label: "Aurora — violet, cyan, dégradés (SaaS grand public, IA)", heading: "Plus Jakarta Sans", body: "Inter" },
   terre: { label: "Terre — sable, olive, terracotta (artisan, bien-être, immobilier)", heading: "Fraunces", body: "Manrope", accent: "Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,600" },
   luxe: { label: "Luxe — noir chaud, or, serif (hôtel, mode, premium)", heading: "Playfair Display", body: "Manrope", accent: "Playfair+Display:ital,wght@1,400;1,500" },
+  neon: { label: "Néon — nuit, magenta et cyan électriques (jeu vidéo, événementiel, musique, web3)", heading: "Unbounded", body: "Sora", mono: true },
+  pastel: { label: "Pastel — crème, lilas et pêche, tout en rondeurs (enfants, éducation, bien-être)", heading: "Nunito", body: "Nunito" },
+  institution: { label: "Institution — blanc, bleu marine, sobre (banque, assurance, public, B2B)", heading: "IBM Plex Sans", body: "IBM Plex Sans" },
+  retro: { label: "Rétro — primaires franches, contours noirs, ombres pleines (food, jeunesse, marque décalée)", heading: "Rubik", body: "Rubik", mono: true },
+  nature: { label: "Nature — vert forêt, lin, serif chaleureux (bio, ONG, tourisme, jardin)", heading: "Lora", body: "DM Sans", accent: "Lora:ital,wght@1,400;1,500" },
+  suisse: { label: "Suisse — noir, blanc, rouge pur, angles droits (architecture, design, musée)", heading: "Inter Tight", body: "Inter Tight" },
+  ocean: { label: "Océan — bleus et turquoise, frais et rassurant (santé, voyage, fintech)", heading: "Outfit", body: "Inter" },
+  sahel: { label: "Sahel — ocre, indigo et or (commerce, culture, mode, tourisme)", heading: "Syne", body: "Manrope", mono: true },
 };
 const PRESET_KEYS = Object.keys(PRESETS);
-const STYLES = ["moderne", "glass", "minimal", "brutal"];
+const STYLES = ["moderne", "glass", "minimal", "brutal", "doux"];
 const MOTIONS = ["toujours", "suivre le réglage du visiteur", "désactivées"];
 /* transitions entre sections (clé CSS → libellé) */
 const TRANSITIONS = {

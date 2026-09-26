@@ -2,11 +2,12 @@
 
 Plugin Saltcorn (1.6.x) qui apporte :
 
-- un **design system** clair / sombre en **6 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) et l'habillage des vues natives ;
+- un **design system** clair / sombre en **14 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe, Néon, Pastel, Institution, Rétro, Nature, Suisse, Océan, Sahel) et l'habillage des vues natives ;
 - un **accueil façon Windows 8** (`/dysizz`) qui mène à toutes tes applis, aux outils Dysizz et à l'administration Saltcorn ;
 - **8 vues de données** branchées sur tes tables : Indicateurs, Tableau (kanban), Répartition, À venir, Graphique, Calendrier, Journal, Statut (voir [docs/VUES.md](docs/VUES.md)) ;
 - **390 blocs** en **17 familles** : Site, App, Projet, Support, Mail, Commerce, Finance, Données, Agenda, Social, Contenu, Média, Compte, Équipe, Mobile, Outil, Insolite ;
 - des blocs **modifiables sans code** dans le builder (éléments natifs : clic sur un texte pour l'écrire, sur un conteneur pour ses classes, couleurs, marges, animation) ;
+- des **briques pour construire des outils clients** : éditeur de parcours (workflows exécutés par dysizz-flow), constructeur de formulaires, de règles, éditeur de documents par blocs, planning en glisser-déposer ;
 - un **atelier visuel** pour créer ou modifier des blocs (sans code ou en code) ;
 - une page **Classes** : ce qu'il y a derrière chaque classe, et **tes propres classes** (éditeur visuel ou code) ;
 - des **transitions entre sections**, le **défilement doux**, l'aimantation, des **bords de sections** ;
