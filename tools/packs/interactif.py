@@ -91,6 +91,42 @@ add("tableur", "fas fa-table", section(
     "Tableur", "Cellules, formules en français ou en anglais (=SOMME(A1:A5), =SI(B2>10;\"oui\";\"non\"), =MOYENNE…), copier-coller depuis Excel, import et export CSV.",
     w("tableur", hauteur=420, valeur='{"lignes":12,"colonnes":5,"cellules":{"A1":"Poste","B1":"Janvier","C1":"Février","D1":"Mars","E1":"Total","A2":"Loyer","B2":"850","C2":"850","D2":"850","E2":"=SOMME(B2:D2)","A3":"Courses","B3":"320","C3":"295","D3":"340","E3":"=SOMME(B3:D3)","A4":"Transport","B4":"75","C4":"75","D4":"90","E4":"=SOMME(B4:D4)","A5":"Total","B5":"=SOMME(B2:B4)","C5":"=SOMME(C2:C4)","D5":"=SOMME(D2:D4)","E5":"=SOMME(E2:E4)"},"gras":{"A1":1,"B1":1,"C1":1,"D1":1,"E1":1,"A5":1,"E5":1}}'),
     "Dans un formulaire : <code>data-champ=\"donnees\"</code> enregistre le tableau (JSON) dans un champ texte."))
+# ---- Parcours (processus, workflows clients) -----------------------------------
+import json as _json
+_NDF = {"v": 1, "noeuds": [
+    {"id": "d", "cle": "debut", "type": "debut", "titre": "Note de frais déposée", "x": 0, "y": 120},
+    {"id": "c", "cle": "condition", "type": "condition", "titre": "Plus de 500 € ?", "x": 260, "y": 110, "reglages": {"expression": "ctx.montant > 500"}},
+    {"id": "v", "cle": "validation", "type": "attente", "titre": "Accord du manager", "x": 520, "y": 20, "reglages": {"qui": "Manager"}},
+    {"id": "p", "cle": "etape", "type": "etape", "titre": "Paiement par la compta", "x": 780, "y": 120, "reglages": {"responsable": "Comptabilité"}},
+    {"id": "f", "cle": "fin", "type": "fin", "titre": "Remboursé", "x": 1040, "y": 120}],
+  "liens": [{"id": "l1", "de": "d", "vers": "c"}, {"id": "l2", "de": "c", "vers": "v", "si": "oui"}, {"id": "l3", "de": "c", "vers": "p", "si": "non"},
+            {"id": "l4", "de": "v", "vers": "p"}, {"id": "l5", "de": "p", "vers": "f"}]}
+add("éditeur de parcours", "fas fa-project-diagram", section(
+    "Éditeur de parcours", "Construis un processus en quelques clics : ajoute des étapes, relie-les en tirant le rond de droite, règle chaque étape dans le panneau. Au doigt comme à la souris, avec annuler, zoom et contrôle du schéma.",
+    w("parcours", hauteur=460, valeur=_json.dumps(_NDF, ensure_ascii=False)),
+    "Dans un formulaire, mets l'affichage « dz_parcours_saisie » sur un champ texte : le schéma y est enregistré. Le bloc dysizz-flow « Exécuter un parcours » le déroule pour de vrai."))
+add("suivi d'un parcours", "fas fa-route", section(
+    "Où en est le dossier ?", "Le même parcours en lecture seule : les étapes déjà passées sont en vert, l'étape en cours en orange.",
+    w("parcours", hauteur=340, lecture="true", valeur=_json.dumps(_NDF, ensure_ascii=False), trace='["d","c","v"]', actif="v")))
+
+# ---- Briques pour construire des outils ---------------------------------------
+add("constructeur de formulaire", "fab fa-wpforms", section(
+    "Constructeur de formulaire", "Tes clients créent eux-mêmes leurs questionnaires, fiches d'inspection ou demandes : ajouter une question, la régler, la déplacer, voir l'aperçu en direct.",
+    w("formulaire", valeur='{"v": 1, "titre": "Demande d\'intervention", "intro": "Décrivez le problème, l\'équipe technique vous répond sous 24 h.", "champs": [{"id": "q1", "type": "texte", "label": "Votre nom", "requis": true}, {"id": "q2", "type": "email", "label": "E-mail", "requis": true}, {"id": "q3", "type": "choix", "label": "Type de problème", "options": ["Panne", "Fuite", "Électricité", "Autre"], "requis": true}, {"id": "q4", "type": "zone", "label": "Description", "aide": "Où, depuis quand, ce que vous avez déjà essayé"}, {"id": "q5", "type": "oui_non", "label": "Est-ce urgent ?"}, {"id": "q6", "type": "note", "label": "Gêne ressentie", "max": 5}]}'),
+    "Mets l'affichage « dz_formulaire_constructeur » sur un champ texte pour enregistrer le formulaire, puis « dz_formulaire_remplir » sur un autre champ pour collecter les réponses."))
+add("formulaire à remplir", "fas fa-clipboard-check", section(
+    "Formulaire à remplir", "Le même formulaire côté personne qui répond : champs obligatoires et formats vérifiés en direct, messages clairs, grand confort au doigt.",
+    w("formulaire", mode="remplir", schema='{"v": 1, "titre": "Demande d\'intervention", "intro": "Décrivez le problème, l\'équipe technique vous répond sous 24 h.", "champs": [{"id": "q1", "type": "texte", "label": "Votre nom", "requis": true}, {"id": "q2", "type": "email", "label": "E-mail", "requis": true}, {"id": "q3", "type": "choix", "label": "Type de problème", "options": ["Panne", "Fuite", "Électricité", "Autre"], "requis": true}, {"id": "q4", "type": "zone", "label": "Description", "aide": "Où, depuis quand, ce que vous avez déjà essayé"}, {"id": "q5", "type": "oui_non", "label": "Est-ce urgent ?"}, {"id": "q6", "type": "note", "label": "Gêne ressentie", "max": 5}]}')))
+add("constructeur de règles", "fas fa-sliders-h", section(
+    "Constructeur de règles", "« Si le montant dépasse 500 € et que c'est les Achats, ou si c'est urgent… » : des conditions sans code, relues en français, prêtes pour un parcours, un filtre ou une alerte.",
+    w("regles", valeur='{"v": 1, "logique": "ou", "groupes": [{"logique": "et", "conditions": [{"champ": "montant", "op": "sup", "valeur": "500"}, {"champ": "service", "op": "egal", "valeur": "Achats"}]}, {"logique": "et", "conditions": [{"champ": "urgent", "op": "vrai", "valeur": ""}]}]}')))
+add("éditeur de document", "far fa-file-alt", section(
+    "Éditeur de document", "Wiki, procédures, comptes rendus : des blocs comme dans Notion. Tape « / » pour choisir un type, Entrée pour continuer.",
+    w("document", valeur='{"v": 1, "blocs": [{"t": "h1", "html": "Procédure d\'accueil"}, {"t": "p", "html": "Ce qu\'il faut faire le <b>premier jour</b> d\'un nouvel arrivant."}, {"t": "h2", "html": "Avant son arrivée"}, {"t": "tache", "html": "Créer son compte et son adresse e-mail", "fait": true}, {"t": "tache", "html": "Préparer le poste de travail"}, {"t": "h2", "html": "Le jour J"}, {"t": "num", "html": "Accueil et visite des locaux"}, {"t": "num", "html": "Présentation de l\'équipe"}, {"t": "encadre", "html": "Pense à lui remettre le <i>livret d\'accueil</i> et le badge."}, {"t": "citation", "html": "Un bon accueil, c\'est la moitié de l\'intégration."}]}')))
+add("planning de la semaine", "far fa-calendar-alt", section(
+    "Planning de la semaine", "Rendez-vous, équipes, salles : trace un créneau, glisse-le, allonge-le. Un jour à la fois sur téléphone.",
+    w("planning", valeur='{"v": 1, "evenements": [{"id": "a", "titre": "Réunion d\'équipe", "date": "2026-09-28", "debut": "09:00", "fin": "10:00", "couleur": "#2563eb"}, {"id": "b", "titre": "Rendez-vous client", "date": "2026-09-29", "debut": "14:00", "fin": "15:30", "couleur": "#16a34a"}, {"id": "c", "titre": "Formation", "date": "2026-09-30", "debut": "10:00", "fin": "12:30", "couleur": "#8b5cf6"}, {"id": "d", "titre": "Point projet", "date": "2026-10-01", "debut": "11:00", "fin": "11:30", "couleur": "#f59e0b"}, {"id": "e", "titre": "Démo produit", "date": "2026-10-02", "debut": "16:00", "fin": "17:00", "couleur": "#ec4899"}]}', date="2026-09-28", hauteur=520)))
+
 add("tableau blanc", "fas fa-chalkboard", section(
     "Tableau blanc", "Dessine, écris, pose des post-it, fais des schémas. Zoom à la molette ou en pinçant, export en image.",
     w("tableau-blanc", hauteur=480)))

@@ -2,6 +2,45 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.8.0
+
+### Ajouté — des briques pour construire des outils (famille Interactif)
+- **Parcours** : éditeur visuel de processus (étapes, conditions oui/non, validations, fin, ou palette sur mesure) ; panneau de réglages, souris, doigt, clavier, zoom, contrôle du schéma, lecture seule avec étapes passées et en cours. Exécuté pour de vrai par le bloc dysizz-flow « Exécuter un parcours » (2.4.2).
+- **Formulaire** : constructeur (11 types de questions, aperçu en direct) et remplissage (obligatoires et formats vérifiés en direct, envoi bloqué tant qu'il reste une erreur).
+- **Règles** : conditions « si … et/ou … » par menus, relues en français, expression prête pour les parcours (chaque valeur saisie reste du texte, jamais du code).
+- **Document** : éditeur par blocs façon Notion, menu « / », clavier complet, HTML nettoyé.
+- **Planning** : semaine en glisser-déposer, clavier, un jour à la fois sur téléphone.
+- Chacune : affichages de champ (saisie et lecture) et bloc de démonstration.
+
+### Ajouté — design
+- **8 nouveaux univers** : Néon, Pastel, Institution, Rétro, Nature, Suisse, Océan, Sahel (clair et sombre, polices dédiées), soit 14 identités.
+- Matière **« doux »** (grands arrondis, ombres diffuses).
+- Polices : Unbounded, Nunito, IBM Plex Sans, Rubik, Lora, Syne.
+
+### Corrigé / UX
+- Variables CSS passées en style aux widgets jamais appliquées (couleurs par type restées bleues).
+- « null » affiché sous les questions sans aide.
+- Boutons clés qui perdaient leur libellé sur téléphone.
+- Cibles tactiles d'au moins 44 px au doigt (boutons du kit et des widgets).
+
+### Tests
+- `tests/widgets.test.mjs` : chaque brique utilisée comme un humain dans Chromium (clics, glisser, clavier, mobile), dans `npm test` et la CI.
+
+## 3.7.0
+
+### Ajouté
+- **Page Santé et sécurité** (`/dysizz/sante`, tuile sur `/dysizz`) : 16 vérifications en feux tricolores, expliquées en mots simples — double authentification, inscriptions, mots de passe, sauvegardes (automatiques, hors serveur, chiffrées), e-mail chiffré, données et actions ouvertes au public, pages ou vues en double, **test réel des transactions** (avec la cause probable si elles ne marchent pas), clé du coffre, cookies sécurisés derrière le proxy, CORS, en-têtes HTTP, plugins GitHub pour les tenants, versions. Chaque correction montre d'abord ce qui va changer (rien n'est écrit), puis s'applique en un clic. Réservée aux admins ; les réglages du serveur n'apparaissent que dans le tenant racine.
+- `docs/DEMARRAGE.md` : mettre une instance en sécurité pas à pas (secrets, Dokploy en HTTPS, sauvegardes hors serveur, mises à jour, tenants confiés à des tiers).
+
+### Corrigé
+- **Texte qui s'écrit, bouton Copier, effet 3D** : le marqueur « déjà initialisé » écrasait leur réglage (même attribut). Le texte ne s'animait jamais et les blocs du builder affichaient « mot 1 | mot 2 | mot 3 » en entier (hero 400 px trop haut) ; Copier copiait « 1 » ou ne réagissait pas ; la 3D tombait à 1°. Test navigateur ajouté (`tests/dz-client.test.mjs`).
+- **Débordement horizontal sur mobile** causé par les textes réservés aux lecteurs d'écran (`.visually-hidden`) placés dans une zone qui défile : ils sont ancrés à leur bloc conteneur. Premier cas trouvé : « App · table d'administration ».
+- Page d'accueil `dysizz-accueil` : plus de doublon sur double clic (existence vérifiée en base).
+
+### Contrôle qualité
+- Le contrôle visuel rend enfin la variante mobile **à 390 px** (tout était rendu en 1280 px, le débordement mobile n'était jamais détecté), démarre les widgets interactifs, reconnaît les blocs flottants, nomme l'élément qui déborde, et **fait échouer la CI** sur un vrai défaut (débordement, erreur JS, bloc invisible, écart ≥ 2 %).
+- CI : fichier de workflow valide (elle ne démarrait jamais) ; `npm test` lance la vraie suite.
+
 ## 3.6.2
 
 - Vidéos YouTube : fin de l'erreur 153. Saltcorn envoie « Referrer-Policy: same-origin », donc YouTube ne recevait pas l'adresse du site. Chaque lecteur YouTube de la page (y compris dans les anciennes vues et les fenêtres) reçoit sa propre règle et le paramètre origin, puis se recharge une fois.

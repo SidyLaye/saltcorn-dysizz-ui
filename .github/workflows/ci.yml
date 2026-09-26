@@ -26,9 +26,16 @@ jobs:
         working-directory: tools
         run: node build.mjs
       - name: index.js est à jour dans le dépôt
-        run: git diff --exit-code -- index.js || (echo "::error::index.js n'est pas à jour : lance « cd tools && node build.mjs » puis commit." && exit 1)
+        run: |
+          git diff --exit-code -- index.js || (echo "::error::index.js n'est pas à jour : lance « cd tools && node build.mjs » puis commit." && exit 1)
       - name: Chargement du plugin (sans Saltcorn)
         run: node tests/load-plugin.cjs
+      - name: Page Santé et sécurité (Saltcorn simulé)
+        run: node tests/sante.test.cjs
+      - name: Moteur navigateur (texte qui s'écrit, Copier, 3D)
+        run: node tests/dz-client.test.mjs
+      - name: Widgets utilisés comme un humain (clics, glisser, clavier)
+        run: node tests/widgets.test.mjs
       - name: Contrôle visuel de tous les blocs (débordement mobile, erreurs JS, écart natif)
         working-directory: tools
         run: node preview.mjs all

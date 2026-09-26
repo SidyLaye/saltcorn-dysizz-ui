@@ -14,6 +14,7 @@ const { transitionsPage } = require("./admin/transitions");
 const hub = require("./hub");
 const { dz_mail, WIDGET_FIELDVIEWS } = require("./fieldviews");
 const { atelierPage, saveBlock, deleteBlock, exportBlocks, importBlocks } = require("./admin/atelier");
+const { santePage, corriger } = require("./admin/sante");
 
 const onLoad = async () => {
   try {
@@ -40,6 +41,9 @@ module.exports = {
     /* l'accueil façon Windows 8 : toutes les applis, outils Dysizz et l'admin Saltcorn */
     { url: "/dysizz", method: "get", callback: hub.hubPage },
     { url: "/dysizz/home", method: "post", callback: hub.setHome },
+    /* santé et sécurité du tenant : diagnostic, aperçu puis correction */
+    { url: "/dysizz/sante", method: "get", callback: santePage },
+    { url: "/dysizz/sante/corriger", method: "post", callback: corriger },
     { url: "/dysizz-ui", method: "get", callback: adminPage },
     { url: "/dysizz-ui/a/:ver/:file", method: "get", callback: serveAsset },
     { url: "/dysizz-ui/families", method: "post", callback: saveFamilies },

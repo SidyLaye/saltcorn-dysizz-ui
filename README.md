@@ -2,11 +2,12 @@
 
 Plugin Saltcorn (1.6.x) qui apporte :
 
-- un **design system** clair / sombre en **6 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe) et l'habillage des vues natives ;
+- un **design system** clair / sombre en **14 univers** (Nocturne, Éditorial, Studio, Aurora, Terre, Luxe, Néon, Pastel, Institution, Rétro, Nature, Suisse, Océan, Sahel) et l'habillage des vues natives ;
 - un **accueil façon Windows 8** (`/dysizz`) qui mène à toutes tes applis, aux outils Dysizz et à l'administration Saltcorn ;
 - **8 vues de données** branchées sur tes tables : Indicateurs, Tableau (kanban), Répartition, À venir, Graphique, Calendrier, Journal, Statut (voir [docs/VUES.md](docs/VUES.md)) ;
 - **390 blocs** en **17 familles** : Site, App, Projet, Support, Mail, Commerce, Finance, Données, Agenda, Social, Contenu, Média, Compte, Équipe, Mobile, Outil, Insolite ;
 - des blocs **modifiables sans code** dans le builder (éléments natifs : clic sur un texte pour l'écrire, sur un conteneur pour ses classes, couleurs, marges, animation) ;
+- des **briques pour construire des outils clients** : éditeur de parcours (workflows exécutés par dysizz-flow), constructeur de formulaires, de règles, éditeur de documents par blocs, planning en glisser-déposer ;
 - un **atelier visuel** pour créer ou modifier des blocs (sans code ou en code) ;
 - une page **Classes** : ce qu'il y a derrière chaque classe, et **tes propres classes** (éditeur visuel ou code) ;
 - des **transitions entre sections**, le **défilement doux**, l'aimantation, des **bords de sections** ;
@@ -27,7 +28,7 @@ Dans le tenant racine : **Settings → Site structure → Multitenancy** (`/tena
 
 | Réglage | Valeur | Pourquoi |
 |---|---|---|
-| Install git plugins | ✅ | sans ça, un tenant ne peut pas installer un plugin GitHub |
+| Install git plugins | ✅ tant que tu es le seul admin de tous les tenants | sans ça, un tenant ne peut pas installer un plugin GitHub. **À décocher** avant de confier un tenant à quelqu'un : un plugin GitHub est du code exécuté sur le serveur (voir [docs/DEMARRAGE.md](docs/DEMARRAGE.md) §6) |
 | New tenant template | `modele` (voir plus bas) | chaque nouveau tenant copie ce modèle |
 
 ### c. Installer le plugin
@@ -170,6 +171,8 @@ Publier : modifier les sources, augmenter `version` dans `package.json`, `node b
 
 ## 5. Sécurité et vie privée
 
+- **Page Santé et sécurité** (`/dysizz/sante`, tuile sur `/dysizz`) : 2FA, inscriptions, mots de passe, sauvegardes, e-mail, données et actions ouvertes au public, test réel des transactions, cookies, CORS, en-têtes HTTP, versions. Chaque correction montre d'abord ce qui va changer, puis s'applique en un clic. À ouvrir dans chaque tenant.
+- **Pas à pas pour la partie serveur** (secrets, Dokploy en HTTPS, sauvegardes hors serveur) : [docs/DEMARRAGE.md](docs/DEMARRAGE.md).
 - Toutes les pages `/dysizz-ui` sont réservées au rôle admin ; les formulaires passent par le jeton CSRF de Saltcorn.
 - Le HTML / JS d'un bloc et le CSS d'une classe s'exécutent tels quels : seuls les admins peuvent en créer ou en importer.
 - Les pages de démo sont en `min_role = 1` (admin).

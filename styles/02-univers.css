@@ -118,6 +118,178 @@
   --dz-glass: rgba(14,12,9,.72); --dz-glass-border: rgba(242,234,217,.08);
 }
 
+/* NÉON — nuit bleutée, magenta et cyan électriques, titres larges. Jeu vidéo, événementiel, musique, web3 */
+[data-dz-preset="neon"] {
+  --dz-primary-ink: #b0127a;
+  --dz-primary: #ff2bd6; --dz-on-primary: #12001a; --dz-accent: #00e5ff; --dz-accent-2: #fff45c;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 700; --dz-heading-tracking: -.03em;
+  --dz-radius: 14px; --dz-btn-radius: 12px;
+  --dz-bg: #f4f2fb; --dz-bg-soft: #ebe7f7; --dz-surface: #ffffff; --dz-surface-2: #efebfa;
+  --dz-text: #120a24; --dz-text-soft: #4b4163; --dz-text-mute: #857b9c;
+  --dz-border: rgba(18,10,36,.12); --dz-border-strong: rgba(18,10,36,.24);
+  --dz-gradient: linear-gradient(120deg, #ff2bd6, #00e5ff);
+  --dz-gradient-3: linear-gradient(100deg, #ff2bd6, #7b61ff 50%, #00e5ff);
+}
+[data-dz-preset="neon"][data-bs-theme="dark"] {
+  --dz-primary-ink: #ff6be3;
+  --dz-bg: #07051a; --dz-bg-soft: #0d0a26; --dz-surface: #110d2e; --dz-surface-2: #181339;
+  --dz-text: #f1ecff; --dz-text-soft: #b3a9d6; --dz-text-mute: #7a70a3;
+  --dz-border: rgba(177,150,255,.14); --dz-border-strong: rgba(177,150,255,.3);
+  --dz-glass: rgba(13,10,38,.62); --dz-glass-border: rgba(0,229,255,.18);
+  --dz-shadow-glow: 0 0 0 1px rgba(255,43,214,.45), 0 0 28px -4px rgba(255,43,214,.55), 0 0 60px -20px rgba(0,229,255,.6);
+}
+
+/* PASTEL — crème rosée, lilas et pêche, tout en rondeurs. Enfants, éducation, bien-être, apps grand public */
+[data-dz-preset="pastel"] {
+  --dz-primary-ink: #6d4bd1;
+  --dz-primary: #8f6bff; --dz-on-primary: #ffffff; --dz-accent: #ffb38a; --dz-accent-2: #7fd8be;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 800; --dz-heading-tracking: -.02em;
+  --dz-radius: 22px; --dz-btn-radius: 999px;
+  --dz-bg: #fff8f3; --dz-bg-soft: #fcefe8; --dz-surface: #ffffff; --dz-surface-2: #f8f0ff;
+  --dz-text: #2d2346; --dz-text-soft: #5f5578; --dz-text-mute: #9a91b0;
+  --dz-border: rgba(45,35,70,.1); --dz-border-strong: rgba(45,35,70,.2);
+  --dz-gradient: linear-gradient(120deg, #b69cff, #ffb38a);
+  --dz-gradient-3: linear-gradient(100deg, #8f6bff, #ff8fb1, #ffb38a);
+  --dz-shadow-sm: 0 2px 6px -2px rgba(143,107,255,.18); --dz-shadow: 0 14px 34px -16px rgba(143,107,255,.35);
+}
+[data-dz-preset="pastel"][data-bs-theme="dark"] {
+  --dz-primary-ink: #c3b0ff;
+  --dz-bg: #1c1729; --dz-bg-soft: #221c33; --dz-surface: #271f3a; --dz-surface-2: #2f2645;
+  --dz-text: #f6f0ff; --dz-text-soft: #c7bddf; --dz-text-mute: #8f86a8;
+  --dz-border: rgba(246,240,255,.1); --dz-border-strong: rgba(246,240,255,.22);
+}
+
+/* INSTITUTION — blanc net, bleu marine, sobriété. Banque, assurance, public, juridique, B2B */
+[data-dz-preset="institution"] {
+  --dz-primary-ink: #0b3d91;
+  --dz-primary: #0b3d91; --dz-on-primary: #ffffff; --dz-accent: #0f766e; --dz-accent-2: #c2410c;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 600; --dz-heading-tracking: -.01em;
+  --dz-radius: 6px; --dz-btn-radius: 6px;
+  --dz-bg: #f5f7fa; --dz-bg-soft: #edf1f6; --dz-surface: #ffffff; --dz-surface-2: #f1f4f8;
+  --dz-text: #0f1b2d; --dz-text-soft: #3d4a5c; --dz-text-mute: #6b778a;
+  --dz-border: rgba(15,27,45,.12); --dz-border-strong: rgba(15,27,45,.24);
+  --dz-gradient: linear-gradient(120deg, #0b3d91, #1e6fd9);
+  --dz-gradient-3: linear-gradient(100deg, #0b3d91, #1e6fd9);
+  --dz-shadow-sm: 0 1px 2px rgba(15,27,45,.06); --dz-shadow: 0 1px 3px rgba(15,27,45,.08), 0 8px 20px -12px rgba(15,27,45,.18); --dz-shadow-glow: none;
+}
+[data-dz-preset="institution"][data-bs-theme="dark"] {
+  --dz-primary: #5b9dff; --dz-primary-ink: #8ab8ff; --dz-on-primary: #06132a;
+  --dz-gradient: linear-gradient(120deg, #8ab8ff, #5eead4); --dz-gradient-3: linear-gradient(100deg, #8ab8ff, #c7dcff);
+  --dz-bg: #0b1320; --dz-bg-soft: #0f1929; --dz-surface: #121d2f; --dz-surface-2: #172438;
+  --dz-text: #e8eef7; --dz-text-soft: #a9b6c9; --dz-text-mute: #74829a;
+  --dz-border: rgba(232,238,247,.1); --dz-border-strong: rgba(232,238,247,.22);
+}
+
+/* RÉTRO — primaires franches, contours noirs, ombres pleines. Food, jeunesse, événement, marque décalée */
+[data-dz-preset="retro"] {
+  --dz-primary-ink: #b42318;
+  --dz-primary: #ff5a36; --dz-on-primary: #1a1206; --dz-accent: #2563eb; --dz-accent-2: #ffd23f;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 800; --dz-heading-tracking: -.035em;
+  --dz-radius: 10px; --dz-btn-radius: 10px; --dz-border-w: 2px;
+  --dz-bg: #fff6e0; --dz-bg-soft: #ffedc2; --dz-surface: #fffdf6; --dz-surface-2: #fff1cc;
+  --dz-text: #1a1206; --dz-text-soft: #4a3d25; --dz-text-mute: #8a7a58;
+  --dz-border: #1a1206; --dz-border-strong: #1a1206;
+  --dz-gradient: linear-gradient(120deg, #ff5a36, #ffd23f);
+  --dz-gradient-3: linear-gradient(100deg, #ff5a36, #ffd23f, #2563eb);
+  --dz-shadow-sm: 2px 2px 0 #1a1206; --dz-shadow: 4px 4px 0 #1a1206; --dz-shadow-lg: 7px 7px 0 #1a1206; --dz-shadow-glow: 4px 4px 0 #1a1206;
+}
+[data-dz-preset="retro"][data-bs-theme="dark"] {
+  --dz-primary-ink: #ff8a6b;
+  --dz-bg: #16110a; --dz-bg-soft: #1e170e; --dz-surface: #231b10; --dz-surface-2: #2c2214;
+  --dz-text: #fff4d6; --dz-text-soft: #d6c6a0; --dz-text-mute: #9c8c68;
+  --dz-border: #fff4d6; --dz-border-strong: #fff4d6;
+  --dz-shadow-sm: 2px 2px 0 #ffd23f; --dz-shadow: 4px 4px 0 #ffd23f; --dz-shadow-lg: 7px 7px 0 #ffd23f; --dz-shadow-glow: 4px 4px 0 #ff5a36;
+}
+
+/* NATURE — vert forêt, lin, serif chaleureux. Bio, agriculture, ONG, tourisme, jardin */
+[data-dz-preset="nature"] {
+  --dz-primary-ink: #2f5d3a;
+  --dz-primary: #2f5d3a; --dz-on-primary: #f4f1e8; --dz-accent: #c7902e; --dz-accent-2: #7fa05c;
+  --dz-font-accent: "Lora", Georgia, serif; --dz-accent-style: italic;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 600; --dz-heading-tracking: -.02em;
+  --dz-radius: 16px; --dz-btn-radius: 999px;
+  --dz-bg: #f4f1e8; --dz-bg-soft: #ebe6d8; --dz-surface: #fbfaf5; --dz-surface-2: #efebdf;
+  --dz-text: #1d2a1f; --dz-text-soft: #4a5a4b; --dz-text-mute: #87917f;
+  --dz-border: rgba(29,42,31,.12); --dz-border-strong: rgba(29,42,31,.24);
+  --dz-gradient: linear-gradient(120deg, #2f5d3a, #7fa05c);
+  --dz-gradient-3: linear-gradient(100deg, #2f5d3a, #7fa05c, #c7902e);
+}
+[data-dz-preset="nature"][data-bs-theme="dark"] {
+  --dz-primary: #8fc27a; --dz-primary-ink: #a9d596; --dz-on-primary: #0f1a10;
+  --dz-gradient: linear-gradient(120deg, #a9d596, #e0b75a); --dz-gradient-3: linear-gradient(100deg, #a9d596, #e0b75a);
+  --dz-bg: #0f1610; --dz-bg-soft: #141d15; --dz-surface: #172118; --dz-surface-2: #1d291e;
+  --dz-text: #eef2e6; --dz-text-soft: #b4c0ab; --dz-text-mute: #7d8a75;
+  --dz-border: rgba(238,242,230,.1); --dz-border-strong: rgba(238,242,230,.22);
+}
+
+/* SUISSE — style typographique international : noir, blanc, rouge pur, angles droits. Architecture, design, musée, studio */
+[data-dz-preset="suisse"] {
+  --dz-primary-ink: #d7261e;
+  --dz-primary: #e3261e; --dz-on-primary: #ffffff; --dz-accent: #111111; --dz-accent-2: #e3261e;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 700; --dz-heading-tracking: -.05em;
+  --dz-radius: 0px; --dz-btn-radius: 0px;
+  --dz-bg: #ffffff; --dz-bg-soft: #f2f2f2; --dz-surface: #ffffff; --dz-surface-2: #f4f4f4;
+  --dz-text: #111111; --dz-text-soft: #3c3c3c; --dz-text-mute: #7a7a7a;
+  --dz-border: rgba(17,17,17,.18); --dz-border-strong: #111111;
+  --dz-gradient: linear-gradient(120deg, #e3261e, #e3261e);
+  --dz-gradient-3: linear-gradient(100deg, #111, #111);
+  --dz-shadow-sm: none; --dz-shadow: none; --dz-shadow-lg: none; --dz-shadow-glow: none;
+}
+[data-dz-preset="suisse"][data-bs-theme="dark"] {
+  --dz-bg: #0d0d0d; --dz-bg-soft: #151515; --dz-surface: #111111; --dz-surface-2: #1a1a1a;
+  --dz-text: #f5f5f5; --dz-text-soft: #bdbdbd; --dz-text-mute: #7d7d7d; --dz-accent: #f5f5f5;
+  --dz-border: rgba(245,245,245,.18); --dz-border-strong: #f5f5f5;
+  --dz-gradient-3: linear-gradient(100deg, #f5f5f5, #f5f5f5);
+}
+
+/* OCÉAN — bleus et turquoise, frais et rassurant. Santé, clinique, voyage, fintech, assurance moderne */
+[data-dz-preset="ocean"] {
+  --dz-primary-ink: #0369a1;
+  --dz-primary: #0284c7; --dz-on-primary: #ffffff; --dz-accent: #14b8a6; --dz-accent-2: #38bdf8;
+  --dz-font-eyebrow: var(--dz-font-body);
+  --dz-heading-weight: 700; --dz-heading-tracking: -.03em;
+  --dz-radius: 14px; --dz-btn-radius: 12px;
+  --dz-bg: #f3f9fc; --dz-bg-soft: #e8f3f9; --dz-surface: #ffffff; --dz-surface-2: #eef6fb;
+  --dz-text: #082234; --dz-text-soft: #3b5566; --dz-text-mute: #7690a0;
+  --dz-border: rgba(8,34,52,.1); --dz-border-strong: rgba(8,34,52,.22);
+  --dz-gradient: linear-gradient(120deg, #0284c7, #14b8a6);
+  --dz-gradient-3: linear-gradient(100deg, #0369a1, #14b8a6, #38bdf8);
+  --dz-shadow: 0 14px 34px -18px rgba(2,132,199,.35);
+}
+[data-dz-preset="ocean"][data-bs-theme="dark"] {
+  --dz-primary: #38bdf8; --dz-primary-ink: #7dd3fc; --dz-on-primary: #04202f;
+  --dz-bg: #06141e; --dz-bg-soft: #0a1b27; --dz-surface: #0c202e; --dz-surface-2: #112938;
+  --dz-text: #e6f4fb; --dz-text-soft: #a3c2d2; --dz-text-mute: #6b8a9b;
+  --dz-border: rgba(230,244,251,.1); --dz-border-strong: rgba(230,244,251,.22);
+}
+
+/* SAHEL — ocre, indigo, or, motifs de lumière chaude. Commerce, culture, mode, tourisme d'Afrique de l'Ouest */
+[data-dz-preset="sahel"] {
+  --dz-primary-ink: #9a3412;
+  --dz-primary: #c2551f; --dz-on-primary: #fff8ee; --dz-accent: #1e3a8a; --dz-accent-2: #d4a017;
+  --dz-font-eyebrow: var(--dz-font-mono);
+  --dz-heading-weight: 700; --dz-heading-tracking: -.03em;
+  --dz-radius: 12px; --dz-btn-radius: 10px;
+  --dz-bg: #fbf3e6; --dz-bg-soft: #f4e6cf; --dz-surface: #fffaf2; --dz-surface-2: #f7ead4;
+  --dz-text: #2a1608; --dz-text-soft: #5c4027; --dz-text-mute: #997a5a;
+  --dz-border: rgba(42,22,8,.13); --dz-border-strong: rgba(42,22,8,.26);
+  --dz-gradient: linear-gradient(120deg, #c2551f, #d4a017);
+  --dz-gradient-3: linear-gradient(100deg, #1e3a8a, #c2551f 55%, #d4a017);
+}
+[data-dz-preset="sahel"][data-bs-theme="dark"] {
+  --dz-primary: #e07a3c; --dz-primary-ink: #f0a36e; --dz-on-primary: #1d0e04;
+  --dz-gradient: linear-gradient(120deg, #f0a36e, #f2c14e); --dz-gradient-3: linear-gradient(100deg, #9db4ff, #f0a36e 55%, #f2c14e);
+  --dz-bg: #150c05; --dz-bg-soft: #1d1108; --dz-surface: #22150a; --dz-surface-2: #2b1b0e;
+  --dz-text: #fbeede; --dz-text-soft: #d3b999; --dz-text-mute: #9a7f62; --dz-accent: #7c9cff;
+  --dz-border: rgba(251,238,222,.11); --dz-border-strong: rgba(251,238,222,.24);
+}
+
 /* ---- styles (matière) ---- */
 [data-dz-style="minimal"] {
   --dz-shadow-sm: none;
@@ -131,6 +303,14 @@
   --dz-shadow-sm: 3px 3px 0 var(--dz-text); --dz-shadow: 5px 5px 0 var(--dz-text);
   --dz-shadow-lg: 8px 8px 0 var(--dz-text); --dz-shadow-glow: 5px 5px 0 var(--dz-text);
 }
+/* DOUX — matière moelleuse : grands arrondis, ombres diffuses, reliefs légers (apps grand public, bien-être) */
+[data-dz-style="doux"] {
+  --dz-radius: 22px; --dz-btn-radius: 999px;
+  --dz-shadow-sm: 0 2px 8px -3px color-mix(in srgb, var(--dz-text) 14%, transparent);
+  --dz-shadow: 0 10px 30px -14px color-mix(in srgb, var(--dz-primary) 30%, transparent), 0 2px 6px -3px color-mix(in srgb, var(--dz-text) 10%, transparent);
+  --dz-shadow-lg: 0 30px 60px -28px color-mix(in srgb, var(--dz-primary) 35%, transparent);
+}
+[data-dz-style="doux"] .dz-card, [data-dz-style="doux"].dz-skin .card { border-color: transparent; }
 [data-dz-style="glass"] .dz-card,
 [data-dz-style="glass"].dz-skin .card {
   background: var(--dz-glass);
@@ -148,4 +328,9 @@
 }
 [data-dz-preset="editorial"] .dz-h1 em, [data-dz-preset="editorial"] .dz-display em, [data-dz-preset="editorial"] .dz-h2 em,
 [data-dz-preset="terre"] .dz-h1 em, [data-dz-preset="terre"] .dz-display em, [data-dz-preset="terre"] .dz-h2 em,
-[data-dz-preset="luxe"] .dz-h1 em, [data-dz-preset="luxe"] .dz-display em, [data-dz-preset="luxe"] .dz-h2 em { font-weight: 400; color: var(--dz-primary-ink); }
+[data-dz-preset="luxe"] .dz-h1 em, [data-dz-preset="luxe"] .dz-display em, [data-dz-preset="luxe"] .dz-h2 em,
+[data-dz-preset="nature"] .dz-h1 em, [data-dz-preset="nature"] .dz-display em, [data-dz-preset="nature"] .dz-h2 em { font-weight: 400; color: var(--dz-primary-ink); }
+/* néon : les titres en dégradé brillent un peu en sombre */
+[data-dz-preset="neon"][data-bs-theme="dark"] .dz-gradient-text { filter: drop-shadow(0 0 18px rgba(255,43,214,.35)); }
+/* suisse : titres serrés, filet rouge sous les sur-titres */
+[data-dz-preset="suisse"] .dz-eyebrow { border-top: 3px solid var(--dz-primary); padding-top: .5rem; }

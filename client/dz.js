@@ -31,6 +31,9 @@
 
   /* ---------- outils ---------- */
   function $all(sel, el) { return Array.prototype.slice.call((el || doc).querySelectorAll(sel)); }
+  /* marqueur « déjà initialisé » (data-dz-<clé>). Il ne doit jamais porter le nom d'un
+     attribut de réglage : « Typed » écrasait data-dz-typed (les mots), « Copy » le texte à
+     copier, « Tilt » l'angle. D'où les clés en « …Init » pour ces trois-là. */
   function once(el, key) {
     var k = "dz" + key;
     if (el.dataset[k]) return false;
@@ -155,7 +158,7 @@
   /* ---------- 3. texte qui s'écrit ---------- */
   function initTyped(scope) {
     withSelf(scope, "[data-dz-typed]").forEach(function (el) {
-      if (!once(el, "Typed")) return;
+      if (!once(el, "TypedInit")) return;
       var words = el.getAttribute("data-dz-typed").split("|").map(function (s) { return s.trim(); }).filter(Boolean);
       if (!words.length) return;
       el.classList.add("dz-typed");
@@ -190,7 +193,7 @@
   function initTilt(scope) {
     if (!finePointer) return;
     withSelf(scope, "[data-dz-tilt],.dz-tilt-on").forEach(function (el) {
-      if (!once(el, "Tilt")) return;
+      if (!once(el, "TiltInit")) return;
       var max = parseFloat(el.getAttribute("data-dz-tilt")) || 8;
       el.classList.add("dz-tilt");
       el.addEventListener("pointermove", function (e) {
@@ -367,7 +370,7 @@
   /* ---------- 12. copier dans le presse-papier ---------- */
   function initCopy(scope) {
     withSelf(scope, "[data-dz-copy]").forEach(function (el) {
-      if (!once(el, "Copy")) return;
+      if (!once(el, "CopyInit")) return;
       el.addEventListener("click", function (e) {
         e.preventDefault();
         var v = el.getAttribute("data-dz-copy");

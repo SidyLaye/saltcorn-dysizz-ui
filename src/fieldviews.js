@@ -80,6 +80,21 @@ const dz_scanner = edit("scanner", "Champ texte + bouton pour scanner un QR code
 const dz_photo = edit("photo", "Prendre une photo avec la caméra (image enregistrée dans le champ)", (nm, v) => hidden(nm, v) + widget("scanner", { mode: "photo", champ: nm }) + (String(v).startsWith("data:image/") ? `<img src="${ea(v)}" alt="" style="max-width:160px;margin-top:6px;border-radius:8px">` : ""));
 const dz_image = show("photo", "Affiche une image enregistrée dans le champ (data:image…)", (v, a) => (String(v).startsWith("data:image/") || /^https?:\/\//.test(v) ? `<img src="${ea(v)}" alt="" style="max-width:100%;${a.hauteur ? `max-height:${+a.hauteur}px;` : ""}border-radius:8px">` : '<span class="text-muted">—</span>'), [H]);
 
-const WIDGET_FIELDVIEWS = { dz_signature_saisie, dz_signature, dz_position_carte, dz_carte, dz_tableur_saisie, dz_tableur, dz_tableau_blanc, dz_tableau_blanc_vue, dz_3d_modeleur, dz_3d, dz_scanner, dz_photo, dz_image };
+const PAL = { name: "palette", label: "Types d'étapes (JSON, facultatif)", type: "String", sublabel: "Liste de { cle, type, label, icone, couleur, champs, branches }. Vide : Début, Étape, Condition, Validation, Fin." };
+const dz_parcours_saisie = edit("parcours", "Éditeur de parcours : étapes reliées par des flèches (enregistré en JSON)", (nm, v, a) => hidden(nm, v) + widget("parcours", { champ: nm, hauteur: a.hauteur, palette: a.palette }), [H, PAL]);
+const dz_parcours = show("parcours", "Parcours en lecture (déplacement et zoom), étapes passées mises en valeur", (v, a) => widget("parcours", { lecture: "true", valeur: v, hauteur: a.hauteur || 360, palette: a.palette }), [H, PAL]);
+
+const dz_formulaire_constructeur = edit("formulaire", "Constructeur de formulaire (schéma JSON enregistré dans le champ)", (nm, v) => hidden(nm, v) + widget("formulaire", { champ: nm }));
+const dz_formulaire_remplir = edit("formulaire", "Remplir un formulaire : réponses JSON dans ce champ, schéma lu dans un autre champ", (nm, v, a) => hidden(nm, v) + widget("formulaire", { mode: "remplir", champ: nm, "schema-champ": a.schema_champ, schema: a.schema }), [{ name: "schema_champ", label: "Champ qui contient le schéma", type: "String" }, { name: "schema", label: "…ou schéma JSON fixe", type: "String" }]);
+const CH = { name: "champs", label: "Champs proposés (JSON)", type: "String", sublabel: "Liste de { nom, label, type: texte|nombre|date|choix|oui_non, options }" };
+const dz_regles = edit("regles", "Constructeur de règles « si … et/ou … » (JSON + expression + phrase)", (nm, v, a) => hidden(nm, v) + widget("regles", { champ: nm, champs: a.champs, code: a.code === false ? "false" : "" }), [CH, { name: "code", label: "Montrer l'expression générée", type: "Bool" }]);
+const dz_regles_phrase = show("regles", "Affiche la règle en français", (v) => { try { const d = JSON.parse(v); return `<span>${esc(d.texte || "")}</span>`; } catch (e) { return '<span class="text-muted">—</span>'; } });
+const dz_document = edit("document", "Éditeur de document par blocs (titres, listes, cases, citations, code…)", (nm, v, a) => hidden(nm, v) + widget("document", { champ: nm, hauteur: a.hauteur }), [H]);
+const dz_document_lecture = show("document", "Document en lecture", (v, a) => widget("document", { lecture: "true", valeur: v, hauteur: a.hauteur || 80 }), [H]);
+const PLA = [H, { name: "jours", label: "Jours (5 ou 7)", type: "Integer" }, { name: "debut", label: "Première heure", type: "Integer" }, { name: "fin", label: "Dernière heure", type: "Integer" }, { name: "pas", label: "Pas (minutes)", type: "Integer" }];
+const dz_planning = edit("planning", "Planning de la semaine en glisser-déposer (créneaux enregistrés en JSON)", (nm, v, a) => hidden(nm, v) + widget("planning", { champ: nm, hauteur: a.hauteur, jours: a.jours, debut: a.debut, fin: a.fin, pas: a.pas }), PLA);
+const dz_planning_lecture = show("planning", "Planning en lecture", (v, a) => widget("planning", { lecture: "true", valeur: v, hauteur: a.hauteur, jours: a.jours, debut: a.debut, fin: a.fin, pas: a.pas }), PLA);
+
+const WIDGET_FIELDVIEWS = { dz_formulaire_constructeur, dz_formulaire_remplir, dz_regles, dz_regles_phrase, dz_document, dz_document_lecture, dz_planning, dz_planning_lecture, dz_parcours_saisie, dz_parcours, dz_signature_saisie, dz_signature, dz_position_carte, dz_carte, dz_tableur_saisie, dz_tableur, dz_tableau_blanc, dz_tableau_blanc_vue, dz_3d_modeleur, dz_3d, dz_scanner, dz_photo, dz_image };
 
 module.exports = { dz_mail, frameDoc, clean, WIDGET_FIELDVIEWS };
