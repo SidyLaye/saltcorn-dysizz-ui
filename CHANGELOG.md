@@ -2,6 +2,21 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.7.0
+
+### Ajouté
+- **Page Santé et sécurité** (`/dysizz/sante`, tuile sur `/dysizz`) : 16 vérifications en feux tricolores, expliquées en mots simples — double authentification, inscriptions, mots de passe, sauvegardes (automatiques, hors serveur, chiffrées), e-mail chiffré, données et actions ouvertes au public, pages ou vues en double, **test réel des transactions** (avec la cause probable si elles ne marchent pas), clé du coffre, cookies sécurisés derrière le proxy, CORS, en-têtes HTTP, plugins GitHub pour les tenants, versions. Chaque correction montre d'abord ce qui va changer (rien n'est écrit), puis s'applique en un clic. Réservée aux admins ; les réglages du serveur n'apparaissent que dans le tenant racine.
+- `docs/DEMARRAGE.md` : mettre une instance en sécurité pas à pas (secrets, Dokploy en HTTPS, sauvegardes hors serveur, mises à jour, tenants confiés à des tiers).
+
+### Corrigé
+- **Texte qui s'écrit, bouton Copier, effet 3D** : le marqueur « déjà initialisé » écrasait leur réglage (même attribut). Le texte ne s'animait jamais et les blocs du builder affichaient « mot 1 | mot 2 | mot 3 » en entier (hero 400 px trop haut) ; Copier copiait « 1 » ou ne réagissait pas ; la 3D tombait à 1°. Test navigateur ajouté (`tests/dz-client.test.mjs`).
+- **Débordement horizontal sur mobile** causé par les textes réservés aux lecteurs d'écran (`.visually-hidden`) placés dans une zone qui défile : ils sont ancrés à leur bloc conteneur. Premier cas trouvé : « App · table d'administration ».
+- Page d'accueil `dysizz-accueil` : plus de doublon sur double clic (existence vérifiée en base).
+
+### Contrôle qualité
+- Le contrôle visuel rend enfin la variante mobile **à 390 px** (tout était rendu en 1280 px, le débordement mobile n'était jamais détecté), démarre les widgets interactifs, reconnaît les blocs flottants, nomme l'élément qui déborde, et **fait échouer la CI** sur un vrai défaut (débordement, erreur JS, bloc invisible, écart ≥ 2 %).
+- CI : fichier de workflow valide (elle ne démarrait jamais) ; `npm test` lance la vraie suite.
+
 ## 3.6.2
 
 - Vidéos YouTube : fin de l'erreur 153. Saltcorn envoie « Referrer-Policy: same-origin », donc YouTube ne recevait pas l'adresse du site. Chaque lecteur YouTube de la page (y compris dans les anciennes vues et les fenêtres) reçoit sa propre règle et le paramètre origin, puis se recharge une fois.

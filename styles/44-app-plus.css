@@ -20,7 +20,7 @@
 .dz-ap-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .dz-ap-label { display: block; font: 650 .7rem var(--dz-font-eyebrow); text-transform: uppercase; letter-spacing: .1em; color: var(--dz-text-mute); }
 .dz-ap-num { text-align: right; font-variant-numeric: tabular-nums; }
-.dz-ap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.dz-ap-scroll { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .dz-ap-iconbtn { width: 32px; height: 32px; flex: none; display: inline-grid; place-items: center; border-radius: var(--dz-radius-sm); border: 1px solid var(--dz-border); background: var(--dz-surface); color: var(--dz-text-soft); cursor: pointer; font-size: .85rem; transition: background var(--dz-dur-fast), color var(--dz-dur-fast); }
 .dz-ap-iconbtn:hover { background: var(--dz-surface-2); color: var(--dz-text); }
 .dz-ap-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }

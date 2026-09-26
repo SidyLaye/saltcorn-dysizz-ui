@@ -13,3 +13,7 @@ Vaut pour les trois dépôts (ui, flow, me).
 | 2026-09-26 | **La base Dysizz d'abord.** Les projets clients bâtis dessus (dont AMBS / leads immobiliers) attendent que la base soit solide et déployée. |
 | 2026-09-26 | Toute correction sur une instance réelle : **analyse d'abord, puis simulation (dry-run)** qui n'écrit rien, puis seulement l'écriture. |
 | 2026-09-26 | Aucun secret dans une conversation ni dans un dépôt : on ne donne que le **nom** de la variable. |
+| 2026-09-26 | Sidy délègue : Claude décide par défaut, en visant le plus sûr, et note ici chaque choix (réversible). Il ne revient vers Sidy que pour ce que lui seul peut faire (mots de passe, Dokploy, DNS). |
+| 2026-09-26 | *Par défaut* — **Tenants cloisonnés dans dysizz-flow** (2.4.1) : secrets du serveur jamais lisibles ; hors racine, variables d'environnement seulement si listées dans `DZF_ENV_PARTAGEES`, code JS dans le bac à sable Saltcorn. Le tenant racine garde tout son confort. Couvre « n'importe qui peut être admin d'un tenant ». |
+| 2026-09-26 | *Par défaut* — **Aucune correction automatique sans aperçu** : la page Santé montre ce qui va changer, puis applique sur clic. Un mot de passe n'est jamais choisi à la place de Sidy. |
+| 2026-09-26 | *Par défaut* — Les tests qui ont trouvé un vrai bug entrent dans la CI (moteur navigateur, page Santé) ; le contrôle visuel des blocs doit se faire à la vraie largeur mobile (390 px) avec les widgets démarrés. |

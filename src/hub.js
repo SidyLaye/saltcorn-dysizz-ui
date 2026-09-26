@@ -42,6 +42,7 @@ const liveCrashes = async () => {
 };
 
 const uiTiles = (req) => (isAdmin(req) ? [
+  { group: "Outils Dysizz", label: "Santé et sécurité", sub: "ce qui protège ce tenant, corrigé en un clic", url: "/dysizz/sante", icon: "fas fa-shield-alt", color: C.green, size: "w" },
   { group: "Outils Dysizz", label: "Kit UI", sub: "design, familles de blocs, pages de démo", url: "/dysizz-ui", icon: "fas fa-palette", color: C.pink, size: "w" },
   { group: "Outils Dysizz", label: "Galerie", sub: "tous les blocs", url: "/dysizz-ui/galerie?f=all", icon: "fas fa-th-large", color: C.magenta, size: "s" },
   { group: "Outils Dysizz", label: "Atelier UI", url: "/dysizz-ui/blocks", icon: "fas fa-pencil-ruler", color: C.violet, size: "s" },
@@ -182,7 +183,9 @@ const setHome = async (req, res) => {
   const { getState } = require("@saltcorn/data/db/state");
   const name = "dysizz-accueil";
   const layout = { type: "blank", contents: '<script>location.replace("/dysizz")</script><p><a href="/dysizz">Accueil</a></p>', isHTML: true };
-  const ex = Page.findOne({ name });
+  /* en base, pas dans le cache (qui peut être en retard) : sinon un double clic crée un doublon */
+  const db = require("@saltcorn/data/db");
+  const ex = Page.findOne({ name }) || (await db.selectMaybeOne("_sc_pages", { name }).catch(() => null));
   if (!ex) await Page.create({ name, title: "Accueil", description: "Renvoie vers l'accueil Dysizz (/dysizz)", min_role: 1, layout, fixed_states: {} });
   const st = getState();
   const cur = { ...(st.getConfig("home_page_by_role", {}) || {}) };
