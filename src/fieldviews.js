@@ -80,6 +80,10 @@ const dz_scanner = edit("scanner", "Champ texte + bouton pour scanner un QR code
 const dz_photo = edit("photo", "Prendre une photo avec la caméra (image enregistrée dans le champ)", (nm, v) => hidden(nm, v) + widget("scanner", { mode: "photo", champ: nm }) + (String(v).startsWith("data:image/") ? `<img src="${ea(v)}" alt="" style="max-width:160px;margin-top:6px;border-radius:8px">` : ""));
 const dz_image = show("photo", "Affiche une image enregistrée dans le champ (data:image…)", (v, a) => (String(v).startsWith("data:image/") || /^https?:\/\//.test(v) ? `<img src="${ea(v)}" alt="" style="max-width:100%;${a.hauteur ? `max-height:${+a.hauteur}px;` : ""}border-radius:8px">` : '<span class="text-muted">—</span>'), [H]);
 
-const WIDGET_FIELDVIEWS = { dz_signature_saisie, dz_signature, dz_position_carte, dz_carte, dz_tableur_saisie, dz_tableur, dz_tableau_blanc, dz_tableau_blanc_vue, dz_3d_modeleur, dz_3d, dz_scanner, dz_photo, dz_image };
+const PAL = { name: "palette", label: "Types d'étapes (JSON, facultatif)", type: "String", sublabel: "Liste de { cle, type, label, icone, couleur, champs, branches }. Vide : Début, Étape, Condition, Validation, Fin." };
+const dz_parcours_saisie = edit("parcours", "Éditeur de parcours : étapes reliées par des flèches (enregistré en JSON)", (nm, v, a) => hidden(nm, v) + widget("parcours", { champ: nm, hauteur: a.hauteur, palette: a.palette }), [H, PAL]);
+const dz_parcours = show("parcours", "Parcours en lecture (déplacement et zoom), étapes passées mises en valeur", (v, a) => widget("parcours", { lecture: "true", valeur: v, hauteur: a.hauteur || 360, palette: a.palette }), [H, PAL]);
+
+const WIDGET_FIELDVIEWS = { dz_parcours_saisie, dz_parcours, dz_signature_saisie, dz_signature, dz_position_carte, dz_carte, dz_tableur_saisie, dz_tableur, dz_tableau_blanc, dz_tableau_blanc_vue, dz_3d_modeleur, dz_3d, dz_scanner, dz_photo, dz_image };
 
 module.exports = { dz_mail, frameDoc, clean, WIDGET_FIELDVIEWS };
