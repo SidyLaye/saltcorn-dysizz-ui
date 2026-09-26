@@ -91,6 +91,24 @@ add("tableur", "fas fa-table", section(
     "Tableur", "Cellules, formules en français ou en anglais (=SOMME(A1:A5), =SI(B2>10;\"oui\";\"non\"), =MOYENNE…), copier-coller depuis Excel, import et export CSV.",
     w("tableur", hauteur=420, valeur='{"lignes":12,"colonnes":5,"cellules":{"A1":"Poste","B1":"Janvier","C1":"Février","D1":"Mars","E1":"Total","A2":"Loyer","B2":"850","C2":"850","D2":"850","E2":"=SOMME(B2:D2)","A3":"Courses","B3":"320","C3":"295","D3":"340","E3":"=SOMME(B3:D3)","A4":"Transport","B4":"75","C4":"75","D4":"90","E4":"=SOMME(B4:D4)","A5":"Total","B5":"=SOMME(B2:B4)","C5":"=SOMME(C2:C4)","D5":"=SOMME(D2:D4)","E5":"=SOMME(E2:E4)"},"gras":{"A1":1,"B1":1,"C1":1,"D1":1,"E1":1,"A5":1,"E5":1}}'),
     "Dans un formulaire : <code>data-champ=\"donnees\"</code> enregistre le tableau (JSON) dans un champ texte."))
+# ---- Parcours (processus, workflows clients) -----------------------------------
+import json as _json
+_NDF = {"v": 1, "noeuds": [
+    {"id": "d", "cle": "debut", "type": "debut", "titre": "Note de frais déposée", "x": 0, "y": 120},
+    {"id": "c", "cle": "condition", "type": "condition", "titre": "Plus de 500 € ?", "x": 260, "y": 110, "reglages": {"expression": "ctx.montant > 500"}},
+    {"id": "v", "cle": "validation", "type": "attente", "titre": "Accord du manager", "x": 520, "y": 20, "reglages": {"qui": "Manager"}},
+    {"id": "p", "cle": "etape", "type": "etape", "titre": "Paiement par la compta", "x": 780, "y": 120, "reglages": {"responsable": "Comptabilité"}},
+    {"id": "f", "cle": "fin", "type": "fin", "titre": "Remboursé", "x": 1040, "y": 120}],
+  "liens": [{"id": "l1", "de": "d", "vers": "c"}, {"id": "l2", "de": "c", "vers": "v", "si": "oui"}, {"id": "l3", "de": "c", "vers": "p", "si": "non"},
+            {"id": "l4", "de": "v", "vers": "p"}, {"id": "l5", "de": "p", "vers": "f"}]}
+add("éditeur de parcours", "fas fa-project-diagram", section(
+    "Éditeur de parcours", "Construis un processus en quelques clics : ajoute des étapes, relie-les en tirant le rond de droite, règle chaque étape dans le panneau. Au doigt comme à la souris, avec annuler, zoom et contrôle du schéma.",
+    w("parcours", hauteur=460, valeur=_json.dumps(_NDF, ensure_ascii=False)),
+    "Dans un formulaire, mets l'affichage « dz_parcours_saisie » sur un champ texte : le schéma y est enregistré. Le bloc dysizz-flow « Exécuter un parcours » le déroule pour de vrai."))
+add("suivi d'un parcours", "fas fa-route", section(
+    "Où en est le dossier ?", "Le même parcours en lecture seule : les étapes déjà passées sont en vert, l'étape en cours en orange.",
+    w("parcours", hauteur=340, lecture="true", valeur=_json.dumps(_NDF, ensure_ascii=False), trace='["d","c","v"]', actif="v")))
+
 add("tableau blanc", "fas fa-chalkboard", section(
     "Tableau blanc", "Dessine, écris, pose des post-it, fais des schémas. Zoom à la molette ou en pinçant, export en image.",
     w("tableau-blanc", hauteur=480)))

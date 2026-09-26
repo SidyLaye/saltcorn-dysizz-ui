@@ -48,3 +48,9 @@
 @keyframes dz-k-pulse { 50% { transform: scale(1.04); } }
 @keyframes dz-k-spin { to { transform: rotate(360deg); } }
 @keyframes dz-k-glow { 50% { box-shadow: 0 0 0 6px var(--dz-primary-soft); } }
+
+/* Texte réservé aux lecteurs d'écran (Bootstrap .visually-hidden, position absolute sans
+   top/left) : sans ancêtre positionné, il se place par rapport à la page. Dans un tableau
+   qui défile horizontalement, il élargissait alors toute la page sur mobile. Ancré en haut
+   à gauche de son bloc conteneur, il reste invisible et ne pousse plus rien. */
+.visually-hidden:not(:focus):not(:focus-within), .sr-only:not(:focus):not(:focus-within) { top: 0; left: 0; }

@@ -27,7 +27,7 @@ Dans le tenant racine : **Settings → Site structure → Multitenancy** (`/tena
 
 | Réglage | Valeur | Pourquoi |
 |---|---|---|
-| Install git plugins | ✅ | sans ça, un tenant ne peut pas installer un plugin GitHub |
+| Install git plugins | ✅ tant que tu es le seul admin de tous les tenants | sans ça, un tenant ne peut pas installer un plugin GitHub. **À décocher** avant de confier un tenant à quelqu'un : un plugin GitHub est du code exécuté sur le serveur (voir [docs/DEMARRAGE.md](docs/DEMARRAGE.md) §6) |
 | New tenant template | `modele` (voir plus bas) | chaque nouveau tenant copie ce modèle |
 
 ### c. Installer le plugin
@@ -170,6 +170,8 @@ Publier : modifier les sources, augmenter `version` dans `package.json`, `node b
 
 ## 5. Sécurité et vie privée
 
+- **Page Santé et sécurité** (`/dysizz/sante`, tuile sur `/dysizz`) : 2FA, inscriptions, mots de passe, sauvegardes, e-mail, données et actions ouvertes au public, test réel des transactions, cookies, CORS, en-têtes HTTP, versions. Chaque correction montre d'abord ce qui va changer, puis s'applique en un clic. À ouvrir dans chaque tenant.
+- **Pas à pas pour la partie serveur** (secrets, Dokploy en HTTPS, sauvegardes hors serveur) : [docs/DEMARRAGE.md](docs/DEMARRAGE.md).
 - Toutes les pages `/dysizz-ui` sont réservées au rôle admin ; les formulaires passent par le jeton CSRF de Saltcorn.
 - Le HTML / JS d'un bloc et le CSS d'une classe s'exécutent tels quels : seuls les admins peuvent en créer ou en importer.
 - Les pages de démo sont en `min_role = 1` (admin).

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node ../tests/run.mjs"
+    "test": "cd .. && node tests/load-plugin.cjs && node tests/sante.test.cjs && node tests/dz-client.test.mjs && node tests/widgets.test.mjs"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
