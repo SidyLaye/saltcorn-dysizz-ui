@@ -46,6 +46,7 @@ try {
     assert.strictEqual(v.liens.length, 2, "reliées automatiquement dans l'ordre d'ajout");
     assert.strictEqual(v.noeuds[1].titre, "Vérifier le dossier");
     assert.ok(await p.isVisible("text=Parcours complet"), "contrôle du schéma au vert");
+    assert.ok(!/\bnull\b|undefined/.test(await p.innerText("body")), "jamais de « null » ni « undefined » affiché");
 
     /* relier à la main : ajouter une condition, tirer sa sortie « non » vers la fin */
     await p.click(".dzw-pc-zone", { position: { x: 30, y: 30 } }); /* rien de choisi : pas de liaison auto */
@@ -82,6 +83,125 @@ try {
     assert.deepStrictEqual(errs, []);
     await p.close();
     ok.push("parcours en lecture");
+  }
+  /* ---------- formulaire : construire ---------- */
+  {
+    const { p, errs } = await ouvrir('<input type="hidden" name="f" value=""><div data-dz-widget="formulaire" data-champ="f"></div>');
+    await p.fill('input[aria-label="Titre du formulaire"]', "Inscription");
+    await p.click('.dzw-fo-types button[title="E-mail"]');
+    await p.fill(".dzw-fo-edit input >> nth=0", "Votre e-mail");
+    await p.click('.dzw-fo-edit input[type=checkbox]');
+    await p.click('.dzw-fo-types button[title="Un choix"]');
+    await p.fill(".dzw-fo-edit textarea", "Matin\nAprès-midi");
+    await p.waitForTimeout(500);
+    const v = await valeur(p, "f");
+    assert.strictEqual(v.titre, "Inscription");
+    assert.deepStrictEqual(v.champs.map((c) => c.type), ["email", "choix"]);
+    assert.strictEqual(v.champs[0].requis, true); assert.deepStrictEqual(v.champs[1].options, ["Matin", "Après-midi"]);
+    assert.ok(await p.isVisible('.dzw-fo-col[aria-label="Aperçu"] >> text=Après-midi'), "aperçu en direct");
+    assert.ok(!/\bnull\b|undefined/.test(await p.innerText("body")), "jamais de « null » ni « undefined » affiché");
+    await p.click('.dzw-fo-it >> nth=1 >> button[title="Monter"]'); await p.waitForTimeout(400);
+    assert.strictEqual((await valeur(p, "f")).champs[0].type, "choix", "réordonner");
+    assert.deepStrictEqual(errs, []); await p.close(); ok.push("formulaire (construire)");
+  }
+  /* ---------- formulaire : remplir, avec contrôles ---------- */
+  {
+    const sc = { v: 1, titre: "T", champs: [{ id: "n", type: "texte", label: "Nom", requis: true }, { id: "m", type: "email", label: "E-mail" }, { id: "c", type: "choix", label: "Créneau", options: ["Matin", "Soir"], requis: true }, { id: "e", type: "note", label: "Note", max: 5 }] };
+    const { p, errs } = await ouvrir(`<input type="hidden" name="r" value=""><div data-dz-widget="formulaire" data-mode="remplir" data-champ="r" data-schema='${JSON.stringify(sc)}'></div><button id="go">Envoyer</button>`, 390);
+    await p.evaluate(() => { document.querySelector("form").addEventListener("submit", (e) => { e.preventDefault(); window.__envoye = true; }); });
+    await p.click("#go");
+    assert.ok(!(await p.evaluate(() => window.__envoye)), "envoi bloqué tant qu'il manque des réponses");
+    assert.ok(await p.isVisible("text=2 réponse(s) à corriger"));
+    await p.fill("input[aria-required=true] >> nth=0", "Awa");
+    await p.fill('input[type=email]', "pas-un-mail"); await p.press('input[type=email]', "Tab");
+    assert.ok(await p.isVisible("text=Adresse e-mail invalide"), "format vérifié en direct");
+    await p.fill('input[type=email]', "awa@exemple.fr");
+    await p.click("text=Soir");
+    await p.click('button[aria-label="4 sur 5"]');
+    await p.click("#go");
+    assert.ok(await p.evaluate(() => window.__envoye), "envoi accepté quand tout est bon");
+    const r = await valeur(p, "r");
+    assert.deepStrictEqual(r, { n: "Awa", m: "awa@exemple.fr", c: "Soir", e: 4 });
+    assert.ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), "pas de débordement sur mobile");
+    assert.deepStrictEqual(errs, []); await p.close(); ok.push("formulaire (remplir)");
+  }
+  /* ---------- règles ---------- */
+  {
+    const champs = [{ nom: "montant", label: "Montant", type: "nombre" }, { nom: "service", label: "Service", type: "choix", options: ["Achats", "RH"] }, { nom: "ref", label: "Référence", type: "texte" }];
+    const { p, errs } = await ouvrir(`<input type="hidden" name="g" value=""><div data-dz-widget="regles" data-champ="g" data-champs='${JSON.stringify(champs)}'></div>`);
+    await p.click('button[title="Ajouter une condition"]');
+    await p.selectOption('select[aria-label="Opérateur"]', "sup");
+    await p.fill('input[aria-label="Valeur"]', "500");
+    await p.click('button[title="Ajouter une condition"]');
+    await p.selectOption('select[aria-label="Champ"] >> nth=1', "service");
+    await p.selectOption('select[aria-label="Valeur"]', "Achats");
+    await p.waitForTimeout(400);
+    const v = await valeur(p, "g");
+    assert.strictEqual(v.texte, "Si Montant > « 500 » et Service est « Achats »");
+    const f = new Function("ctx", `return (${v.expression});`);
+    assert.strictEqual(f({ montant: 800, service: "Achats" }), true);
+    assert.strictEqual(f({ montant: 800, service: "RH" }), false);
+    assert.strictEqual(f({ montant: 100, service: "Achats" }), false);
+    /* une valeur piégée reste une chaîne, jamais du code */
+    await p.click('button[title="Ajouter une condition"]');
+    await p.selectOption('select[aria-label="Champ"] >> nth=2', "ref");
+    await p.fill('input[type=text][aria-label="Valeur"]', '") || process.exit(1) || ("');
+    await p.waitForTimeout(400);
+    const ex = (await valeur(p, "g")).expression;
+    assert.strictEqual(new Function("ctx", `return (${ex});`)({ montant: 800, service: "Achats", ref: '") || process.exit(1) || ("' }), true, "la valeur piégée est comparée comme du texte, jamais exécutée");
+    assert.deepStrictEqual(errs, []); await p.close(); ok.push("règles");
+  }
+  /* ---------- document ---------- */
+  {
+    const { p, errs } = await ouvrir('<input type="hidden" name="d" value=""><div data-dz-widget="document" data-champ="d"></div>');
+    const b0 = p.locator(".dzw-doc-b [contenteditable] >> nth=0");
+    await b0.click(); await p.keyboard.type("/tit");
+    assert.ok(await p.isVisible(".dzw-doc-menu"), "menu « / »");
+    await p.keyboard.press("Enter");
+    await p.keyboard.type("Compte rendu");
+    await p.keyboard.press("Enter");
+    await p.keyboard.type("Présents : Awa et Moussa");
+    await p.keyboard.press("Enter"); await p.keyboard.type("/case"); await p.keyboard.press("Enter");
+    await p.keyboard.type("Envoyer le devis");
+    await p.waitForTimeout(500);
+    let v = await valeur(p, "d");
+    assert.deepStrictEqual(v.blocs.map((b) => b.t), ["h1", "p", "tache"].map((t, i) => (i === 0 ? v.blocs[0].t : t)));
+    assert.ok(["h1", "h2", "h3"].includes(v.blocs[0].t), "titre choisi au clavier");
+    assert.strictEqual(v.blocs[2].html, "Envoyer le devis");
+    await p.click('.dzw-doc-b.t-tache input[type=checkbox]'); await p.waitForTimeout(400);
+    assert.strictEqual((await valeur(p, "d")).blocs[2].fait, true);
+    /* nettoyage : un script collé ou injecté ne survit pas */
+    await p.evaluate(() => { const e = document.querySelectorAll(".dzw-doc-b [contenteditable]")[1]; e.innerHTML = 'ok <img src=x onerror="window.__pwn=1"><script>window.__pwn=1</script><a href="javascript:alert(1)">x</a>'; e.dispatchEvent(new Event("input", { bubbles: true })); });
+    await p.waitForTimeout(500);
+    v = await valeur(p, "d");
+    assert.ok(!/img|script|javascript:/i.test(v.blocs[1].html), `HTML nettoyé : ${v.blocs[1].html}`);
+    assert.deepStrictEqual(errs, []); await p.close(); ok.push("document");
+  }
+  /* ---------- planning ---------- */
+  {
+    const { p, errs } = await ouvrir('<input type="hidden" name="pl" value=""><div data-dz-widget="planning" data-champ="pl" data-date="2026-09-28" data-jours="5" data-hauteur="560"></div>');
+    const col = p.locator(".dzw-pl-col >> nth=1");
+    const bb = await col.boundingBox();
+    await p.mouse.move(bb.x + bb.width / 2, bb.y + 60); await p.mouse.down();
+    await p.mouse.move(bb.x + bb.width / 2, bb.y + 140, { steps: 6 }); await p.mouse.up();
+    await p.waitForTimeout(200);
+    assert.ok(await p.isVisible(".dzw-pl-pop"), "fenêtre de modification ouverte après création");
+    await p.fill('.dzw-pl-pop input[aria-label="Titre"]', "Rendez-vous banque");
+    await p.keyboard.press("Enter");
+    await p.waitForTimeout(400);
+    let v = await valeur(p, "pl");
+    assert.strictEqual(v.evenements.length, 1);
+    assert.strictEqual(v.evenements[0].titre, "Rendez-vous banque"); assert.strictEqual(v.evenements[0].date, "2026-09-29");
+    const avant = v.evenements[0].debut;
+    await p.locator(".dzw-pl-ev").focus(); await p.keyboard.press("ArrowDown"); await p.keyboard.press("ArrowRight"); await p.waitForTimeout(400);
+    v = await valeur(p, "pl");
+    assert.notStrictEqual(v.evenements[0].debut, avant, "déplacé au clavier (heure)"); assert.strictEqual(v.evenements[0].date, "2026-09-30", "déplacé au clavier (jour)");
+    await p.locator(".dzw-pl-ev").focus(); await p.keyboard.press("Delete"); await p.waitForTimeout(400);
+    assert.strictEqual((await valeur(p, "pl")).evenements.length, 0);
+    await p.setViewportSize({ width: 390, height: 800 }); await p.waitForTimeout(300);
+    assert.strictEqual(await p.locator(".dzw-pl-col").count(), 1, "un jour à la fois sur téléphone");
+    assert.ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), "pas de débordement sur mobile");
+    assert.deepStrictEqual(errs, []); await p.close(); ok.push("planning");
   }
   console.log("widgets ok :", ok.join(", "));
 } finally {

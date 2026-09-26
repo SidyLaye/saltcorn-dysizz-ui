@@ -91,6 +91,6 @@ css("base", `
 .dzw-note{font-size:.8rem;opacity:.7;padding:6px 10px}
 .dz-wg-err{padding:14px;border:1px dashed #ef4444;border-radius:10px;color:#b91c1c;font-size:.9rem}
 .dz-wg-builder{padding:18px;border:2px dashed var(--dz-border,#cbd5e1);border-radius:12px;text-align:center;opacity:.8}
-@media (max-width:640px){.dzw-b span.dzw-lbl{display:none}}
+@media (max-width:640px){.dzw-b:not(.garde) span.dzw-lbl{display:none}}
 `);
 export const btn = (icon, label, onclick, extra = {}) => h("button", { type: "button", class: "dzw-b", title: label, onclick, ...extra }, icon ? h("i", { class: icon }) : null, h("span", { class: "dzw-lbl" }, label));

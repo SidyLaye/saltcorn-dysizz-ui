@@ -236,7 +236,7 @@ register("parcours", (el) => {
       else if (f.type === "nombre") input = h("input", { type: "number", value: v, oninput: (e) => maj(e.target.value === "" ? "" : +e.target.value) });
       else if (f.type === "case") input = h("input", { type: "checkbox", style: { width: "auto" }, ...(v ? { checked: true } : {}), onchange: (e) => maj(e.target.checked) });
       else input = h("input", { type: "text", value: v, oninput: (e) => maj(e.target.value) });
-      panneau.append(h("label", {}, f.label || f.nom), input, f.aide ? h("div", { class: "aide" }, f.aide) : null);
+      panneau.append(...[h("label", {}, f.label || f.nom), input, f.aide ? h("div", { class: "aide" }, f.aide) : null].filter(Boolean));
     }
     panneau.append(h("div", { class: "actions" }, btn("fas fa-trash", "Supprimer l'étape", supprimer), btn("fas fa-times", "Fermer", () => choisir(null))));
   }
