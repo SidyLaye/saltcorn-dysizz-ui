@@ -54,6 +54,10 @@ const tmp = path.join(outDir, `_tmp-${process.pid}.html`);
 
 const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const ctx = await browser.newContext();
+/* Rien d'externe pendant le contrôle (YouTube, cartes, polices web…) : le rendu ne doit
+   dépendre ni du réseau ni d'un service tiers, sinon deux captures du même bloc diffèrent
+   (le bloc « Site · vidéo » échouait en CI, où YouTube répond, et passait hors ligne). */
+await ctx.route("**/*", (r) => (r.request().url().startsWith("file:") ? r.continue() : r.abort()));
 await ctx.route(/^https?:\/\/(?!fonts)/, (r) => {
   const u = r.request().url();
   if (/picsum\.photos|images\.unsplash|i\.pravatar/.test(u)) return r.fulfill({ path: path.join(TOOLS, "fixtures", "photo.jpg"), contentType: "image/jpeg" }).catch(() => r.abort());
