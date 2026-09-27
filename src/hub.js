@@ -43,6 +43,7 @@ const liveCrashes = async () => {
 
 const uiTiles = (req) => (isAdmin(req) ? [
   { group: "Outils Dysizz", label: "Santé et sécurité", sub: "ce qui protège ce tenant, corrigé en un clic", url: "/dysizz/sante", icon: "fas fa-shield-alt", color: C.green, size: "w" },
+  { group: "Outils Dysizz", label: "Sources de données", sub: "chiffres, courbes et listes calculés par la base", url: "/dysizz-ui/sources", icon: "fas fa-database", color: C.blue, size: "s" },
   { group: "Outils Dysizz", label: "Kit UI", sub: "design, familles de blocs, pages de démo", url: "/dysizz-ui", icon: "fas fa-palette", color: C.pink, size: "w" },
   { group: "Outils Dysizz", label: "Galerie", sub: "tous les blocs", url: "/dysizz-ui/galerie?f=all", icon: "fas fa-th-large", color: C.magenta, size: "s" },
   { group: "Outils Dysizz", label: "Atelier UI", url: "/dysizz-ui/blocks", icon: "fas fa-pencil-ruler", color: C.violet, size: "s" },

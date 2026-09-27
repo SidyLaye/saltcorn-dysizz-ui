@@ -8,6 +8,7 @@ Plugin Saltcorn (1.6.x) qui apporte :
 - **390 blocs** en **17 familles** : Site, App, Projet, Support, Mail, Commerce, Finance, Données, Agenda, Social, Contenu, Média, Compte, Équipe, Mobile, Outil, Insolite ;
 - des blocs **modifiables sans code** dans le builder (éléments natifs : clic sur un texte pour l'écrire, sur un conteneur pour ses classes, couleurs, marges, animation) ;
 - des **briques pour construire des outils clients** : éditeur de parcours (workflows exécutés par dysizz-flow), constructeur de formulaires, de règles, éditeur de documents par blocs, planning en glisser-déposer ;
+- des **tableaux de bord calculés par la base** : sources de données (`/dysizz-ui/sources`) lues par le bloc « tableau » (chiffres clés comparés à la période précédente, courbes, barres, anneaux, listes paginées, filtres partagés dans l'adresse) ;
 - un **atelier visuel** pour créer ou modifier des blocs (sans code ou en code) ;
 - une page **Classes** : ce qu'il y a derrière chaque classe, et **tes propres classes** (éditeur visuel ou code) ;
 - des **transitions entre sections**, le **défilement doux**, l'aimantation, des **bords de sections** ;
