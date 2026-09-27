@@ -57,7 +57,12 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb-pied{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;font-size:.8rem;flex-wrap:wrap}
 .dzw-tb-pied button{border:1px solid var(--dz-border,#e5e7eb);background:var(--dz-surface,#fff);color:inherit;border-radius:8px;padding:5px 11px;cursor:pointer;min-height:34px}
 .dzw-tb-pied button:disabled{opacity:.4;cursor:default}
+.dzw-tb-action{display:inline-block;padding:4px 10px;border-radius:8px;border:1px solid var(--dz-border,#e5e7eb);font-size:.8rem;text-decoration:none;color:inherit;white-space:nowrap}
+.dzw-tb-action:hover{border-color:var(--dz-primary,#2563eb);color:var(--dz-primary,#2563eb)}
 .dzw-tb-pastille{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.74rem;font-weight:600;background:color-mix(in srgb,var(--c,#64748b) 14%,transparent);color:var(--c,#475569);white-space:nowrap}
+.dzw-tb-fiche{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:8px 18px;margin:0;font-size:.92rem}
+.dzw-tb-fiche dt{opacity:.62;font-weight:500}.dzw-tb-fiche dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media (max-width:640px){.dzw-tb-fiche{grid-template-columns:1fr;gap:2px}.dzw-tb-fiche dd{margin-bottom:8px}}
 .dzw-tb-vide,.dzw-tb-err{padding:18px 4px;text-align:center;opacity:.7;font-size:.88rem}
 .dzw-tb-err{color:#b91c1c;opacity:1}
 .dzw-tb-sq{border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--dz-text,#0f172a) 6%,transparent) 25%,color-mix(in srgb,var(--dz-text,#0f172a) 11%,transparent) 37%,color-mix(in srgb,var(--dz-text,#0f172a) 6%,transparent) 63%);background-size:400% 100%;animation:dzwtbsq 1.3s ease infinite}
@@ -258,6 +263,7 @@ const cellule = (v, col, o, ligne) => {
     const p = col.pastilles[v] || col.pastilles["*"];
     return h("span", { class: "dzw-tb-pastille", style: p && p.couleur ? { "--c": p.couleur } : null }, p && p.texte ? p.texte : v ?? "—");
   }
+  if (col.bouton) return h("a", { class: "dzw-tb-action", href: String(col.lien || "#").replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(ligne[k] ?? "")), onclick: (e) => e.stopPropagation() }, col.bouton);
   if (col.libelles) return libelle(o, v);
   if (col.modele) return String(col.modele).replace(/\{(\w+)\}/g, (_, k) => (ligne[k] == null ? "" : String(ligne[k])));
   return formater(v, col.format || null);
@@ -269,9 +275,9 @@ const vueListe = (el, d, o, etat) => {
   const numeriques = new Set(cols.filter((c) => ["nombre", "euro", "pourcent", "minutes"].includes(c.format)).map((c) => c.champ));
   const table = h("table", { class: "dzw-tb-table" },
     h("thead", {}, h("tr", {}, cols.map((c) => h("th", {
-      "data-tri": c.tri === false ? null : c.champ, class: d.tri === c.champ ? "on" : null, scope: "col",
-      onclick: c.tri === false ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire(); },
-    }, c.titre || c.champ, d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
+      "data-tri": c.tri === false || c.bouton ? null : c.champ, class: d.tri === c.champ ? "on" : null, scope: "col",
+      onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire(); },
+    }, c.bouton ? c.titre || "" : c.titre || c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
     h("tbody", {}, lignes.length ? lignes.map((l) => {
       const href = o.lien ? String(o.lien).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? "")) : null;
       return h("tr", { "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
@@ -280,11 +286,19 @@ const vueListe = (el, d, o, etat) => {
   const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
   const pied = h("div", { class: "dzw-tb-pied" },
     h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
-    h("span", { style: { display: "flex", gap: "6px", alignItems: "center" } },
+    pages <= 1 ? null : h("span", { style: { display: "flex", gap: "6px", alignItems: "center" } },
       h("button", { type: "button", disabled: d.page <= 1, onclick: () => { etat.page = d.page - 1; etat.relire(true); } }, "‹ Précédent"),
       h("span", {}, `${d.page} / ${pages}`),
       h("button", { type: "button", disabled: d.page >= pages, onclick: () => { etat.page = d.page + 1; etat.relire(true); } }, "Suivant ›")));
   return h("div", { style: { overflowX: "auto" } }, table, pied);
+};
+
+/* fiche : la première ligne d'une liste, en libellé → valeur */
+const vueFiche = (el, d, o) => {
+  const l = (d.lignes || [])[0];
+  if (!l) return h("div", { class: "dzw-tb-vide" }, "Introuvable.");
+  const cols = o.colonnes || Object.keys(l).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k }));
+  return h("dl", { class: "dzw-tb-fiche" }, cols.flatMap((c) => [h("dt", {}, c.titre ?? c.champ), h("dd", {}, cellule(l[c.champ], c, o, l))]));
 };
 
 const vueFiltres = (el, o) => {
@@ -349,7 +363,9 @@ register("tableau", (el) => {
   etat.relire = async (defiler) => {
     const n = ++etat.n;
     const url = Object.fromEntries(Object.entries(lireUrl()).filter(([k]) => !ignorer.has(k)));
-    const p = { ...url, ...Object.fromEntries(new URLSearchParams(o.params)) };
+    /* paramètres fixes, avec {x} remplacé par le paramètre x de l'adresse (ex. "ticket={id}") */
+    const fixes = String(o.params || "").replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(lireUrl()[k] ?? ""));
+    const p = { ...url, ...Object.fromEntries(new URLSearchParams(fixes)) };
     if (o.vue === "liste") {
       if (etat.page) p.page = etat.page; else if (url.page) etat.page = +url.page;
       if (etat.tri) { p.tri = etat.tri; p.sens = etat.sens; }
@@ -358,7 +374,7 @@ register("tableau", (el) => {
     try {
       const [d] = await Promise.all([charger(o.source, p), avecLibelles()]);
       if (n !== etat.n) return;
-      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe }[o.vue] || vueKpi;
+      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche }[o.vue] || vueKpi;
       corps.replaceChildren(vue(el, d, o, etat));
       if (titre && d.type === "liste") titre.querySelector("small").textContent = "";
       if (defiler) el.scrollIntoView({ block: "start", behavior: "smooth" });

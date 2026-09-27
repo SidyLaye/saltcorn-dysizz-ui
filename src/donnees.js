@@ -54,13 +54,15 @@ const typeDe = (table, nom) => (table.fields.find((f) => f.name === nom) || {}).
 const estDate = (table, nom) => { const t = typeDe(table, nom); return t && (t.name || t) === "Date"; };
 
 /* conditions fixes { champ: valeur | [valeurs] | null | {gt,lt} } : champs vérifiés, valeurs scalaires */
+/* dates relatives, résolues à chaque lecture : "@maintenant", "@aujourdhui" */
+const relatif = (v) => (v === "@maintenant" ? new Date().toISOString() : v === "@aujourdhui" ? enUtc(aujourdhui(fuseau()) + "T00:00:00", fuseau()) : v);
 const validerSi = (table, si, err, ou) => {
   if (si == null) return {};
   if (typeof si !== "object" || Array.isArray(si)) { err.push(`${ou} : « si » doit être un objet`); return {}; }
   const out = {};
   for (const [k, v] of Object.entries(si)) {
     if (!champOk(table, k)) { err.push(`${ou} : champ inconnu « ${k} » dans ${table.name}`); continue; }
-    if (v === null || ["string", "number", "boolean"].includes(typeof v)) out[k] = v;
+    if (v === null || ["string", "number", "boolean"].includes(typeof v)) out[k] = relatif(v);
     else if (Array.isArray(v) && v.every((x) => ["string", "number"].includes(typeof x))) out[k] = { in: v };
     else if (typeof v === "object" && Object.keys(v).length === 1 && typeof v.vide === "boolean") out[k] = v.vide ? null : "__non_vide__";
     else if (typeof v === "object" && Object.keys(v).length === 1 && (typeof v.commence === "string" || typeof v.contient === "string")) {
@@ -68,7 +70,7 @@ const validerSi = (table, si, err, ou) => {
       out[k] = { ilike: v.commence !== undefined ? t + "%" : "%" + t + "%", fullMatch: true };
     } else if (typeof v === "object" && Object.keys(v).every((x) => ["gt", "lt", "non"].includes(x))) {
       if (v.non !== undefined) out[k] = { not: { in: [].concat(v.non) } };
-      else out[k] = { ...(v.gt !== undefined ? { gt: v.gt } : {}), ...(v.lt !== undefined ? { lt: v.lt } : {}) };
+      else out[k] = { ...(v.gt !== undefined ? { gt: relatif(v.gt) } : {}), ...(v.lt !== undefined ? { lt: relatif(v.lt) } : {}) };
     } else err.push(`${ou} : valeur non prise en charge pour « ${k} »`);
   }
   for (const [k, v] of Object.entries(out)) if (v === "__non_vide__") { delete out[k]; out.not = { ...(out.not || {}), [k]: null }; }
@@ -129,6 +131,14 @@ const valider = (def) => {
     plan.tri = def.tri && tris.includes(def.tri) ? def.tri : tris[0];
     plan.sens = def.sens === "asc" ? "asc" : "desc";
     plan.par_page = Math.min(Math.max(+def.par_page || 50, 1), 200);
+    /* valeur d'une ligne parente, via un champ clé : { champ, table, valeur } */
+    plan.parents = {};
+    for (const [nom, e] of Object.entries(def.parents || {})) {
+      if (!/^[a-z][a-z0-9_]{0,40}$/.test(nom) || champOk(table, nom)) { err.push(`parent « ${nom} » : nom invalide ou déjà pris par un champ`); continue; }
+      const pt = Table.findOne({ name: e && e.table });
+      if (!pt || !champOk(table, e.champ) || !champOk(pt, e.valeur)) { err.push(`parent « ${nom} » : table, champ clé ou valeur inconnus`); continue; }
+      plan.parents[nom] = { table: pt.name, champ: e.champ, valeur: e.valeur };
+    }
     plan.enfants = {};
     for (const [nom, e] of Object.entries(def.enfants || {})) {
       if (!/^[a-z][a-z0-9_]{0,40}$/.test(nom) || champOk(table, nom)) { err.push(`enfant « ${nom} » : nom invalide ou déjà pris par un champ`); continue; }
@@ -297,6 +307,8 @@ const executer = async (plan, query, user) => {
     const parPage = Math.min(Math.max(+query.par_page || plan.par_page, 1), 200);
     const page = Math.max(Math.floor(+query.page || 1), 1);
     const cols = plan.champs.map((c) => `a.${q(c)}`);
+    for (const [nom, e] of Object.entries(plan.parents || {}))
+      cols.push(`(select p.${q(e.valeur)} from ${schema}${q(e.table)} p where p."id" = a.${q(e.champ)}) as ${q(nom)}`);
     for (const [nom, e] of Object.entries(plan.enfants)) {
       const extra = e.si && Object.keys(e.si).length ? ` and ${whereSql(e.si, ph)}` : "";
       const base = `from ${schema}${q(e.table)} c where c.${q(e.ref)} = a."id"${extra}`;
@@ -383,7 +395,7 @@ const peutLire = (plan, user) => {
   /* table principale : rôle suffisant, ou propriété des lignes (vérifiée à l'exécution) */
   const principale = user.role_id <= (t.min_role_read ?? 1) || (user.role_id < 100 && !!(t.ownership_field_id || t.ownership_formula));
   /* tables enfants : rôle suffisant, sans exception */
-  const enfants = Object.values(plan.enfants || {}).every((e) => { const c = Table.findOne({ name: e.table }); return c && user.role_id <= (c.min_role_read ?? 1); });
+  const enfants = [...Object.values(plan.enfants || {}), ...Object.values(plan.parents || {})].every((e) => { const c = Table.findOne({ name: e.table }); return c && user.role_id <= (c.min_role_read ?? 1); });
   return principale && enfants;
 };
 

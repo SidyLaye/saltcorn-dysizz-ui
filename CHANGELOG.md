@@ -7,7 +7,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [Sem
 ### Ajouté — tableaux de bord calculés par la base
 - **Sources de données** (`/dysizz-ui/sources`, table `dz_sources` du tenant) : chiffres (`agregat`, avec comparaison à la période précédente), courbes (`serie` par heure, jour, semaine, mois, année, jours vides à 0, au fuseau du site) et listes paginées et triables (`liste`, avec valeurs de tables liées). Lecture en JSON : `GET /dysizz/donnees/<nom>`.
 - Filtres déclarés dans la source et seuls acceptés : égalité (une ou plusieurs valeurs), période (`aujourdhui`, `7j`, `30j`, `90j`, `12m` ou `du`/`au`), vide, recherche (y compris dans les tables liées).
-- **Bloc « tableau »** (`data-dz-widget="tableau"`) : chiffre clé, courbe, barres, anneau, liste, et barre de filtres partagée. Les filtres vivent dans l'adresse : un lien filtré se partage, Retour fonctionne, et changer un filtre ne relit que les blocs, sans recharger la page. Clic sur une barre = filtre. Lisible sur téléphone.
+- Listes : valeurs de la ligne parente (`parents`, ex. le nom de l'assistante d'une personne). Conditions à dates relatives `@maintenant` / `@aujourdhui` (congés en cours, tickets en retard), « commence par », « contient », « vide ».
+- **Bloc « tableau »** (`data-dz-widget="tableau"`) : chiffre clé, courbe, barres, anneau, liste, fiche (une ligne en libellé → valeur), boutons d'action dans les listes, paramètres tirés de l'adresse (`params="ticket={id}"`), et barre de filtres partagée. Les filtres vivent dans l'adresse : un lien filtré se partage, Retour fonctionne, et changer un filtre ne relit que les blocs, sans recharger la page. Clic sur une barre = filtre. Lisible sur téléphone.
 
 ### Sécurité
 - Seul un administrateur crée une source ; chaque nom de champ est vérifié contre la table, toutes les valeurs de l'adresse passent en paramètres SQL.

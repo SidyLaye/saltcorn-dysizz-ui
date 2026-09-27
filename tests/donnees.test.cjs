@@ -152,6 +152,17 @@ const refus = async (p, code) => { try { await p; } catch (e) { assert.strictEqu
     r = await lire("liste", { par_page: "100000" });
     assert.strictEqual(r.par_page, 200, "taille de page plafonnée");
 
+    /* ── valeur parente et dates relatives ── */
+    src("champs", { table: "lead_champ", type: "liste", champs: ["valeur"], tri: "id", sens: "asc", par_page: 3, parents: { portail: { champ: "lead", table: "lead", valeur: "source" } }, filtres: { lead: "egal" } });
+    r = await lire("champs", { lead: "2" });
+    assert.ok(r.lignes.length && r.lignes.every((l) => l.portail === "seloger"), "valeur lue dans la ligne parente");
+    assert.ok(S.valider({ table: "lead_champ", type: "liste", parents: { x: { champ: "inconnu", table: "lead", valeur: "source" } } }).err.length, "champ clé inventé refusé");
+    src("passe", { table: "lead", mesures: { avant: { fn: "count", si: { cree_le: { lt: "@maintenant" } } }, futur: { fn: "count", si: { cree_le: { gt: "@aujourdhui" } } } } });
+    r = await lire("passe");
+    assert.strictEqual(r.valeurs.avant, 30); assert.strictEqual(r.valeurs.futur, 0, "dates relatives résolues à la lecture");
+    src("fuite2", { table: "lead", type: "liste", parents: { x: { champ: "id", table: "secret", valeur: "x" } } });
+    await refus(lire("fuite2", {}, staff), 403);
+
     /* ── droits ── */
     r = await lire("resume", {}, staff);
     assert.strictEqual(r.valeurs.total, 30, "staff lit une source ouverte au staff");
