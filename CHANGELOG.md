@@ -2,6 +2,22 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.9.0
+
+### Ajouté — tableaux de bord calculés par la base
+- **Sources de données** (`/dysizz-ui/sources`, table `dz_sources` du tenant) : chiffres (`agregat`, avec comparaison à la période précédente), courbes (`serie` par heure, jour, semaine, mois, année, jours vides à 0, au fuseau du site) et listes paginées et triables (`liste`, avec valeurs de tables liées). Lecture en JSON : `GET /dysizz/donnees/<nom>`.
+- Filtres déclarés dans la source et seuls acceptés : égalité (une ou plusieurs valeurs), période (`aujourdhui`, `7j`, `30j`, `90j`, `12m` ou `du`/`au`), vide, recherche (y compris dans les tables liées).
+- **Bloc « tableau »** (`data-dz-widget="tableau"`) : chiffre clé, courbe, barres, anneau, liste, et barre de filtres partagée. Les filtres vivent dans l'adresse : un lien filtré se partage, Retour fonctionne, et changer un filtre ne relit que les blocs, sans recharger la page. Clic sur une barre = filtre. Lisible sur téléphone.
+
+### Sécurité
+- Seul un administrateur crée une source ; chaque nom de champ est vérifié contre la table, toutes les valeurs de l'adresse passent en paramètres SQL.
+- Lecteur : rôle suffisant pour la source et pour chaque table lue (propriété des lignes respectée).
+- Requête en lecture seule sur une connexion dédiée, arrêtée au bout de 5 s ; cache court par tenant et par rôle.
+
+### Tests
+- `tests/donnees.test.cjs` contre un vrai PostgreSQL (résultats, fuseau horaire, injections, droits, lecture seule, cache), ajouté à la CI avec un service PostgreSQL 16.
+- Bloc « tableau » utilisé comme un humain dans `tests/widgets.test.mjs`.
+
 ## 3.8.0
 
 ### Ajouté — des briques pour construire des outils (famille Interactif)

@@ -15,6 +15,8 @@ const hub = require("./hub");
 const { dz_mail, WIDGET_FIELDVIEWS } = require("./fieldviews");
 const { atelierPage, saveBlock, deleteBlock, exportBlocks, importBlocks } = require("./admin/atelier");
 const { santePage, corriger } = require("./admin/sante");
+const donnees = require("./donnees");
+const sources = require("./admin/sources");
 
 const onLoad = async () => {
   try {
@@ -44,6 +46,12 @@ module.exports = {
     /* santé et sécurité du tenant : diagnostic, aperçu puis correction */
     { url: "/dysizz/sante", method: "get", callback: santePage },
     { url: "/dysizz/sante/corriger", method: "post", callback: corriger },
+    /* sources de données : chiffres, courbes et listes calculés par la base */
+    { url: "/dysizz/donnees/:nom", method: "get", callback: donnees.route },
+    { url: "/dysizz-ui/sources", method: "get", callback: sources.page },
+    { url: "/dysizz-ui/sources/save", method: "post", callback: sources.save },
+    { url: "/dysizz-ui/sources/tester", method: "post", callback: sources.tester },
+    { url: "/dysizz-ui/sources/delete", method: "post", callback: sources.del },
     { url: "/dysizz-ui", method: "get", callback: adminPage },
     { url: "/dysizz-ui/a/:ver/:file", method: "get", callback: serveAsset },
     { url: "/dysizz-ui/families", method: "post", callback: saveFamilies },

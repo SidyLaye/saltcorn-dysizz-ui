@@ -147,6 +147,18 @@ s'appliquent pas** (un `tryCatchInTransaction` n'annule rien, un
 `forupdate` ne verrouille rien). Tout le reste marche, d'où l'invisibilité.
 Les tâches de fond ne sont pas touchées.
 
+**Nuance (code de Saltcorn 1.6.2, `db/state.js`, `init_multi_tenant`).** Au
+démarrage, le domaine de la *Base URL* de la racine est rattaché à la racine :
+si elle vaut déjà ce sous-domaine, les requêtes passent par la racine et le
+problème n'existe pas. La sonde ci-dessous (ou la page `/dysizz/sante`, ligne
+« Transactions ») tranche sur l'instance réelle.
+
+**Un tenant peut avoir son propre nom de domaine.** Même fichier,
+`set_tenant_base_url` : si la *Base URL* d'un tenant n'est pas un
+sous-domaine de la racine, ce domaine lui est rattaché. Il suffit de faire
+pointer le DNS vers le serveur et d'ajouter le domaine dans le proxy
+(Dokploy). C'est aussi la voie pour que `web` devienne un vrai tenant.
+
 Solutions en gardant le multi-tenant : servir la racine sur le domaine de
 base (`allinone.ovh`), ou créer un vrai tenant `web` et y restaurer
 l'application. Sonde de 30 secondes (déclencheur `run_js_code`, lancé par

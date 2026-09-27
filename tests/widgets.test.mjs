@@ -203,6 +203,90 @@ try {
     assert.ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), "pas de débordement sur mobile");
     assert.deepStrictEqual(errs, []); await p.close(); ok.push("planning");
   }
+  /* ---------- tableau de bord (sources de données simulées par un petit serveur) ---------- */
+  {
+    const http = await import("node:http");
+    const appels = [];
+    const donnees = (nom, q) => {
+      if (nom === "resume") return { type: "agregat", valeurs: { total: q.source === "b" ? 5 : 120, rejets: 12 }, precedent: { total: 100, rejets: 15 } };
+      if (nom === "jours") return { type: "serie", par: "jour", lignes: Array.from({ length: 14 }, (_, i) => ({ cle: `2026-09-${String(i + 1).padStart(2, "0")}`, total: (i * 7) % 11 })) };
+      if (nom === "portails") return { type: "agregat", lignes: [{ cle: "a", total: 80 }, { cle: "b", total: 40 }] };
+      if (nom === "liste") { const page = +q.page || 1; return { type: "liste", total: 120, page, par_page: 50, tri: q.tri || "cree_le", sens: q.sens || "desc", lignes: Array.from({ length: 3 }, (_, i) => ({ id: page * 10 + i, cree_le: "2026-09-20T10:00:00Z", nom: "Nom" + i, source: "a", statut: i ? "ok" : "ko" })) }; }
+      return null;
+    };
+    const srv = http.createServer((req, res) => {
+      const u = new URL(req.url, "http://x");
+      if (u.pathname.startsWith("/dysizz/donnees/")) {
+        const nom = u.pathname.split("/").pop(), q = Object.fromEntries(u.searchParams);
+        appels.push({ nom, q });
+        const d = donnees(nom, q);
+        res.writeHead(d ? 200 : 404, { "Content-Type": "application/json" }); return res.end(JSON.stringify(d || { erreur: "source introuvable" }));
+      }
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(page(`<div data-dz-widget="tableau" data-vue="filtres" data-champs='[{"type":"periode","param":"periode","defaut":"30j"},{"param":"source","titre":"Portail","source":"portails"},{"type":"texte","param":"q"}]' data-libelles='{"a":"Portail A","b":"Portail B"}'></div>
+<div data-dz-widget="tableau" data-source="resume" data-vue="kpi" data-titre="Demandes" data-mesure="total"></div>
+<div data-dz-widget="tableau" data-source="resume" data-vue="kpi" data-titre="Rejets" data-mesure="rejets" data-inverse="true"></div>
+<div data-dz-widget="tableau" data-source="jours" data-vue="courbe" data-titre="Par jour"></div>
+<div data-dz-widget="tableau" data-source="portails" data-vue="barres" data-filtre="source" data-libelles='{"a":"Portail A","b":"Portail B"}'></div>
+<div data-dz-widget="tableau" data-source="portails" data-vue="anneau"></div>
+<div data-dz-widget="tableau" data-source="absente" data-vue="kpi"></div>
+<div data-dz-widget="tableau" data-source="liste" data-vue="liste" data-lien="/fiche?id={id}" data-colonnes='[{"champ":"nom","titre":"Nom"},{"champ":"statut","titre":"Statut","pastilles":{"ok":{"texte":"Bon","couleur":"#047857"}}}]'></div>`).replaceAll(`file://${ROOT}/build/`, "/build/"));
+    });
+    /* les fichiers du kit, servis par le même serveur */
+    const servirFichier = srv.listeners("request")[0];
+    srv.removeAllListeners("request");
+    srv.on("request", (req, res) => {
+      if (req.url.startsWith("/build/")) { const f = path.join(ROOT, req.url.split("?")[0]); if (fs.existsSync(f)) { res.writeHead(200, { "Content-Type": f.endsWith(".css") ? "text/css" : "text/javascript" }); return res.end(fs.readFileSync(f)); } }
+      servirFichier(req, res);
+    });
+    await new Promise((r) => srv.listen(0, r));
+    const base = `http://127.0.0.1:${srv.address().port}`;
+    const p = await browser.newPage();
+    await p.setViewportSize({ width: 1100, height: 900 });
+    const errs = [];
+    p.on("pageerror", (e) => errs.push(e.message));
+    await p.goto(base + "/");
+    await p.waitForSelector(".dzw-tb-table");
+    await p.waitForTimeout(300);
+    assert.ok(p.url().includes("periode=30j"), "période par défaut posée dans l'adresse");
+    assert.ok(appels.filter((a) => a.nom === "resume").every((a) => a.q.periode === "30j"), "les chiffres lisent la période par défaut");
+    const txt = await p.innerText("body");
+    assert.ok(txt.includes("120") && /\+20 %/.test(txt), "chiffre clé et écart avec la période précédente");
+    assert.ok(await p.isVisible(".dzw-tb-delta.inv.down"), "baisse des rejets affichée en bien (inverse)");
+    assert.ok(await p.locator(".dzw-tb-barre", { hasText: "Portail A" }).isVisible(), "libellés appliqués");
+    assert.ok(await p.isVisible("text=Lecture impossible : source introuvable"), "erreur de source expliquée");
+    assert.ok(await p.isVisible("text=120 résultats"), "total de la liste");
+    assert.ok(await p.isVisible("text=Bon"), "pastille de statut");
+    assert.ok((await p.locator(".dzw-tb svg polyline").count()) >= 1, "courbe dessinée");
+    /* un clic sur une barre filtre toute la page, sans recharger */
+    await p.evaluate(() => { window.__pasRecharge = 1; });
+    const avant = appels.length;
+    await p.click('.dzw-tb-barre[data-cle="b"]');
+    await p.waitForTimeout(500);
+    assert.ok(p.url().includes("source=b"), "filtre écrit dans l'adresse");
+    assert.strictEqual(await p.evaluate(() => window.__pasRecharge), 1, "page non rechargée");
+    assert.ok(appels.slice(avant).some((a) => a.nom === "resume" && a.q.source === "b"), "les blocs relisent avec le filtre");
+    assert.ok((await p.innerText("body")).includes("5"), "chiffre mis à jour");
+    assert.strictEqual(await p.locator(".dzw-tb-filtres select").inputValue(), "", "la liste déroulante suit l'adresse au rechargement");
+    /* pagination et tri */
+    await p.click("text=Suivant ›"); await p.waitForTimeout(300);
+    assert.ok(await p.isVisible("text=2 / 3"), "page suivante");
+    await p.click('th[data-tri="nom"]'); await p.waitForTimeout(300);
+    assert.ok(appels.at(-1).q.tri === "nom" && [undefined, "1"].includes(appels.at(-1).q.page), "tri demandé au serveur, retour page 1");
+    /* recherche avec délai de frappe */
+    await p.fill(".dzw-tb-filtres input[type=search]", "dupont"); await p.waitForTimeout(700);
+    assert.ok(appels.some((a) => a.q.q === "dupont"), "recherche transmise");
+    /* Retour du navigateur : les filtres reviennent */
+    await p.goBack(); await p.waitForTimeout(500);
+    assert.ok(!p.url().includes("dupont"), "retour arrière");
+    /* ligne cliquable */
+    await p.click(".dzw-tb-table tbody tr >> nth=0"); await p.waitForTimeout(300);
+    assert.ok(p.url().includes("/fiche?id="), "ligne ouvre sa fiche");
+    await p.goBack(); await p.waitForSelector(".dzw-tb-table");
+    await p.setViewportSize({ width: 390, height: 800 }); await p.waitForTimeout(400);
+    assert.ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), "pas de débordement sur mobile");
+    assert.deepStrictEqual(errs, []); await p.close(); srv.close(); ok.push("tableau de bord");
+  }
   console.log("widgets ok :", ok.join(", "));
 } finally {
   await browser.close();
