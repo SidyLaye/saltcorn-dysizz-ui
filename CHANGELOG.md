@@ -2,6 +2,17 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.11.0
+
+### Ajouté
+- Bloc « tableau », listes regroupées : `grouper` (une colonne, ex. l'agence) affiche un en-tête par groupe avec son nombre de lignes ; un clic replie ou déplie le groupe, « Tout ouvrir / Tout fermer » pour survoler. `replie` : les groupes arrivent fermés, sauf un petit résultat (recherche, filtre) qui reste ouvert. `sans-groupe` : libellé des lignes sans valeur.
+- Filtres : un choix peut en exclure d'autres (`exclut`, ex. la période « 90 jours » et les dates libres). Poser une date retire le raccourci, même par défaut ; la liste affiche alors `libre` (ex. « — dates choisies — »). Choisir « Tous » sur un filtre qui a une valeur par défaut garde ce choix.
+- Bloc note : plusieurs boutons (`boutons`, `[["/view/x", "Ajouter"], ["/page/y", "Autre", "sec"]]`), liens internes seulement.
+- Sources : dates relatives `@+7j` / `@-30j` (minuit local, dans N jours ou il y a N jours), en plus de `@maintenant` et `@aujourdhui`.
+
+### Corrigé
+- Une colonne au titre vide (`"titre": ""`) n'affiche plus le nom du champ ; dans une fiche, une ligne sans titre (un bouton) prend toute la largeur au lieu de déborder.
+
 ## 3.10.0
 
 ### Ajouté — refaire une interface existante sans code propre

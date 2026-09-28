@@ -54,8 +54,13 @@ const typeDe = (table, nom) => (table.fields.find((f) => f.name === nom) || {}).
 const estDate = (table, nom) => { const t = typeDe(table, nom); return t && (t.name || t) === "Date"; };
 
 /* conditions fixes { champ: valeur | [valeurs] | null | {gt,lt} } : champs vérifiés, valeurs scalaires */
-/* dates relatives, résolues à chaque lecture : "@maintenant", "@aujourdhui" */
-const relatif = (v) => (v === "@maintenant" ? new Date().toISOString() : v === "@aujourdhui" ? enUtc(aujourdhui(fuseau()) + "T00:00:00", fuseau()) : v);
+/* dates relatives, résolues à chaque lecture : "@maintenant", "@aujourdhui", "@+7j" / "@-30j" (minuit local, dans N jours ou il y a N jours) */
+const relatif = (v) => {
+  if (v === "@maintenant") return new Date().toISOString();
+  if (v === "@aujourdhui") return enUtc(aujourdhui(fuseau()) + "T00:00:00", fuseau());
+  const m = typeof v === "string" && /^@([+-]\d{1,4})j$/.exec(v);
+  return m ? enUtc(plusJours(aujourdhui(fuseau()), Number(m[1])) + "T00:00:00", fuseau()) : v;
+};
 const validerSi = (table, si, err, ou) => {
   if (si == null) return {};
   if (typeof si !== "object" || Array.isArray(si)) { err.push(`${ou} : « si » doit être un objet`); return {}; }
