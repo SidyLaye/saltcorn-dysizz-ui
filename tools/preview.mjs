@@ -146,6 +146,9 @@ for (const b of blocks) {
         await p.setViewportSize({ width: 1280, height: 900 });
         fs.writeFileSync(tmp, page(layout, "dark"));
         await p.goto("file://" + tmp);
+        /* une vidéo peut avoir chargé sa première image dans une photo et pas dans l'autre :
+           ses pixels ne disent rien de la mise en page, on les masque pour la comparaison */
+        await p.addStyleTag({ content: "video{visibility:hidden!important}" });
         await p.waitForTimeout(150);
         const el = await p.$("#blk");
         const bb = await el.boundingBox();

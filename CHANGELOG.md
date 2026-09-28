@@ -12,6 +12,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [Sem
 
 ### Corrigé
 - Une colonne au titre vide (`"titre": ""`) n'affiche plus le nom du champ ; dans une fiche, une ligne sans titre (un bouton) prend toute la largeur au lieu de déborder.
+- Contrôle visuel (`tools/preview.mjs`) : les vidéos sont masquées dans la comparaison bloc natif / bloc du builder ; selon la vitesse de la machine, la première image était chargée dans une photo et pas dans l'autre (« Site · vidéo » échouait parfois en CI).
 
 ## 3.10.0
 
