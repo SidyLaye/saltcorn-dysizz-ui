@@ -63,6 +63,7 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb-pastille{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.74rem;font-weight:600;background:color-mix(in srgb,var(--c,#64748b) 14%,transparent);color:var(--c,#475569);white-space:nowrap}
 .dzw-tb-fiche{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:8px 18px;margin:0;font-size:.92rem}
 .dzw-tb-fiche dt{opacity:.62;font-weight:500}.dzw-tb-fiche dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.dzw-tb-fiche dd.plein{grid-column:1/-1}
 @media (max-width:640px){.dzw-tb-fiche{grid-template-columns:1fr;gap:2px}.dzw-tb-fiche dd{margin-bottom:8px}}
 .dzw-tb-pct{font-size:.55em;font-weight:600;opacity:.6;margin-left:6px;letter-spacing:0}
 .dzw-tb[role=button]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
@@ -71,8 +72,17 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb.alerte .dzw-tb-kpi b{color:#b91c1c}
 .dzw-tb-note{margin:0;font-size:.86rem;opacity:.85;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .dzw-tb-bouton-lien{display:inline-flex;align-items:center;padding:9px 16px;border-radius:10px;background:var(--dz-primary,#2563eb);color:var(--dz-on-primary,#fff)!important;text-decoration:none;font-weight:600;min-height:40px}
+.dzw-tb-bouton-lien.sec{background:transparent;color:inherit!important;border:1px solid var(--dz-border,#e5e7eb)}
+.dzw-tb-boutons{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
 .dzw-tb-admin{border-color:color-mix(in srgb,#b45309 45%,var(--dz-border,#e5e7eb));box-shadow:inset 0 3px 0 #b45309}
 .dzw-tb-niveau{font-style:normal;font-size:.62rem;letter-spacing:.04em;margin-left:8px;padding:2px 7px;border-radius:99px;background:#fef3c7;color:#92400e;vertical-align:1px}
+.dzw-tb-table tr.dzw-tb-groupe td{background:color-mix(in srgb,var(--dz-primary,#2563eb) 6%,transparent);font-weight:600;cursor:pointer;user-select:none;padding:8px 10px}
+.dzw-tb-table tr.dzw-tb-groupe:hover td{background:color-mix(in srgb,var(--dz-primary,#2563eb) 11%,transparent)}
+.dzw-tb-table tr.dzw-tb-groupe small{font-weight:500;opacity:.6;margin-left:6px}
+.dzw-tb-table tr.dzw-tb-groupe .chev{display:inline-block;width:1em;opacity:.7}
+.dzw-tb-bascule-groupes{display:flex;gap:6px;justify-content:flex-end;margin:-4px 0 6px}
+.dzw-tb-bascule-groupes button{border:1px solid var(--dz-border,#e5e7eb);background:var(--dz-surface,#fff);color:inherit;border-radius:8px;padding:3px 10px;font-size:.78rem;cursor:pointer}
+@media (max-width:640px){.dzw-tb-table tr.dzw-tb-groupe{display:block}}
 .dzw-tb.dzw-tb-sansbord{border:0;background:none;padding:0}
 .dzw-tb-titre .l1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dzw-tb-titre h1{margin:0 6px 0 0;font-size:clamp(1.4rem,2.4vw,1.85rem);letter-spacing:-.02em;line-height:1.2}
@@ -396,7 +406,8 @@ const cellule = (v, col, o, ligne) => {
 };
 
 const vueListe = (el, d, o, etat) => {
-  const lignes = d.lignes || [];
+  /* liste groupée : les lignes d'un même groupe se suivent (tri stable, l'ordre de la source est gardé dans chaque groupe) */
+  const lignes = o.grouper ? (d.lignes || []).map((l, i) => [l, i]).sort((a, b) => String(a[0][o.grouper] ?? "\uffff").localeCompare(String(b[0][o.grouper] ?? "\uffff"), "fr") || a[1] - b[1]).map((x) => x[0]) : d.lignes || [];
   if (!lignes.length && o.vide) return h("div", { class: "dzw-tb-vide" }, o.vide);
   const cols = o.colonnes || (lignes[0] ? Object.keys(lignes[0]).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k })) : []);
   const numeriques = new Set(cols.filter((c) => ["nombre", "euro", "pourcent", "minutes"].includes(c.format)).map((c) => c.champ));
@@ -404,12 +415,29 @@ const vueListe = (el, d, o, etat) => {
     h("thead", {}, h("tr", {}, cols.map((c) => h("th", {
       "data-tri": c.tri === false || c.bouton ? null : c.champ, class: d.tri === c.champ ? "on" : null, scope: "col",
       onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire("force"); },
-    }, c.bouton ? c.titre || "" : c.titre || c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
-    h("tbody", {}, lignes.length ? lignes.map((l) => {
+    }, c.bouton ? c.titre || "" : c.titre ?? c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
+    h("tbody", {}, lignes.length ? lignes.flatMap((l, i) => {
       const href = o.lien ? lienDe(o.lien, l) : null;
-      return h("tr", { class: o.attention && vrai(o.attention, l) ? "att" : null, "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
+      /* groupes repliables (ex. par agence) : une ligne d'en-tête quand la valeur change */
+      const g = o.grouper ? String(l[o.grouper] ?? "") : null;
+      const entete = o.grouper && (i === 0 || String(lignes[i - 1][o.grouper] ?? "") !== g) ? (() => {
+        const n = lignes.filter((x) => String(x[o.grouper] ?? "") === g).length;
+        const ferme = etat.fermes.has(g);
+        return h("tr", { class: `dzw-tb-groupe${ferme ? " ferme" : ""}`, tabindex: 0, "aria-expanded": ferme ? "false" : "true",
+          onclick: () => { etat.fermes.has(g) ? etat.fermes.delete(g) : etat.fermes.add(g); etat.relire("force"); },
+          onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } } },
+          h("td", { colspan: cols.length }, h("span", { class: "chev" }, ferme ? "▸" : "▾"), " ", g === "" ? o.sansGroupe || "(sans)" : libelle(o, g), h("small", {}, ` ${n}`)));
+      })() : null;
+      if (o.grouper && etat.fermes.has(g)) return entete ? [entete] : [];
+      const tr = h("tr", { class: o.attention && vrai(o.attention, l) ? "att" : null, "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
         cols.map((c) => h("td", { class: numeriques.has(c.champ) ? "num" : c.nowrap || c.format === "depuis" || c.format === "dateheure" ? "nw" : null, style: c.largeur ? { minWidth: c.largeur } : null, "data-titre": c.titre || c.champ }, cellule(l[c.champ], c, o, l))));
+      return entete ? [entete, tr] : [tr];
     }) : h("tr", {}, h("td", { colspan: cols.length || 1, class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres."))));
+  /* tout ouvrir / tout fermer quand la liste est groupée */
+  const groupes = o.grouper ? [...new Set(lignes.map((x) => String(x[o.grouper] ?? "")))] : [];
+  const bascule = groupes.length > 1 ? h("div", { class: "dzw-tb-bascule-groupes" },
+    h("button", { type: "button", onclick: () => { etat.fermes.clear(); etat.relire("force"); } }, "Tout ouvrir"),
+    h("button", { type: "button", onclick: () => { groupes.forEach((x) => etat.fermes.add(x)); etat.relire("force"); } }, "Tout fermer")) : null;
   const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
   const pied = pages <= 1 && (o.titre || (d.total || 0) <= 1) ? null : h("div", { class: "dzw-tb-pied" },
     h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
@@ -417,7 +445,7 @@ const vueListe = (el, d, o, etat) => {
       h("button", { type: "button", disabled: d.page <= 1, onclick: () => { etat.page = d.page - 1; etat.relire(true); } }, "‹ Précédent"),
       h("span", {}, `${d.page} / ${pages}`),
       h("button", { type: "button", disabled: d.page >= pages, onclick: () => { etat.page = d.page + 1; etat.relire(true); } }, "Suivant ›")));
-  return h("div", { style: { overflowX: "auto" } }, table, pied);
+  return h("div", { style: { overflowX: "auto" } }, bascule, table, pied);
 };
 
 /* grille : une tuile par ligne (portefeuille…) — { titre, lignes[], badge, pied, image } */
@@ -477,7 +505,7 @@ const vueFiche = (el, d, o) => {
   const l = (d.lignes || [])[0] || (d.valeurs && !d.lignes ? d.valeurs : null);
   if (!l) return h("div", { class: "dzw-tb-vide" }, "Introuvable.");
   const cols = o.colonnes || Object.keys(l).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k }));
-  return h("dl", { class: "dzw-tb-fiche" }, cols.flatMap((c) => [h("dt", {}, c.titre ?? c.champ), h("dd", {}, cellule(l[c.champ], c, o, l))]));
+  return h("dl", { class: "dzw-tb-fiche" }, cols.flatMap((c) => (c.titre === "" ? [h("dd", { class: "plein" }, cellule(l[c.champ], c, o, l))] : [h("dt", {}, c.titre ?? c.champ), h("dd", {}, cellule(l[c.champ], c, o, l))])));
 };
 
 const vueFiltres = (el, o) => {
@@ -505,12 +533,14 @@ const vueFiltres = (el, o) => {
       bar.appendChild(h("label", {}, c.titre ?? c.param, h("div", { class: "dzw-tb-periodes", role: "group" }, (c.options || []).map(([v, t]) => h("button", { type: "button", class: String(actif) === String(v) ? "on" : null, "aria-pressed": String(actif) === String(v) ? "true" : "false", onclick: () => maj(c.param, v) }, t)))));
     } else if (c.type === "date") {
       const inp = h("input", { type: "date", value: url[c.param] || "" });
-      inp.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: inp.value, periode: "", j: "", page: "" }));
+      inp.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: inp.value, periode: "", j: "", ...Object.fromEntries(champs.filter((x) => (x.exclut || []).includes(c.param)).map((x) => [x.param, ""])), page: "" }));
       bar.appendChild(h("label", {}, c.titre || c.param, inp));
     } else {
-      const sel = h("select", { "aria-label": c.titre || c.param }, h("option", { value: "" }, c.tous || "Tous"));
+      /* champ exclusif (ex. raccourci de période face à des dates libres) : il s'efface quand l'autre est posé */
+      const libre = (c.exclut || []).some((k) => url[k]);
+      const sel = h("select", { "aria-label": c.titre || c.param }, h("option", { value: "", selected: libre }, libre && c.libre ? c.libre : c.tous || "Tous"));
       const remplir = (items) => {
-        for (const [v, t] of items) sel.appendChild(h("option", { value: v, selected: String(url[c.param] ?? "") === String(v) && v !== "" }, t));
+        for (const [v, t] of items) sel.appendChild(h("option", { value: v, selected: !libre && String(url[c.param] ?? "") === String(v) && v !== "" }, t));
       };
       if (c.options) remplir(c.options.map((x) => (Array.isArray(x) ? x : [x, (o.libelles && o.libelles[x]) || x])));
       /* liste lue dans une source : groupe (cle) ou liste (c.cle → c.champ, ex. agence → nom) */
@@ -523,12 +553,13 @@ const vueFiltres = (el, o) => {
         const b = x && bar.parentNode && bar.parentNode.querySelector(`[data-puce="${c.param}"]`);
         if (b) b.textContent = `${c.titre || c.param} : ${x[1]}`;
       }).catch(() => {});
-      sel.addEventListener("change", () => maj(c.param, sel.value));
+      /* « Tous » sur un champ qui a une valeur par défaut : on l'écrit (« tout »), sinon le défaut reviendrait au rechargement */
+      sel.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: sel.value === "" && c.defaut !== undefined ? "tout" : sel.value, ...Object.fromEntries((c.exclut || []).map((k) => [k, ""])), page: "" }));
       bar.appendChild(h("label", {}, c.titre || c.param, sel));
     }
   }
   /* rappel des filtres posés, chacun retirable d'un clic */
-  const actifs = champs.filter((c) => c.type !== "boutons" && !c.garder && url[c.param] !== undefined && url[c.param] !== "");
+  const actifs = champs.filter((c) => c.type !== "boutons" && !c.garder && url[c.param] !== undefined && url[c.param] !== "" && url[c.param] !== "tout");
   const puces = actifs.length ? h("div", { class: "dzw-tb-puces" }, actifs.map((c) => {
     const v = url[c.param];
     const opt = (c.options || []).find((x) => String(Array.isArray(x) ? x[0] : x) === String(v));
@@ -548,7 +579,7 @@ register("tableau", (el) => {
     sur: conf(el, "sur", ""), clic: conf(el, "clic", null), alerte: conf(el, "alerte", true), attention: conf(el, "attention", null), vide: conf(el, "vide", ""),
     tuile: conf(el, "tuile", null), bascule: conf(el, "bascule", null), masquerRefus: conf(el, "masquer-refus", false), lienBarre: conf(el, "lien-barre", ""),
     pourcent: conf(el, "pourcent", false), champHtml: conf(el, "champ-html", ""), champTexte: conf(el, "champ-texte", ""), bouton: conf(el, "bouton", ""),
-    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []), badges: conf(el, "badges", []), cacherZero: conf(el, "cacher-zero", false), montrer: conf(el, "montrer", null),
+    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []), grouper: conf(el, "grouper", ""), boutons: conf(el, "boutons", []), sansGroupe: conf(el, "sans-groupe", ""), replie: conf(el, "replie", false), badges: conf(el, "badges", []), cacherZero: conf(el, "cacher-zero", false), montrer: conf(el, "montrer", null),
   };
   /* bascule grille / tableau selon un paramètre de l'adresse : { param, vues: { "": "grille", "t": "liste" } } */
   const vueDe = () => (o.bascule ? o.bascule.vues[lireUrl()[o.bascule.param] ?? ""] || o.vue : o.vue);
@@ -569,7 +600,11 @@ register("tableau", (el) => {
     window.addEventListener("dz:filtres", montrer);
     el.classList.add("dzw-tb-sansbord");
     const lien = o.lien && /^\/(?!\/)/.test(o.lien) ? o.lien : null;
-    el.appendChild(h("p", { class: "dzw-tb-note" }, lien && o.bouton ? h("a", { class: "dzw-tb-bouton-lien", href: lien }, o.bouton) : null, o.sous || ""));
+    /* plusieurs boutons : [["/view/x", "Ajouter"], ["/page/y", "Autre", "sec"]] ; liens internes seulement */
+    const boutons = (Array.isArray(o.boutons) ? o.boutons : []).filter((b) => Array.isArray(b) && /^\/(?!\/)/.test(String(b[0])) && b[1])
+      .map((b) => h("a", { class: "dzw-tb-bouton-lien" + (b[2] === "sec" ? " sec" : ""), href: b[0] }, String(b[1])));
+    if (boutons.length) el.appendChild(h("p", { class: "dzw-tb-boutons" }, ...boutons));
+    if (o.sous || (lien && o.bouton)) el.appendChild(h("p", { class: "dzw-tb-note" }, lien && o.bouton ? h("a", { class: "dzw-tb-bouton-lien", href: lien }, o.bouton) : null, o.sous || ""));
     return;
   }
   if (o.vue === "filtres") {
@@ -577,7 +612,7 @@ register("tableau", (el) => {
     montrer();
     window.addEventListener("dz:filtres", montrer);
     /* valeurs par défaut (ex. période 30 jours) posées dans l'adresse avant que les autres blocs lisent */
-    const u = lireUrl(), manque = o.champs.filter((c) => c.defaut !== undefined && u[c.param] === undefined);
+    const u = lireUrl(), manque = o.champs.filter((c) => c.defaut !== undefined && u[c.param] === undefined && !(c.exclut || []).some((k) => u[k]));
     if (manque.length) { const n = new URL(location.href); for (const c of manque) n.searchParams.set(c.param, c.defaut); history.replaceState(null, "", n); }
     avecLibelles().then(() => el.appendChild(vueFiltres(el, o)));
     return;
@@ -586,7 +621,7 @@ register("tableau", (el) => {
   const corps = h("div", {}, h("div", { class: "dzw-tb-sq", style: { height: ["kpi", "titre"].includes(o.vue) ? "44px" : `${o.hauteur || 160}px` } }));
   el.appendChild(corps);
   const ignorer = new Set(String(o.ignorer).split(",").map((s) => s.trim()).filter(Boolean));
-  const etat = { page: 0, tri: "", sens: "", n: 0 };
+  const etat = { page: 0, tri: "", sens: "", n: 0, fermes: new Set() };
   etat.relire = async (defiler) => {
     if (!visible()) { el.hidden = true; etat.dernier = null; return; }
     const n = ++etat.n;
@@ -608,6 +643,14 @@ register("tableau", (el) => {
       if (defiler !== "force" && etat.dernier === cle) return;
       etat.dernier = cle;
       el.hidden = false;
+      /* repliée : chaque nouvelle agence arrive fermée ; un petit résultat (recherche, filtre) reste ouvert */
+      if (o.grouper && o.replie) {
+        const ls = d.lignes || [];
+        etat.vus = etat.vus || new Set();
+        if (ls.length <= 15) for (const l of ls) etat.fermes.delete(String(l[o.grouper] ?? ""));
+        else for (const l of ls) { const g = String(l[o.grouper] ?? ""); if (!etat.vus.has(g)) etat.fermes.add(g); }
+        for (const l of ls) etat.vus.add(String(l[o.grouper] ?? ""));
+      }
       const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche, grille: vueGrille, document: vueDocument, titre: vueTitre }[v] || vueKpi;
       corps.replaceChildren(vue(el, d, o, etat));
       if (titre && d.type === "liste" && ["liste", "grille"].includes(v) && (d.total || 0) !== 1) titre.querySelector("small").textContent = `${NF0.format(d.total || 0)}`;
