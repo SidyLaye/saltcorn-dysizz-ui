@@ -22,7 +22,7 @@
 const TABLE = "dz_sources";
 const NOM_RE = /^[a-z0-9][a-z0-9_-]{0,60}$/;
 const TYPES = ["agregat", "serie", "liste"];
-const FNS = ["count", "countunique", "sum", "avg", "min", "max", "mediane", "duree_moyenne", "duree_mediane"];
+const FNS = ["count", "taux", "countunique", "sum", "avg", "min", "max", "mediane", "duree_moyenne", "duree_mediane"];
 const PAS = { heure: "hour", jour: "day", semaine: "week", mois: "month", annee: "year" };
 const PERIODES = { aujourdhui: 0, "7j": 7, "30j": 30, "90j": 90, "12m": 365 };
 const MAX_LIGNES = 500;
@@ -61,6 +61,12 @@ const validerSi = (table, si, err, ou) => {
   if (typeof si !== "object" || Array.isArray(si)) { err.push(`${ou} : « si » doit être un objet`); return {}; }
   const out = {};
   for (const [k, v] of Object.entries(si)) {
+    /* « ou » : au moins une des conditions (chacune validée comme un « si ») */
+    if (k === "ou") {
+      if (!Array.isArray(v) || !v.length || v.length > 10) { err.push(`${ou} : « ou » doit être une liste de 1 à 10 conditions`); continue; }
+      out.or = v.map((x) => validerSi(table, x, err, ou));
+      continue;
+    }
     if (!champOk(table, k)) { err.push(`${ou} : champ inconnu « ${k} » dans ${table.name}`); continue; }
     if (v === null || ["string", "number", "boolean"].includes(typeof v)) out[k] = relatif(v);
     else if (Array.isArray(v) && v.every((x) => ["string", "number"].includes(typeof x))) out[k] = { in: v };
@@ -83,7 +89,8 @@ const validerMesure = (table, nom, m, err) => {
   if (!m || !FNS.includes(m.fn)) { err.push(`${ou} : fn doit être ${FNS.join(", ")}`); return null; }
   if (m.fn.startsWith("duree_")) {
     if (!champOk(table, m.de) || !champOk(table, m.a)) err.push(`${ou} : « de » et « a » doivent être deux champs date de ${table.name}`);
-  } else if (m.fn !== "count" && !champOk(table, m.champ)) err.push(`${ou} : champ « ${m.champ} » inconnu dans ${table.name}`);
+  } else if (m.fn === "taux" && !(m.si && Object.keys(m.si).length)) err.push(`${ou} : « taux » demande une condition « si »`);
+  else if (!["count", "taux"].includes(m.fn) && !champOk(table, m.champ)) err.push(`${ou} : champ « ${m.champ} » inconnu dans ${table.name}`);
   return { fn: m.fn, champ: m.champ, de: m.de, a: m.a, si: validerSi(table, m.si, err, ou) };
 };
 
@@ -119,6 +126,18 @@ const valider = (def) => {
       plan.filtres[param] = { mode: spec.mode, champ: spec.champ, texte: ["String", "HTML"].includes((t && t.name) || t) };
       /* noms des paramètres de période (par défaut du, au, periode, j) */
       if (spec.mode === "periode") for (const k of ["du", "au", "jours", "raccourci"]) if (spec[k] && /^[a-z][a-z0-9_]{0,20}$/.test(spec[k])) plan.filtres[param][k] = spec[k];
+    } else if (spec.mode === "lien") {
+      /* valeur lue dans une autre table : ?id=12 → champ = (champ de la ligne cle = 12 dans table)
+         ex. l'e-mail d'origine d'une demande : { mode: "lien", champ: "id", table: "lead", cle: "id", valeur: "email_brut" } */
+      const lt = Table.findOne({ name: spec.table });
+      if (!champOk(table, spec.champ) || !lt || !champOk(lt, spec.cle || "id") || !champOk(lt, spec.valeur)) { err.push(`filtre « ${param} » : lien vers une table ou un champ inconnu`); continue; }
+      const tc = typeDe(lt, spec.cle || "id");
+      plan.filtres[param] = { mode: "lien", champ: spec.champ, table: lt.name, cle: spec.cle || "id", valeur: spec.valeur, entier: ((tc && tc.name) || tc) === "Integer" };
+      plan.liens = [...(plan.liens || []), { table: lt.name }];
+    } else if (spec.mode === "sauf") {
+      if (!champOk(table, spec.champ)) { err.push(`filtre « ${param} » : champ « ${spec.champ} » inconnu`); continue; }
+      const ts = typeDe(table, spec.champ);
+      plan.filtres[param] = { mode: "sauf", champ: spec.champ, entier: ((ts && ts.name) || ts) === "Integer" };
     } else if (spec.mode === "choix") {
       /* valeur du paramètre → condition prédéfinie : { "1": {si…}, "0": {si…} } */
       const options = {};
@@ -128,7 +147,12 @@ const valider = (def) => {
       }
       if (!Object.keys(options).length) err.push(`filtre « ${param} » : aucune option`);
       plan.filtres[param] = { mode: "choix", options };
-    } else err.push(`filtre « ${param} » : mode doit être egal, periode, vide, cherche, min, max, commence ou choix`);
+      /* option appliquée quand le paramètre est absent (ex. doublons repliés sauf ?tout=1) */
+      if (spec.defaut !== undefined) {
+        if (options[String(spec.defaut)]) plan.filtres[param].defaut = String(spec.defaut);
+        else err.push(`filtre « ${param} » : défaut « ${spec.defaut} » absent des options`);
+      }
+    } else err.push(`filtre « ${param} » : mode doit être egal, periode, vide, cherche, min, max, commence, choix, lien ou sauf`);
   }
   if (Object.values(plan.filtres).filter((f) => f.mode === "periode").length > 1) err.push("un seul filtre de période par source");
 
@@ -245,6 +269,10 @@ const whereDe = (plan, query, tz, decalage) => {
       continue;
     }
     const v = query[param];
+    if (f.mode === "choix" && f.defaut !== undefined && (v === undefined || v === "" || !f.options[String(v)])) {
+      where.and = [...(where.and || []), f.options[f.defaut]];
+      continue;
+    }
     if (v === undefined || v === "") continue;
     if (f.mode === "egal") {
       const vals = String(v).split(",").map((x) => x.trim()).filter(Boolean).slice(0, 50);
@@ -256,6 +284,14 @@ const whereDe = (plan, query, tz, decalage) => {
       extras.push({ champ: f.champ, texte: f.texte, op: f.mode === "min" ? ">=" : "<=", n });
     } else if (f.mode === "commence") {
       where[f.champ] = { ilike: String(v).slice(0, 40).replace(/[\\%_]/g, (c) => "\\" + c) + "%", fullMatch: true };
+    } else if ((f.mode === "lien" || f.mode === "sauf") && f.entier && !/^-?\d{1,15}$/.test(String(v))) {
+      /* identifiant illisible : aucune ligne pour lien, aucune exclusion pour sauf */
+      if (f.mode === "lien") where.and = [...(where.and || []), { [f.champ]: { in: [] } }];
+    } else if (f.mode === "lien") {
+      const db = require("@saltcorn/data/db");
+      where.and = [...(where.and || []), { [f.champ]: { inSelect: { table: f.table, field: f.valeur, tenant: db.getTenantSchema(), where: { [f.cle]: String(v).slice(0, 100) } } } }];
+    } else if (f.mode === "sauf") {
+      where.and = [...(where.and || []), { not: { [f.champ]: String(v).slice(0, 100) } }];
     } else if (f.mode === "choix") {
       const si = f.options[String(v)];
       if (si) where.and = [...(where.and || []), si];
@@ -300,6 +336,8 @@ const mesureSql = (m, ph) => {
   const filtre = m.si && Object.keys(m.si).length ? ` filter (where ${whereSql(m.si, ph)})` : "";
   switch (m.fn) {
     case "count": return `count(*)${filtre}`;
+    /* part des lignes qui remplissent « si », en %, à une décimale */
+    case "taux": return `round(100.0 * count(*)${filtre} / nullif(count(*), 0), 1)`;
     case "countunique": return `count(distinct a.${q(m.champ)})${filtre}`;
     case "mediane": return `percentile_cont(0.5) within group (order by a.${q(m.champ)})${filtre}`;
     case "duree_moyenne": return `avg(extract(epoch from (a.${q(m.a)} - a.${q(m.de)})) / 60)${filtre}`;
@@ -438,7 +476,7 @@ const peutLire = (plan, user) => {
   /* table principale : rôle suffisant, ou propriété des lignes (vérifiée à l'exécution) */
   const principale = user.role_id <= (t.min_role_read ?? 1) || (user.role_id < 100 && !!(t.ownership_field_id || t.ownership_formula));
   /* tables enfants : rôle suffisant, sans exception */
-  const enfants = [...Object.values(plan.enfants || {}), ...Object.values(plan.parents || {})].every((e) => { const c = Table.findOne({ name: e.table }); return c && user.role_id <= (c.min_role_read ?? 1); });
+  const enfants = [...Object.values(plan.enfants || {}), ...Object.values(plan.parents || {}), ...(plan.liens || [])].every((e) => { const c = Table.findOne({ name: e.table }); return c && user.role_id <= (c.min_role_read ?? 1); });
   return principale && enfants;
 };
 

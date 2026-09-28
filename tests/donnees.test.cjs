@@ -176,6 +176,23 @@ const refus = async (p, code) => { try { await p; } catch (e) { assert.strictEqu
     assert.strictEqual((await lire("bornes", { j: "1" })).valeurs.n, 0, "depuis 1 jour (données de 2026-09)");
     assert.strictEqual((await lire("bornes", { j: "36500" })).valeurs.n, 30, "j hors bornes ignoré");
     assert.strictEqual((await lire("bornes", { ref: "REF2" })).valeurs.n, 11, "commence par : REF2 et REF20 à REF29");
+    src("defaut", { table: "lead", mesures: { n: { fn: "count" } }, filtres: { tout: { mode: "choix", options: { "0": { version_gabarit: { non: ["ia"] } }, "1": {} }, defaut: "0" } } });
+    assert.strictEqual((await lire("defaut")).valeurs.n, 22, "choix par défaut appliqué sans paramètre");
+    assert.strictEqual((await lire("defaut", { tout: "1" })).valeurs.n, 30, "choix vide : tout");
+    assert.strictEqual((await lire("defaut", { tout: "zz" })).valeurs.n, 22, "valeur inconnue : défaut");
+    src("lien", { table: "lead", mesures: { n: { fn: "count" } }, filtres: { comme: { mode: "lien", champ: "source", table: "lead", cle: "id", valeur: "source" }, sauf: { mode: "sauf", champ: "id" } } });
+    assert.strictEqual((await lire("lien", { comme: "1" })).valeurs.n, 10, "valeur lue dans une autre ligne (même portail que la demande 1)");
+    assert.strictEqual((await lire("lien", { comme: "1", sauf: "1" })).valeurs.n, 9, "sauf la demande elle-même");
+    assert.strictEqual((await lire("lien", { comme: "99999" })).valeurs.n, 0, "lien vers une ligne absente : rien");
+    assert.strictEqual((await lire("lien", { comme: "1' or '1'='1" })).valeurs.n, 0, "valeur passée en paramètre");
+    src("taux", { table: "lead", groupe: "source", mesures: { n: { fn: "count" }, ia: { fn: "taux", si: { version_gabarit: { commence: "ia" } } } } });
+    r = await lire("taux");
+    assert.ok(r.lignes.every((l) => l.ia >= 0 && l.ia <= 100), "taux entre 0 et 100");
+    assert.strictEqual(Math.round(r.lignes.reduce((s, l) => s + (l.ia * l.n) / 100, 0)), 8, "taux × effectif = nombre de lignes qui remplissent la condition");
+    src("ou", { table: "lead", mesures: { n: { fn: "count", si: { ou: [{ version_gabarit: { commence: "ia" } }, { id: { lt: 3 } }] } } } });
+    const attendu = +(await pool.query(`select count(*) as n from "${SCHEMA}".lead where version_gabarit like 'ia%' or id < 3`)).rows[0].n;
+    assert.ok(attendu > 8, "le jeu d'essai couvre les deux conditions");
+    assert.strictEqual((await lire("ou")).valeurs.n, attendu, "« ou » : l'une ou l'autre condition");
     src("enfcle", { table: "lead", type: "liste", champs: ["source"], par_page: 1, tri: "id", sens: "asc", enfants: { meme_source: { table: "lead", ref: "source", cle: "source", fn: "count" } } });
     assert.strictEqual((await lire("enfcle")).lignes[0].meme_source, 10, "enfants rattachés par une autre colonne");
 

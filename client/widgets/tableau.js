@@ -27,6 +27,7 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb-delta{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:.8rem;font-weight:600;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--dz-text,#0f172a) 6%,transparent)}
 .dzw-tb-delta.up{color:#047857;background:#d1fae5}.dzw-tb-delta.down{color:#b91c1c;background:#fee2e2}
 .dzw-tb-delta.inv.up{color:#b91c1c;background:#fee2e2}.dzw-tb-delta.inv.down{color:#047857;background:#d1fae5}
+.dzw-tb-kpi.txt b{font-size:clamp(1.15rem,1.8vw,1.45rem)}
 .dzw-tb-sous{font-size:.8rem;opacity:.65;margin-top:6px}
 .dzw-tb svg{display:block;width:100%;overflow:visible}
 .dzw-tb-axe{font-size:10px;fill:currentColor;opacity:.55}
@@ -68,6 +69,12 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb[role=button]:hover{border-color:var(--dz-primary,#2563eb)}
 .dzw-tb.actif{border-color:var(--dz-primary,#2563eb);box-shadow:0 0 0 3px color-mix(in srgb,var(--dz-primary,#2563eb) 18%,transparent)}
 .dzw-tb.alerte .dzw-tb-kpi b{color:#b91c1c}
+.dzw-tb-note{margin:0;font-size:.86rem;opacity:.85;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dzw-tb-bouton-lien{display:inline-flex;align-items:center;padding:9px 16px;border-radius:10px;background:var(--dz-primary,#2563eb);color:var(--dz-on-primary,#fff)!important;text-decoration:none;font-weight:600;min-height:40px}
+.dzw-tb.dzw-tb-sansbord{border:0;background:none;padding:0}
+.dzw-tb-titre .l1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dzw-tb-titre h1{margin:0 6px 0 0;font-size:clamp(1.4rem,2.4vw,1.85rem);letter-spacing:-.02em;line-height:1.2}
+.dzw-tb-titre p{margin:4px 0 0;opacity:.7;font-size:.93rem}
 .dzw-tb-l.gras{font-weight:600}.dzw-tb-l.discret{opacity:.62;font-size:.82rem}.dzw-tb-l.mono{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;opacity:.75}
 .dzw-tb-l.alerte{color:#b45309;font-size:.8rem}
 .dzw-tb-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
@@ -103,7 +110,7 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb-filtres label{display:grid;gap:4px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;opacity:.85}
 .dzw-tb-filtres select,.dzw-tb-filtres input{font:inherit;font-size:.88rem;text-transform:none;letter-spacing:0;font-weight:400;padding:7px 10px;border:1px solid var(--dz-border,#d1d5db);border-radius:10px;background:var(--dz-surface,#fff);color:inherit;min-height:38px;min-width:130px}
 .dzw-tb-filtres input[type=search]{min-width:220px}
-.dzw-tb-filtres .raz{border:0;background:none;color:var(--dz-primary,#2563eb);cursor:pointer;font-size:.85rem;padding:8px 4px;min-height:38px}
+.dzw-tb .raz{border:0;background:none;color:var(--dz-primary,#2563eb);cursor:pointer;font-size:.85rem;padding:8px 4px;min-height:38px}
 .dzw-tb-periodes{display:inline-flex;border:1px solid var(--dz-border,#d1d5db);border-radius:10px;overflow:hidden}
 .dzw-tb-periodes button{border:0;background:var(--dz-surface,#fff);color:inherit;padding:8px 11px;font-size:.84rem;cursor:pointer;min-height:38px}
 .dzw-tb-periodes button+button{border-left:1px solid var(--dz-border,#d1d5db)}
@@ -139,6 +146,9 @@ export const formater = (v, fmt) => {
     if (isNaN(m)) return String(v);
     return m < 60 ? `${Math.max(1, Math.round(m))} min` : m < 1440 ? `${Math.round(m / 60)} h` : `${Math.round(m / 1440)} j`;
   }
+  if (fmt === "brut") return String(v);
+  if (fmt === "heure") { const d = new Date(v); return isNaN(d) ? String(v) : `${d.toLocaleTimeString("fr-FR")}.${String(d.getMilliseconds()).padStart(3, "0")}`; }
+  if (fmt === "ms") { const n = +v; return isNaN(n) ? String(v) : n < 1000 ? `${Math.round(n)} ms` : `${(n / 1000).toFixed(2)} s`; }
   if (fmt === "jour") { const d = new Date(v); return isNaN(d) ? String(v) : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit" }); }
   if (fmt === "depuis") {
     const m = (Date.now() - new Date(v)) / 6e4;
@@ -187,18 +197,31 @@ const vrai = (si, l) => {
   if (si.vide !== undefined) return si.vide ? videV : !videV;
   if (si.egal !== undefined) return [].concat(si.egal).map(String).includes(String(v));
   if (si.non !== undefined) return ![].concat(si.non).map(String).includes(String(v));
-  if (si.gt !== undefined) return +v > +si.gt;
-  if (si.lt !== undefined) return +v < +si.lt;
+  /* une comparaison ne s'applique qu'à une valeur présente */
+  if (si.gt !== undefined) return v !== null && v !== undefined && v !== "" && +v > +si.gt;
+  if (si.lt !== undefined) return v !== null && v !== undefined && v !== "" && +v < +si.lt;
   return !videV;
 };
 /* « {prenom} {nom} », « {prix|euro} », « {source|libelle} » */
-const modele = (tpl, l, o) => String(tpl ?? "").replace(/\{(\w+)(?:\|(\w+))?\}/g, (_, k, f) => {
-  const v = l[k];
-  if (f === "libelle") return libelle(o, v);
-  if (f) return v == null || v === "" ? "" : formater(v, f);
-  return v == null ? "" : String(v);
-}).replace(/\s+/g, " ").trim();
-const lienDe = (tpl, l) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? ""));
+/* segments séparés par « · » : un segment dont toutes les valeurs sont vides disparaît
+   (« {type} · {pieces} pièces · {surface} m² » sans surface → « Maison · 4 pièces ») */
+const modele = (tpl, l, o) => String(tpl ?? "").split(" · ").map((seg) => {
+  let n = 0, vides = 0;
+  const r = seg.replace(/\{(\w+)(?:\|(\w+))?\}/g, (_, k, f) => {
+    const v = l[k];
+    n++;
+    if (v === null || v === undefined || v === "") { vides++; return f === "libelle" ? libelle(o, v) : ""; }
+    if (f === "libelle") return libelle(o, v);
+    return f ? formater(v, f) : String(v);
+  });
+  return n && vides === n ? "" : r;
+}).filter((x) => x.trim()).join(" · ").replace(/\s+/g, " ").trim();
+/* « @champ » : adresse toute faite lue dans la ligne (seulement une adresse du site, commençant par « / ») */
+const lienDe = (tpl, l) => {
+  const m = /^@(\w+)$/.exec(String(tpl));
+  if (m) { const v = String(l[m[1]] ?? ""); return /^\/(?!\/)/.test(v) ? v : null; }
+  return String(tpl).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? ""));
+};
 
 /* ── vues ──────────────────────────────────────────────────────────────── */
 const vueKpi = (el, d, o) => {
@@ -206,6 +229,8 @@ const vueKpi = (el, d, o) => {
   const v = d.valeurs ? d.valeurs[m] : null;
   /* part d'un total (ex. « bien non retrouvé » sur les demandes réelles) */
   const den = o.sur && d.valeurs ? +d.valeurs[o.sur] || 0 : null;
+  /* carte qui n'a rien à dire quand elle vaut zéro (ex. « lignes repliées ») */
+  if (o.cacherZero && !(+v)) { el.hidden = true; return h("div", {}); }
   const kids = [h("b", {}, formater(v, o.format), den !== null ? h("span", { class: "dzw-tb-pct" }, ` ${den ? Math.round((+v / den) * 100) : 0} %`) : null)];
   if (d.precedent && d.precedent[m] != null && v != null) {
     const p = +d.precedent[m];
@@ -215,7 +240,8 @@ const vueKpi = (el, d, o) => {
     kids.push(h("span", { class: `dzw-tb-delta ${cls} ${o.inverse ? "inv" : ""}`, title: `période précédente : ${formater(p, o.format)}` },
       diff > 0 ? "▲" : diff < 0 ? "▼" : "=", pct !== null ? ` ${pct > 0 ? "+" : ""}${pct} %` : ` ${formater(diff, o.format)}`));
   }
-  if (o.sous) kids.push(h("div", { class: "dzw-tb-sous" }, o.sous));
+  /* sous-titre : peut citer les autres mesures, ex. « dont {exploitables} exploitables » */
+  if (o.sous) kids.push(h("div", { class: "dzw-tb-sous" }, /\{\w+/.test(o.sous) ? modele(o.sous, d.valeurs || {}, o) : o.sous));
   /* carte cliquable : pose ses filtres, ou les retire si elle est déjà active */
   if (o.clic) {
     const u = lireUrl(), actif = Object.entries(o.clic).every(([k, x]) => String(u[k] ?? "") === String(x));
@@ -225,7 +251,7 @@ const vueKpi = (el, d, o) => {
     const go = () => { const n = { ...lireUrl(), page: "" }; for (const [k, x] of Object.entries(o.clic)) n[k] = actif ? "" : x; ecrireUrl(n); };
     el.onclick = go; el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
   }
-  return h("div", { class: "dzw-tb-kpi" }, kids);
+  return h("div", { class: `dzw-tb-kpi${["depuis", "date", "dateheure", "jour", "age"].includes(o.format) ? " txt" : ""}` }, kids);
 };
 
 const libelle = (o, cle) => (cle === null || cle === undefined || cle === "" ? "(vide)" : (o.libelles && o.libelles[cle]) || String(cle));
@@ -336,12 +362,24 @@ const cellule = (v, col, o, ligne) => {
     const out = [];
     for (const x of col.lignes || [{ champ: col.champ, format: col.format }]) {
       if (x.si && !vrai(x.si, ligne)) continue;
-      const t = x.modele !== undefined ? modele(x.modele, ligne, o) : x.libelles ? libelle(o, ligne[x.champ]) : formater(ligne[x.champ], x.format || null);
+      /* âge en pastille : vert < 1 h, orange < 24 h, rouge au-delà */
+      if (x.style === "age") {
+        const m = (Date.now() - new Date(ligne[x.champ])) / 6e4;
+        if (!ligne[x.champ] || isNaN(m)) continue;
+        out.push(h("div", {}, h("span", { class: "dzw-tb-pastille", style: { "--c": m < 60 ? "#047857" : m < 1440 ? "#b45309" : "#b91c1c" } }, formater(ligne[x.champ], "age"))));
+        continue;
+      }
+      const brut = x.modele === undefined ? ligne[x.champ] : null;
+      if (x.modele === undefined && (brut === null || brut === undefined || brut === "") && x.vide === undefined) continue;
+      let t = x.modele !== undefined ? modele(x.modele, ligne, o) : x.libelles ? libelle(o, brut) : brut === null || brut === undefined || brut === "" ? "" : formater(brut, x.format || null);
+      /* texte long coupé (le message d'un acquéreur dans une liste) */
+      const court = x.court || col.court;
+      if (court && t && t.length > court) t = t.slice(0, court).trimEnd() + "…";
       if (!t && x.vide === undefined) continue;
       const contenu = x.lien ? h("a", { href: lienDe(x.lien, ligne), onclick: (e) => e.stopPropagation() }, t || x.vide) : t || x.vide;
       out.push(h("div", { class: `dzw-tb-l ${x.style || ""}` }, contenu));
     }
-    const badges = (col.badges || []).filter((b) => vrai(b.si, ligne));
+    const badges = (col.badges || []).filter((b) => vrai(b.si, ligne) && modele(b.texte, ligne, o));
     if (badges.length) out.push(h("div", { class: "dzw-tb-badges" }, badges.map((b) => h("span", { class: "dzw-tb-pastille", style: { "--c": b.couleur || "#64748b" }, title: b.aide ? modele(b.aide, ligne, o) : null }, modele(b.texte, ligne, o)))));
     return out.length ? out : "—";
   }
@@ -366,12 +404,12 @@ const vueListe = (el, d, o, etat) => {
       onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire("force"); },
     }, c.bouton ? c.titre || "" : c.titre || c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
     h("tbody", {}, lignes.length ? lignes.map((l) => {
-      const href = o.lien ? String(o.lien).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? "")) : null;
+      const href = o.lien ? lienDe(o.lien, l) : null;
       return h("tr", { class: o.attention && vrai(o.attention, l) ? "att" : null, "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
-        cols.map((c) => h("td", { class: numeriques.has(c.champ) ? "num" : c.format === "depuis" || c.format === "dateheure" ? "nw" : null, "data-titre": c.titre || c.champ }, cellule(l[c.champ], c, o, l))));
+        cols.map((c) => h("td", { class: numeriques.has(c.champ) ? "num" : c.nowrap || c.format === "depuis" || c.format === "dateheure" ? "nw" : null, style: c.largeur ? { minWidth: c.largeur } : null, "data-titre": c.titre || c.champ }, cellule(l[c.champ], c, o, l))));
     }) : h("tr", {}, h("td", { colspan: cols.length || 1, class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres."))));
   const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
-  const pied = h("div", { class: "dzw-tb-pied" },
+  const pied = pages <= 1 && (o.titre || (d.total || 0) <= 1) ? null : h("div", { class: "dzw-tb-pied" },
     h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
     pages <= 1 ? null : h("span", { style: { display: "flex", gap: "6px", alignItems: "center" } },
       h("button", { type: "button", disabled: d.page <= 1, onclick: () => { etat.page = d.page - 1; etat.relire(true); } }, "‹ Précédent"),
@@ -394,7 +432,7 @@ const vueGrille = (el, d, o, etat) => {
       h("div", { class: "ft" }, t.pied ? h("span", { class: "mono" }, modele(t.pied, l, o)) : null, b.map((x) => h("span", { class: "dzw-tb-pastille", style: { "--c": x.couleur || "#64748b" } }, modele(x.texte, l, o)))));
   }));
   const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
-  return h("div", {}, grille, h("div", { class: "dzw-tb-pied" }, h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
+  return h("div", {}, grille, pages <= 1 && (o.titre || (d.total || 0) <= 1) ? null : h("div", { class: "dzw-tb-pied" }, h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
     pages <= 1 ? null : h("span", { style: { display: "flex", gap: "6px", alignItems: "center" } },
       h("button", { type: "button", disabled: d.page <= 1, onclick: () => { etat.page = d.page - 1; etat.relire(true); } }, "‹ Précédent"),
       h("span", {}, `${d.page} / ${pages}`),
@@ -421,9 +459,20 @@ const vueDocument = (el, d, o) => {
   return h("button", { type: "button", class: "dzw-tb-bouton", onclick: ouvrir }, o.bouton || "Ouvrir");
 };
 
-/* fiche : la première ligne d'une liste, en libellé → valeur */
-const vueFiche = (el, d, o) => {
+/* titre : en-tête d'une fiche tiré de la première ligne — grand titre, pastilles, ligne d'information */
+const vueTitre = (el, d, o) => {
   const l = (d.lignes || [])[0];
+  if (!l) return h("div", { class: "dzw-tb-vide" }, o.vide || "Introuvable.");
+  el.classList.add("dzw-tb-sansbord");
+  const b = (o.badges || []).filter((x) => vrai(x.si, l));
+  return h("div", { class: "dzw-tb-titre" }, h("div", { class: "l1" }, h("h1", {}, modele(o.entete || "", l, o) || o.vide || ""),
+    b.map((x) => h("span", { class: "dzw-tb-pastille", style: { "--c": x.couleur || "#64748b" }, title: x.aide ? modele(x.aide, l, o) : null }, modele(x.texte, l, o)))),
+    o.sous ? h("p", {}, modele(o.sous, l, o)) : null);
+};
+
+/* fiche : la première ligne d'une liste (ou les valeurs d'un agrégat), en libellé → valeur */
+const vueFiche = (el, d, o) => {
+  const l = (d.lignes || [])[0] || (d.valeurs && !d.lignes ? d.valeurs : null);
   if (!l) return h("div", { class: "dzw-tb-vide" }, "Introuvable.");
   const cols = o.colonnes || Object.keys(l).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k }));
   return h("dl", { class: "dzw-tb-fiche" }, cols.flatMap((c) => [h("dt", {}, c.titre ?? c.champ), h("dd", {}, cellule(l[c.champ], c, o, l))]));
@@ -451,7 +500,7 @@ const vueFiltres = (el, o) => {
       bar.appendChild(h("label", {}, c.titre || c.param, inp));
     } else if (c.type === "boutons") {
       const actif = url[c.param] ?? "";
-      bar.appendChild(h("label", {}, c.titre || c.param, h("div", { class: "dzw-tb-periodes", role: "group" }, (c.options || []).map(([v, t]) => h("button", { type: "button", class: String(actif) === String(v) ? "on" : null, "aria-pressed": String(actif) === String(v) ? "true" : "false", onclick: () => maj(c.param, v) }, t)))));
+      bar.appendChild(h("label", {}, c.titre ?? c.param, h("div", { class: "dzw-tb-periodes", role: "group" }, (c.options || []).map(([v, t]) => h("button", { type: "button", class: String(actif) === String(v) ? "on" : null, "aria-pressed": String(actif) === String(v) ? "true" : "false", onclick: () => maj(c.param, v) }, t)))));
     } else if (c.type === "date") {
       const inp = h("input", { type: "date", value: url[c.param] || "" });
       inp.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: inp.value, periode: "", j: "", page: "" }));
@@ -462,7 +511,16 @@ const vueFiltres = (el, o) => {
         for (const [v, t] of items) sel.appendChild(h("option", { value: v, selected: String(url[c.param] ?? "") === String(v) && v !== "" }, t));
       };
       if (c.options) remplir(c.options.map((x) => (Array.isArray(x) ? x : [x, (o.libelles && o.libelles[x]) || x])));
-      if (c.source) charger(c.source, { ...(c.params ? Object.fromEntries(new URLSearchParams(c.params)) : {}) }).then((d) => remplir((d.lignes || []).filter((l) => l.cle !== null && l.cle !== "").map((l) => [l.cle, (c.libelles && c.libelles[l.cle]) || (o.libelles && o.libelles[l.cle]) || l.cle]))).catch(() => {});
+      /* liste lue dans une source : groupe (cle) ou liste (c.cle → c.champ, ex. agence → nom) */
+      if (c.source) charger(c.source, { par_page: 200, ...(c.params ? Object.fromEntries(new URLSearchParams(c.params)) : {}) }).then((d) => {
+        const k = c.cle || "cle";
+        const items = (d.lignes || []).filter((l) => l[k] !== null && l[k] !== undefined && l[k] !== "").map((l) => [l[k], (c.libelles && c.libelles[l[k]]) || (c.champ && l[c.champ]) || (o.libelles && o.libelles[l[k]]) || l[k]]);
+        remplir(items);
+        /* l'étiquette du filtre posé montre le nom, pas l'identifiant */
+        const x = items.find(([v]) => String(v) === String(url[c.param] ?? ""));
+        const b = x && bar.parentNode && bar.parentNode.querySelector(`[data-puce="${c.param}"]`);
+        if (b) b.textContent = `${c.titre || c.param} : ${x[1]}`;
+      }).catch(() => {});
       sel.addEventListener("change", () => maj(c.param, sel.value));
       bar.appendChild(h("label", {}, c.titre || c.param, sel));
     }
@@ -473,7 +531,7 @@ const vueFiltres = (el, o) => {
     const v = url[c.param];
     const opt = (c.options || []).find((x) => String(Array.isArray(x) ? x[0] : x) === String(v));
     const t = opt ? (Array.isArray(opt) ? opt[1] : opt) : (o.libelles && o.libelles[v]) || v;
-    return h("span", { class: "dzw-tb-puce" }, h("b", {}, `${c.titre || c.param} : ${c.type === "nombre" && c.unite ? `${v} ${c.unite}` : t}`), h("button", { type: "button", "aria-label": `Retirer ${c.titre || c.param}`, onclick: () => maj(c.param, "") }, "×"));
+    return h("span", { class: "dzw-tb-puce" }, h("b", { "data-puce": c.param }, `${c.titre || c.param} : ${c.type === "nombre" && c.unite ? `${v} ${c.unite}` : t}`), h("button", { type: "button", "aria-label": `Retirer ${c.titre || c.param}`, onclick: () => maj(c.param, "") }, "×"));
   }), h("button", { type: "button", class: "raz", onclick: () => ecrireUrl(Object.fromEntries(champs.filter((c) => c.garder || c.type === "boutons").map((c) => [c.param, lireUrl()[c.param]]))) }, "Tout effacer")) : null;
   return h("div", {}, bar, puces);
 };
@@ -488,7 +546,7 @@ register("tableau", (el) => {
     sur: conf(el, "sur", ""), clic: conf(el, "clic", null), alerte: conf(el, "alerte", true), attention: conf(el, "attention", null), vide: conf(el, "vide", ""),
     tuile: conf(el, "tuile", null), bascule: conf(el, "bascule", null), masquerRefus: conf(el, "masquer-refus", false), lienBarre: conf(el, "lien-barre", ""),
     pourcent: conf(el, "pourcent", false), champHtml: conf(el, "champ-html", ""), champTexte: conf(el, "champ-texte", ""), bouton: conf(el, "bouton", ""),
-    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []),
+    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []), badges: conf(el, "badges", []), cacherZero: conf(el, "cacher-zero", false), montrer: conf(el, "montrer", null),
   };
   /* bascule grille / tableau selon un paramètre de l'adresse : { param, vues: { "": "grille", "t": "liste" } } */
   const vueDe = () => (o.bascule ? o.bascule.vues[lireUrl()[o.bascule.param] ?? ""] || o.vue : o.vue);
@@ -497,7 +555,22 @@ register("tableau", (el) => {
   el.innerHTML = "";
   const titre = o.titre ? h("h3", {}, o.titre, h("small", {})) : null;
   if (titre) el.appendChild(titre);
+  /* onglets : bloc affiché seulement pour certaines valeurs d'un paramètre ({ param: "t", valeurs: ["envois"], defaut: "sante" }) */
+  const visible = () => !o.montrer || [].concat(o.montrer.valeurs || []).map(String).includes(String(lireUrl()[o.montrer.param] ?? o.montrer.defaut ?? ""));
+  /* note : un texte et un bouton-lien, sans source (aide d'un onglet, « Ajouter… ») */
+  if (o.vue === "note") {
+    const montrer = () => { el.hidden = !visible(); };
+    montrer();
+    window.addEventListener("dz:filtres", montrer);
+    el.classList.add("dzw-tb-sansbord");
+    const lien = o.lien && /^\/(?!\/)/.test(o.lien) ? o.lien : null;
+    el.appendChild(h("p", { class: "dzw-tb-note" }, lien && o.bouton ? h("a", { class: "dzw-tb-bouton-lien", href: lien }, o.bouton) : null, o.sous || ""));
+    return;
+  }
   if (o.vue === "filtres") {
+    const montrer = () => { el.hidden = !visible(); };
+    montrer();
+    window.addEventListener("dz:filtres", montrer);
     /* valeurs par défaut (ex. période 30 jours) posées dans l'adresse avant que les autres blocs lisent */
     const u = lireUrl(), manque = o.champs.filter((c) => c.defaut !== undefined && u[c.param] === undefined);
     if (manque.length) { const n = new URL(location.href); for (const c of manque) n.searchParams.set(c.param, c.defaut); history.replaceState(null, "", n); }
@@ -505,11 +578,12 @@ register("tableau", (el) => {
     return;
   }
   if (!o.source) { el.appendChild(h("div", { class: "dzw-tb-err" }, "Réglage « source » manquant.")); return; }
-  const corps = h("div", {}, h("div", { class: "dzw-tb-sq", style: { height: o.vue === "kpi" ? "44px" : `${o.hauteur || 160}px` } }));
+  const corps = h("div", {}, h("div", { class: "dzw-tb-sq", style: { height: ["kpi", "titre"].includes(o.vue) ? "44px" : `${o.hauteur || 160}px` } }));
   el.appendChild(corps);
   const ignorer = new Set(String(o.ignorer).split(",").map((s) => s.trim()).filter(Boolean));
   const etat = { page: 0, tri: "", sens: "", n: 0 };
   etat.relire = async (defiler) => {
+    if (!visible()) { el.hidden = true; etat.dernier = null; return; }
     const n = ++etat.n;
     const url = Object.fromEntries(Object.entries(lireUrl()).filter(([k]) => !ignorer.has(k)));
     /* paramètres fixes, avec {x} remplacé par le paramètre x de l'adresse (ex. "ticket={id}") */
@@ -529,9 +603,9 @@ register("tableau", (el) => {
       if (defiler !== "force" && etat.dernier === cle) return;
       etat.dernier = cle;
       el.hidden = false;
-      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche, grille: vueGrille, document: vueDocument }[v] || vueKpi;
+      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche, grille: vueGrille, document: vueDocument, titre: vueTitre }[v] || vueKpi;
       corps.replaceChildren(vue(el, d, o, etat));
-      if (titre && d.type === "liste") titre.querySelector("small").textContent = `${NF0.format(d.total || 0)}`;
+      if (titre && d.type === "liste" && ["liste", "grille"].includes(v) && (d.total || 0) !== 1) titre.querySelector("small").textContent = `${NF0.format(d.total || 0)}`;
       if (defiler === true) el.scrollIntoView({ block: "start", behavior: "smooth" });
     } catch (e) {
       if (n !== etat.n) return;
