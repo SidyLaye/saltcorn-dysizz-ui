@@ -2,6 +2,23 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.10.0
+
+### Ajouté — refaire une interface existante sans code propre
+- Sources : filtres `min` / `max` (aussi sur une colonne texte qui contient un nombre, ex. « 85 m² »), `commence` (référence qui commence par…), `choix` (valeur de l'adresse → condition déclarée, ex. `?bien=0` → « sans bien »), période glissante `?j=7` et noms de paramètres réglables. Valeurs liées (`enfants`) reliées par une autre colonne que `id` (`cle`).
+- Bloc « tableau » :
+  - chiffre clé en pourcentage d'un autre (`sur`), cliquable pour filtrer (`clic`), en alerte (`alerte`) ;
+  - cellules riches : plusieurs lignes par cellule (`lignes`), pastilles conditionnelles (`badges`), liens modèles `{champ}`, formats `age` et `jour` ;
+  - listes : lignes à surveiller (`attention`), message vide, total ; vue **grille** (tuiles) et bascule grille/tableau ;
+  - **document** : lecture d'un e-mail d'origine dans une fenêtre isolée (aucun script exécuté) ;
+  - filtres nombre, boutons, étiquettes des filtres actifs avec « Tout effacer » ;
+  - bloc masqué quand le rôle n'a pas le droit (`masquer-refus`).
+- Bloc « tableau » : `niveau="admin"` affiche le bloc avec la couleur et l'étiquette « Administrateur » (on voit d'un coup d'œil ce que le siège ne voit pas).
+- Menu : l'entrée « Accueil » (vers /dysizz) n'est ajoutée qu'une fois ; si l'admin la retire, elle ne revient plus au redémarrage.
+- Actualisation automatique sans clignotement : rien n'est redessiné si les données n'ont pas changé ; relecture au retour sur l'onglet.
+- Sources, suite : filtre `lien` (valeur lue dans une autre table, ex. l'e-mail d'origine d'une demande), `sauf` (exclure une ligne), option par défaut d'un `choix` (ex. doublons repliés sauf `?tout=1`), mesure `taux` (part des lignes qui remplissent une condition, en %), conditions `ou`. Un identifiant illisible donne « aucun résultat », jamais une erreur.
+- Bloc « tableau », suite : vue `titre` (en-tête de fiche), vue `note` (texte et bouton), `montrer` (bloc affiché pour un onglet `?t=…`), lien lu dans une colonne (`@champ`, adresses du site seulement), listes de filtres étiquetées depuis une source, âge en pastille colorée, formats `heure`, `ms`, `brut`, textes longs coupés (`court`), colonnes sans retour à la ligne (`nowrap`), modèles qui retirent les morceaux vides (« Maison · 4 pièces » sans « · m² »).
+
 ## 3.9.0
 
 ### Ajouté — tableaux de bord calculés par la base
