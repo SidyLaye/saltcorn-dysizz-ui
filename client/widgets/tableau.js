@@ -63,6 +63,37 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb-fiche{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:8px 18px;margin:0;font-size:.92rem}
 .dzw-tb-fiche dt{opacity:.62;font-weight:500}.dzw-tb-fiche dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 @media (max-width:640px){.dzw-tb-fiche{grid-template-columns:1fr;gap:2px}.dzw-tb-fiche dd{margin-bottom:8px}}
+.dzw-tb-pct{font-size:.55em;font-weight:600;opacity:.6;margin-left:6px;letter-spacing:0}
+.dzw-tb[role=button]{cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.dzw-tb[role=button]:hover{border-color:var(--dz-primary,#2563eb)}
+.dzw-tb.actif{border-color:var(--dz-primary,#2563eb);box-shadow:0 0 0 3px color-mix(in srgb,var(--dz-primary,#2563eb) 18%,transparent)}
+.dzw-tb.alerte .dzw-tb-kpi b{color:#b91c1c}
+.dzw-tb-l.gras{font-weight:600}.dzw-tb-l.discret{opacity:.62;font-size:.82rem}.dzw-tb-l.mono{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;opacity:.75}
+.dzw-tb-l.alerte{color:#b45309;font-size:.8rem}
+.dzw-tb-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.dzw-tb-table tr.att td:first-child{box-shadow:inset 3px 0 0 #f59e0b}
+.dzw-tb-barres.pc .dzw-tb-barre{grid-template-columns:minmax(80px,30%) 1fr auto 44px}
+.dzw-tb-barre small{opacity:.6;text-align:right;font-variant-numeric:tabular-nums}
+.dzw-tb-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.dzw-tb-tuile{display:flex;flex-direction:column;border:1px solid var(--dz-border,#e5e7eb);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;background:var(--dz-surface,#fff);transition:transform .15s,box-shadow .15s}
+.dzw-tb-tuile:hover{transform:translateY(-2px);box-shadow:0 12px 28px -18px rgba(15,23,42,.45)}
+.dzw-tb-tuile .img{height:120px;background:color-mix(in srgb,var(--dz-primary,#2563eb) 10%,transparent) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.6rem;color:var(--dz-primary,#2563eb)}
+.dzw-tb-tuile .bd{padding:10px 12px;display:grid;gap:2px;font-size:.88rem}
+.dzw-tb-tuile .tt{font-size:1.05rem;font-weight:700}
+.dzw-tb-tuile .ft{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px 12px;border-top:1px solid var(--dz-border,#e5e7eb);font-size:.78rem}
+.mut{opacity:.65}.mono{font-family:ui-monospace,Menlo,monospace}
+.dzw-tb-puces{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.dzw-tb-puce{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 10px;border-radius:99px;background:color-mix(in srgb,var(--dz-primary,#2563eb) 10%,transparent);font-size:.8rem}
+.dzw-tb-puce button{border:0;background:none;cursor:pointer;font-size:1rem;line-height:1;padding:2px 6px;border-radius:99px;color:inherit}
+.dzw-tb-puce button:hover{background:color-mix(in srgb,var(--dz-primary,#2563eb) 20%,transparent)}
+.dzw-tb-bouton{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid var(--dz-border,#d1d5db);background:var(--dz-surface,#fff);color:inherit;cursor:pointer;font:inherit;font-size:.88rem;min-height:40px}
+.dzw-tb-bouton:hover{border-color:var(--dz-primary,#2563eb)}
+.dzw-tb-modale{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;padding:20px}
+.dzw-tb-modale .boite{background:var(--dz-surface,#fff);color:var(--dz-text,#0f172a);border-radius:14px;width:min(900px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.dzw-tb-modale .tete{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--dz-border,#e5e7eb)}
+.dzw-tb-modale .tete button{border:1px solid var(--dz-border,#d1d5db);background:none;border-radius:8px;padding:6px 12px;cursor:pointer;color:inherit}
+.dzw-tb-modale .dzw-tb-fiche{padding:12px 16px;border-bottom:1px solid var(--dz-border,#e5e7eb)}
+.dzw-tb-doc{flex:1;min-height:60vh;border:0;width:100%;background:#fff}
 .dzw-tb-vide,.dzw-tb-err{padding:18px 4px;text-align:center;opacity:.7;font-size:.88rem}
 .dzw-tb-err{color:#b91c1c;opacity:1}
 .dzw-tb-sq{border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--dz-text,#0f172a) 6%,transparent) 25%,color-mix(in srgb,var(--dz-text,#0f172a) 11%,transparent) 37%,color-mix(in srgb,var(--dz-text,#0f172a) 6%,transparent) 63%);background-size:400% 100%;animation:dzwtbsq 1.3s ease infinite}
@@ -103,6 +134,12 @@ export const formater = (v, fmt) => {
     if (isNaN(d)) return String(v);
     return fmt === "date" ? d.toLocaleDateString("fr-FR") : d.toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
   }
+  if (fmt === "age") {
+    const m = (Date.now() - new Date(v)) / 6e4;
+    if (isNaN(m)) return String(v);
+    return m < 60 ? `${Math.max(1, Math.round(m))} min` : m < 1440 ? `${Math.round(m / 60)} h` : `${Math.round(m / 1440)} j`;
+  }
+  if (fmt === "jour") { const d = new Date(v); return isNaN(d) ? String(v) : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit" }); }
   if (fmt === "depuis") {
     const m = (Date.now() - new Date(v)) / 6e4;
     if (isNaN(m)) return String(v);
@@ -141,11 +178,35 @@ const libellesDe = (source, cle, champ) => {
   return LIBELLES.get(k);
 };
 
+/* condition sur une ligne : { champ, egal | non | vide | gt | lt } ; tableau = toutes */
+const vrai = (si, l) => {
+  if (!si) return true;
+  if (Array.isArray(si)) return si.every((x) => vrai(x, l));
+  const v = l[si.champ];
+  const videV = v === null || v === undefined || v === "" || v === 0 || v === "0" || v === false;
+  if (si.vide !== undefined) return si.vide ? videV : !videV;
+  if (si.egal !== undefined) return [].concat(si.egal).map(String).includes(String(v));
+  if (si.non !== undefined) return ![].concat(si.non).map(String).includes(String(v));
+  if (si.gt !== undefined) return +v > +si.gt;
+  if (si.lt !== undefined) return +v < +si.lt;
+  return !videV;
+};
+/* « {prenom} {nom} », « {prix|euro} », « {source|libelle} » */
+const modele = (tpl, l, o) => String(tpl ?? "").replace(/\{(\w+)(?:\|(\w+))?\}/g, (_, k, f) => {
+  const v = l[k];
+  if (f === "libelle") return libelle(o, v);
+  if (f) return v == null || v === "" ? "" : formater(v, f);
+  return v == null ? "" : String(v);
+}).replace(/\s+/g, " ").trim();
+const lienDe = (tpl, l) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? ""));
+
 /* ── vues ──────────────────────────────────────────────────────────────── */
 const vueKpi = (el, d, o) => {
   const m = o.mesure || Object.keys(d.valeurs || {})[0];
   const v = d.valeurs ? d.valeurs[m] : null;
-  const kids = [h("b", {}, formater(v, o.format))];
+  /* part d'un total (ex. « bien non retrouvé » sur les demandes réelles) */
+  const den = o.sur && d.valeurs ? +d.valeurs[o.sur] || 0 : null;
+  const kids = [h("b", {}, formater(v, o.format), den !== null ? h("span", { class: "dzw-tb-pct" }, ` ${den ? Math.round((+v / den) * 100) : 0} %`) : null)];
   if (d.precedent && d.precedent[m] != null && v != null) {
     const p = +d.precedent[m];
     const diff = +v - p;
@@ -155,6 +216,15 @@ const vueKpi = (el, d, o) => {
       diff > 0 ? "▲" : diff < 0 ? "▼" : "=", pct !== null ? ` ${pct > 0 ? "+" : ""}${pct} %` : ` ${formater(diff, o.format)}`));
   }
   if (o.sous) kids.push(h("div", { class: "dzw-tb-sous" }, o.sous));
+  /* carte cliquable : pose ses filtres, ou les retire si elle est déjà active */
+  if (o.clic) {
+    const u = lireUrl(), actif = Object.entries(o.clic).every(([k, x]) => String(u[k] ?? "") === String(x));
+    el.classList.toggle("actif", actif);
+    el.classList.toggle("alerte", o.alerte !== false && +v > 0);
+    el.setAttribute("role", "button"); el.tabIndex = 0;
+    const go = () => { const n = { ...lireUrl(), page: "" }; for (const [k, x] of Object.entries(o.clic)) n[k] = actif ? "" : x; ecrireUrl(n); };
+    el.onclick = go; el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
+  }
   return h("div", { class: "dzw-tb-kpi" }, kids);
 };
 
@@ -222,10 +292,12 @@ const vueBarres = (el, d, o) => {
   const m = o.mesure || Object.keys(lignes[0]).find((k) => k !== "cle");
   const max = Math.max(1, ...lignes.map((l) => +l[m] || 0));
   const filtre = el.getAttribute("data-filtre");
-  return h("div", { class: "dzw-tb-barres" }, lignes.map((l) => h("div", {
-    class: "dzw-tb-barre", title: `${libelle(o, l.cle)} : ${formater(l[m], o.format)}`, "data-cle": filtre ? String(l.cle ?? "") : null,
-    onclick: filtre ? () => ecrireUrl({ ...lireUrl(), [filtre]: String(l.cle ?? "") }) : null,
-  }, h("span", {}, libelle(o, l.cle)), h("span", {}, h("i", { style: { width: `${((+l[m] || 0) / max) * 100}%` } })), h("b", {}, formater(l[m], o.format)))));
+  const tot = (d.lignes || []).reduce((x, l) => x + (+l[m] || 0), 0) || 1;
+  return h("div", { class: `dzw-tb-barres${o.pourcent ? " pc" : ""}` }, lignes.map((l) => h("div", {
+    class: "dzw-tb-barre", title: `${libelle(o, l.cle)} : ${formater(l[m], o.format)}`, "data-cle": filtre || o.lienBarre ? String(l.cle ?? "") : null,
+    onclick: o.lienBarre ? () => (location.href = lienDe(o.lienBarre, l)) : filtre ? () => ecrireUrl({ ...lireUrl(), [filtre]: String(l.cle ?? "") }) : null,
+  }, h("span", {}, libelle(o, l.cle)), h("span", {}, h("i", { style: { width: `${((+l[m] || 0) / max) * 100}%` } })), h("b", {}, formater(l[m], o.format)),
+    o.pourcent ? h("small", {}, `${Math.round(((+l[m] || 0) / tot) * 100)} %`) : null)));
 };
 
 const vueAnneau = (el, d, o) => {
@@ -259,6 +331,20 @@ const vueAnneau = (el, d, o) => {
 };
 
 const cellule = (v, col, o, ligne) => {
+  /* plusieurs lignes dans la cellule, et des badges selon la ligne */
+  if (col.lignes || col.badges) {
+    const out = [];
+    for (const x of col.lignes || [{ champ: col.champ, format: col.format }]) {
+      if (x.si && !vrai(x.si, ligne)) continue;
+      const t = x.modele !== undefined ? modele(x.modele, ligne, o) : x.libelles ? libelle(o, ligne[x.champ]) : formater(ligne[x.champ], x.format || null);
+      if (!t && x.vide === undefined) continue;
+      const contenu = x.lien ? h("a", { href: lienDe(x.lien, ligne), onclick: (e) => e.stopPropagation() }, t || x.vide) : t || x.vide;
+      out.push(h("div", { class: `dzw-tb-l ${x.style || ""}` }, contenu));
+    }
+    const badges = (col.badges || []).filter((b) => vrai(b.si, ligne));
+    if (badges.length) out.push(h("div", { class: "dzw-tb-badges" }, badges.map((b) => h("span", { class: "dzw-tb-pastille", style: { "--c": b.couleur || "#64748b" }, title: b.aide ? modele(b.aide, ligne, o) : null }, modele(b.texte, ligne, o)))));
+    return out.length ? out : "—";
+  }
   if (col.pastilles) {
     const p = col.pastilles[v] || col.pastilles["*"];
     return h("span", { class: "dzw-tb-pastille", style: p && p.couleur ? { "--c": p.couleur } : null }, p && p.texte ? p.texte : v ?? "—");
@@ -271,18 +357,19 @@ const cellule = (v, col, o, ligne) => {
 
 const vueListe = (el, d, o, etat) => {
   const lignes = d.lignes || [];
+  if (!lignes.length && o.vide) return h("div", { class: "dzw-tb-vide" }, o.vide);
   const cols = o.colonnes || (lignes[0] ? Object.keys(lignes[0]).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k })) : []);
   const numeriques = new Set(cols.filter((c) => ["nombre", "euro", "pourcent", "minutes"].includes(c.format)).map((c) => c.champ));
   const table = h("table", { class: "dzw-tb-table" },
     h("thead", {}, h("tr", {}, cols.map((c) => h("th", {
       "data-tri": c.tri === false || c.bouton ? null : c.champ, class: d.tri === c.champ ? "on" : null, scope: "col",
-      onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire(); },
+      onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire("force"); },
     }, c.bouton ? c.titre || "" : c.titre || c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
     h("tbody", {}, lignes.length ? lignes.map((l) => {
       const href = o.lien ? String(o.lien).replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(l[k] ?? "")) : null;
-      return h("tr", { "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
+      return h("tr", { class: o.attention && vrai(o.attention, l) ? "att" : null, "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
         cols.map((c) => h("td", { class: numeriques.has(c.champ) ? "num" : c.format === "depuis" || c.format === "dateheure" ? "nw" : null, "data-titre": c.titre || c.champ }, cellule(l[c.champ], c, o, l))));
-    }) : h("tr", {}, h("td", { colspan: cols.length || 1, class: "dzw-tb-vide" }, "Aucun résultat avec ces filtres."))));
+    }) : h("tr", {}, h("td", { colspan: cols.length || 1, class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres."))));
   const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
   const pied = h("div", { class: "dzw-tb-pied" },
     h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
@@ -291,6 +378,47 @@ const vueListe = (el, d, o, etat) => {
       h("span", {}, `${d.page} / ${pages}`),
       h("button", { type: "button", disabled: d.page >= pages, onclick: () => { etat.page = d.page + 1; etat.relire(true); } }, "Suivant ›")));
   return h("div", { style: { overflowX: "auto" } }, table, pied);
+};
+
+/* grille : une tuile par ligne (portefeuille…) — { titre, lignes[], badge, pied, image } */
+const vueGrille = (el, d, o, etat) => {
+  const lignes = d.lignes || [];
+  if (!lignes.length) return h("div", { class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres.");
+  const t = o.tuile || {};
+  const grille = h("div", { class: "dzw-tb-grille" }, lignes.map((l) => {
+    const href = o.lien ? lienDe(o.lien, l) : null;
+    const b = (t.badges || []).filter((x) => vrai(x.si, l));
+    return h(href ? "a" : "div", { class: "dzw-tb-tuile", href },
+      t.image && l[t.image] ? h("div", { class: "img", style: { backgroundImage: `url("${String(l[t.image]).replace(/"/g, "")}")` } }) : h("div", { class: "img vide" }, t.initiales ? modele(t.initiales, l, o).slice(0, 2) : ""),
+      h("div", { class: "bd" }, t.titre ? h("div", { class: "tt" }, modele(t.titre, l, o)) : null, (t.lignes || []).map((x) => h("div", { class: "mut" }, modele(x, l, o))).filter((e) => e.textContent)),
+      h("div", { class: "ft" }, t.pied ? h("span", { class: "mono" }, modele(t.pied, l, o)) : null, b.map((x) => h("span", { class: "dzw-tb-pastille", style: { "--c": x.couleur || "#64748b" } }, modele(x.texte, l, o)))));
+  }));
+  const pages = Math.max(1, Math.ceil((d.total || 0) / (d.par_page || 50)));
+  return h("div", {}, grille, h("div", { class: "dzw-tb-pied" }, h("span", {}, `${NF0.format(d.total || 0)} résultat${d.total > 1 ? "s" : ""}`),
+    pages <= 1 ? null : h("span", { style: { display: "flex", gap: "6px", alignItems: "center" } },
+      h("button", { type: "button", disabled: d.page <= 1, onclick: () => { etat.page = d.page - 1; etat.relire(true); } }, "‹ Précédent"),
+      h("span", {}, `${d.page} / ${pages}`),
+      h("button", { type: "button", disabled: d.page >= pages, onclick: () => { etat.page = d.page + 1; etat.relire(true); } }, "Suivant ›"))));
+};
+
+/* document : ouvre un contenu HTML reçu de l'extérieur (e-mail…) dans un cadre isolé :
+   aucun script, aucun formulaire, liens dans un nouvel onglet */
+const vueDocument = (el, d, o) => {
+  const l = (d.lignes || [])[0];
+  if (!l) return h("div", { class: "dzw-tb-vide" }, o.vide || "Rien à afficher.");
+  const ouvrir = () => {
+    const html = l[o.champHtml] ? String(l[o.champHtml]) : `<pre style="white-space:pre-wrap;font:14px/1.5 system-ui">${String(l[o.champTexte] || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}</pre>`;
+    const fr = h("iframe", { sandbox: "", title: o.titre || "Document", class: "dzw-tb-doc" });
+    fr.srcdoc = `<!doctype html><meta charset="utf-8"><base target="_blank"><meta http-equiv="Content-Security-Policy" content="script-src 'none'; object-src 'none'; form-action 'none'"><style>body{margin:0;padding:12px;font:14px/1.5 system-ui}img{max-width:100%;height:auto}</style>${html}`;
+    const fermer = () => { fond.remove(); document.removeEventListener("keydown", esc); };
+    const esc = (e) => { if (e.key === "Escape") fermer(); };
+    const fond = h("div", { class: "dzw-tb-modale", onclick: (e) => { if (e.target === fond) fermer(); } },
+      h("div", { class: "boite", role: "dialog", "aria-modal": "true" }, h("div", { class: "tete" }, h("b", {}, o.entete ? modele(o.entete, l, o) : o.titre || "Document"), h("button", { type: "button", onclick: fermer }, "Fermer")),
+        (o.entetes || []).length ? h("dl", { class: "dzw-tb-fiche" }, o.entetes.flatMap((c) => [h("dt", {}, c.titre), h("dd", {}, formater(l[c.champ], c.format || null))])) : null, fr));
+    document.body.appendChild(fond);
+    document.addEventListener("keydown", esc);
+  };
+  return h("button", { type: "button", class: "dzw-tb-bouton", onclick: ouvrir }, o.bouton || "Ouvrir");
 };
 
 /* fiche : la première ligne d'une liste, en libellé → valeur */
@@ -316,9 +444,17 @@ const vueFiltres = (el, o) => {
       let t;
       inp.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => maj(c.param, inp.value.trim()), 350); });
       bar.appendChild(h("label", {}, c.titre || "Recherche", inp));
+    } else if (c.type === "nombre") {
+      const inp = h("input", { type: "number", inputmode: "decimal", value: url[c.param] || "", placeholder: c.aide || "", style: { maxWidth: "120px" } });
+      let t;
+      inp.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => maj(c.param, inp.value.trim()), 450); });
+      bar.appendChild(h("label", {}, c.titre || c.param, inp));
+    } else if (c.type === "boutons") {
+      const actif = url[c.param] ?? "";
+      bar.appendChild(h("label", {}, c.titre || c.param, h("div", { class: "dzw-tb-periodes", role: "group" }, (c.options || []).map(([v, t]) => h("button", { type: "button", class: String(actif) === String(v) ? "on" : null, "aria-pressed": String(actif) === String(v) ? "true" : "false", onclick: () => maj(c.param, v) }, t)))));
     } else if (c.type === "date") {
       const inp = h("input", { type: "date", value: url[c.param] || "" });
-      inp.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: inp.value, periode: "", page: "" }));
+      inp.addEventListener("change", () => ecrireUrl({ ...lireUrl(), [c.param]: inp.value, periode: "", j: "", page: "" }));
       bar.appendChild(h("label", {}, c.titre || c.param, inp));
     } else {
       const sel = h("select", { "aria-label": c.titre || c.param }, h("option", { value: "" }, c.tous || "Tous"));
@@ -331,8 +467,15 @@ const vueFiltres = (el, o) => {
       bar.appendChild(h("label", {}, c.titre || c.param, sel));
     }
   }
-  if (champs.length) bar.appendChild(h("button", { type: "button", class: "raz", onclick: () => ecrireUrl(Object.fromEntries(champs.filter((c) => c.garder).map((c) => [c.param, lireUrl()[c.param]]))) }, "Effacer les filtres"));
-  return bar;
+  /* rappel des filtres posés, chacun retirable d'un clic */
+  const actifs = champs.filter((c) => c.type !== "boutons" && !c.garder && url[c.param] !== undefined && url[c.param] !== "");
+  const puces = actifs.length ? h("div", { class: "dzw-tb-puces" }, actifs.map((c) => {
+    const v = url[c.param];
+    const opt = (c.options || []).find((x) => String(Array.isArray(x) ? x[0] : x) === String(v));
+    const t = opt ? (Array.isArray(opt) ? opt[1] : opt) : (o.libelles && o.libelles[v]) || v;
+    return h("span", { class: "dzw-tb-puce" }, h("b", {}, `${c.titre || c.param} : ${c.type === "nombre" && c.unite ? `${v} ${c.unite}` : t}`), h("button", { type: "button", "aria-label": `Retirer ${c.titre || c.param}`, onclick: () => maj(c.param, "") }, "×"));
+  }), h("button", { type: "button", class: "raz", onclick: () => ecrireUrl(Object.fromEntries(champs.filter((c) => c.garder || c.type === "boutons").map((c) => [c.param, lireUrl()[c.param]]))) }, "Tout effacer")) : null;
+  return h("div", {}, bar, puces);
 };
 
 register("tableau", (el) => {
@@ -342,7 +485,13 @@ register("tableau", (el) => {
     rafraichir: conf(el, "rafraichir", 0), hauteur: conf(el, "hauteur", 0), lien: conf(el, "lien", ""), colonnes: conf(el, "colonnes", null),
     champs: conf(el, "champs", []), sous: conf(el, "sous", ""), inverse: conf(el, "inverse", false), max: conf(el, "max", 12), ignorer: conf(el, "ignorer", ""),
     libellesSource: conf(el, "libelles-source", ""), libellesCle: conf(el, "libelles-cle", "id"), libellesChamp: conf(el, "libelles-champ", "nom"),
+    sur: conf(el, "sur", ""), clic: conf(el, "clic", null), alerte: conf(el, "alerte", true), attention: conf(el, "attention", null), vide: conf(el, "vide", ""),
+    tuile: conf(el, "tuile", null), bascule: conf(el, "bascule", null), masquerRefus: conf(el, "masquer-refus", false), lienBarre: conf(el, "lien-barre", ""),
+    pourcent: conf(el, "pourcent", false), champHtml: conf(el, "champ-html", ""), champTexte: conf(el, "champ-texte", ""), bouton: conf(el, "bouton", ""),
+    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []),
   };
+  /* bascule grille / tableau selon un paramètre de l'adresse : { param, vues: { "": "grille", "t": "liste" } } */
+  const vueDe = () => (o.bascule ? o.bascule.vues[lireUrl()[o.bascule.param] ?? ""] || o.vue : o.vue);
   const avecLibelles = async () => { if (o.libellesSource) o.libelles = { ...(await libellesDe(o.libellesSource, o.libellesCle, o.libellesChamp)), ...o.libelles }; };
   el.classList.add("dzw-tb");
   el.innerHTML = "";
@@ -366,7 +515,7 @@ register("tableau", (el) => {
     /* paramètres fixes, avec {x} remplacé par le paramètre x de l'adresse (ex. "ticket={id}") */
     const fixes = String(o.params || "").replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(lireUrl()[k] ?? ""));
     const p = { ...url, ...Object.fromEntries(new URLSearchParams(fixes)) };
-    if (o.vue === "liste") {
+    if (["liste", "grille"].includes(vueDe())) {
       if (etat.page) p.page = etat.page; else if (url.page) etat.page = +url.page;
       if (etat.tri) { p.tri = etat.tri; p.sens = etat.sens; }
     }
@@ -374,17 +523,28 @@ register("tableau", (el) => {
     try {
       const [d] = await Promise.all([charger(o.source, p), avecLibelles()]);
       if (n !== etat.n) return;
-      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche }[o.vue] || vueKpi;
+      const v = vueDe();
+      /* actualisation : rien n'est redessiné si rien n'a changé (pas de clignotement, sélection gardée) */
+      const cle = v + "|" + JSON.stringify({ ...d, ms: 0, cache: 0 });
+      if (defiler !== "force" && etat.dernier === cle) return;
+      etat.dernier = cle;
+      el.hidden = false;
+      const vue = { kpi: vueKpi, courbe: vueCourbe, barres: vueBarres, anneau: vueAnneau, liste: vueListe, fiche: vueFiche, grille: vueGrille, document: vueDocument }[v] || vueKpi;
       corps.replaceChildren(vue(el, d, o, etat));
-      if (titre && d.type === "liste") titre.querySelector("small").textContent = "";
-      if (defiler) el.scrollIntoView({ block: "start", behavior: "smooth" });
+      if (titre && d.type === "liste") titre.querySelector("small").textContent = `${NF0.format(d.total || 0)}`;
+      if (defiler === true) el.scrollIntoView({ block: "start", behavior: "smooth" });
     } catch (e) {
       if (n !== etat.n) return;
+      /* bloc réservé à un rôle supérieur : on le retire au lieu d'afficher une erreur */
+      if (o.masquerRefus && /refus/.test(e.message)) { el.hidden = true; return; }
+      etat.dernier = null;
       corps.replaceChildren(h("div", { class: "dzw-tb-err" }, `Lecture impossible : ${e.message}`));
     } finally { if (n === etat.n) el.classList.remove("charge"); }
   };
-  window.addEventListener("dz:filtres", () => { etat.page = 0; etat.relire(); });
+  window.addEventListener("dz:filtres", () => { etat.page = 0; etat.relire("force"); });
   window.addEventListener("dz:rafraichir", () => etat.relire());
-  if (o.rafraichir >= 10) setInterval(() => { if (!document.hidden) etat.relire(); }, o.rafraichir * 1000);
+  /* actualisation périodique : onglet visible seulement, jamais deux lectures en même temps */
+  if (o.rafraichir >= 10) setInterval(() => { if (!document.hidden && !el.classList.contains("charge")) etat.relire(); }, o.rafraichir * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && o.rafraichir >= 10) etat.relire(); });
   etat.relire();
 });

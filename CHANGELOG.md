@@ -2,6 +2,19 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.10.0
+
+### Ajouté — refaire une interface existante sans code propre
+- Sources : filtres `min` / `max` (aussi sur une colonne texte qui contient un nombre, ex. « 85 m² »), `commence` (référence qui commence par…), `choix` (valeur de l'adresse → condition déclarée, ex. `?bien=0` → « sans bien »), période glissante `?j=7` et noms de paramètres réglables. Valeurs liées (`enfants`) reliées par une autre colonne que `id` (`cle`).
+- Bloc « tableau » :
+  - chiffre clé en pourcentage d'un autre (`sur`), cliquable pour filtrer (`clic`), en alerte (`alerte`) ;
+  - cellules riches : plusieurs lignes par cellule (`lignes`), pastilles conditionnelles (`badges`), liens modèles `{champ}`, formats `age` et `jour` ;
+  - listes : lignes à surveiller (`attention`), message vide, total ; vue **grille** (tuiles) et bascule grille/tableau ;
+  - **document** : lecture d'un e-mail d'origine dans une fenêtre isolée (aucun script exécuté) ;
+  - filtres nombre, boutons, étiquettes des filtres actifs avec « Tout effacer » ;
+  - bloc masqué quand le rôle n'a pas le droit (`masquer-refus`).
+- Actualisation automatique sans clignotement : rien n'est redessiné si les données n'ont pas changé ; relecture au retour sur l'onglet.
+
 ## 3.9.0
 
 ### Ajouté — tableaux de bord calculés par la base

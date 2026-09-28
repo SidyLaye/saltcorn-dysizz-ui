@@ -163,6 +163,22 @@ const refus = async (p, code) => { try { await p; } catch (e) { assert.strictEqu
     src("fuite2", { table: "lead", type: "liste", parents: { x: { champ: "id", table: "secret", valeur: "x" } } });
     await refus(lire("fuite2", {}, staff), 403);
 
+    /* ── bornes numériques (colonne texte comprise), choix prédéfinis, « depuis N jours », préfixe ── */
+    await pool.query(`alter table "${SCHEMA}".lead add column surface text; update "${SCHEMA}".lead set surface = (50 + id) || ' m²'`);
+    TABLES.lead.fields.push({ name: "surface", type: "String" });
+    src("bornes", { table: "lead", mesures: { n: { fn: "count" } }, filtres: { pmin: { mode: "min", champ: "prix" }, pmax: { mode: "max", champ: "prix" }, smin: { mode: "min", champ: "surface" },
+      ia: { mode: "choix", options: { "1": { version_gabarit: { commence: "ia" } }, "0": { version_gabarit: { non: ["ia"] } } } }, cree_le: "periode", ref: { mode: "commence", champ: "reference_bien" } } });
+    assert.strictEqual((await lire("bornes", { pmin: "110000", pmax: "114000" })).valeurs.n, 5, "prix entre deux bornes");
+    assert.strictEqual((await lire("bornes", { smin: "75" })).valeurs.n, 30 - 24, "surface texte comparée en nombre");
+    assert.strictEqual((await lire("bornes", { smin: "abc" })).valeurs.n, 30, "borne illisible ignorée");
+    assert.strictEqual((await lire("bornes", { ia: "1" })).valeurs.n, 8, "choix prédéfini");
+    assert.strictEqual((await lire("bornes", { ia: "zz" })).valeurs.n, 30, "choix inconnu ignoré");
+    assert.strictEqual((await lire("bornes", { j: "1" })).valeurs.n, 0, "depuis 1 jour (données de 2026-09)");
+    assert.strictEqual((await lire("bornes", { j: "36500" })).valeurs.n, 30, "j hors bornes ignoré");
+    assert.strictEqual((await lire("bornes", { ref: "REF2" })).valeurs.n, 11, "commence par : REF2 et REF20 à REF29");
+    src("enfcle", { table: "lead", type: "liste", champs: ["source"], par_page: 1, tri: "id", sens: "asc", enfants: { meme_source: { table: "lead", ref: "source", cle: "source", fn: "count" } } });
+    assert.strictEqual((await lire("enfcle")).lignes[0].meme_source, 10, "enfants rattachés par une autre colonne");
+
     /* ── droits ── */
     r = await lire("resume", {}, staff);
     assert.strictEqual(r.valeurs.total, 30, "staff lit une source ouverte au staff");
