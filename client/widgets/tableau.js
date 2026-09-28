@@ -71,6 +71,8 @@ css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);bord
 .dzw-tb.alerte .dzw-tb-kpi b{color:#b91c1c}
 .dzw-tb-note{margin:0;font-size:.86rem;opacity:.85;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .dzw-tb-bouton-lien{display:inline-flex;align-items:center;padding:9px 16px;border-radius:10px;background:var(--dz-primary,#2563eb);color:var(--dz-on-primary,#fff)!important;text-decoration:none;font-weight:600;min-height:40px}
+.dzw-tb-admin{border-color:color-mix(in srgb,#b45309 45%,var(--dz-border,#e5e7eb));box-shadow:inset 0 3px 0 #b45309}
+.dzw-tb-niveau{font-style:normal;font-size:.62rem;letter-spacing:.04em;margin-left:8px;padding:2px 7px;border-radius:99px;background:#fef3c7;color:#92400e;vertical-align:1px}
 .dzw-tb.dzw-tb-sansbord{border:0;background:none;padding:0}
 .dzw-tb-titre .l1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dzw-tb-titre h1{margin:0 6px 0 0;font-size:clamp(1.4rem,2.4vw,1.85rem);letter-spacing:-.02em;line-height:1.2}
@@ -552,8 +554,11 @@ register("tableau", (el) => {
   const vueDe = () => (o.bascule ? o.bascule.vues[lireUrl()[o.bascule.param] ?? ""] || o.vue : o.vue);
   const avecLibelles = async () => { if (o.libellesSource) o.libelles = { ...(await libellesDe(o.libellesSource, o.libellesCle, o.libellesChamp)), ...o.libelles }; };
   el.classList.add("dzw-tb");
+  /* niveau d'accès affiché : un bloc réservé à l'administrateur a sa couleur et son étiquette */
+  const niveau = conf(el, "niveau", "");
+  if (niveau === "admin") el.classList.add("dzw-tb-admin");
   el.innerHTML = "";
-  const titre = o.titre ? h("h3", {}, o.titre, h("small", {})) : null;
+  const titre = o.titre ? h("h3", {}, h("span", {}, o.titre, niveau === "admin" ? h("em", { class: "dzw-tb-niveau" }, "Administrateur") : null), h("small", {})) : null;
   if (titre) el.appendChild(titre);
   /* onglets : bloc affiché seulement pour certaines valeurs d'un paramètre ({ param: "t", valeurs: ["envois"], defaut: "sante" }) */
   const visible = () => !o.montrer || [].concat(o.montrer.valeurs || []).map(String).includes(String(lireUrl()[o.montrer.param] ?? o.montrer.defaut ?? ""));
