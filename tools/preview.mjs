@@ -57,11 +57,17 @@ const ctx = await browser.newContext();
 /* Rien d'externe pendant le contrôle (YouTube, cartes, polices web…) : le rendu ne doit
    dépendre ni du réseau ni d'un service tiers, sinon deux captures du même bloc diffèrent
    (le bloc « Site · vidéo » échouait en CI, où YouTube répond, et passait hors ligne). */
-await ctx.route("**/*", (r) => (r.request().url().startsWith("file:") ? r.continue() : r.abort()));
+/* Une page externe dans une iframe (vidéo YouTube, carte…) reçoit une page vide au lieu d'être coupée :
+   coupée, Chrome affiche sa page d'erreur réseau, dont les scripts remontaient parfois comme erreurs
+   du bloc (« A network error occurred », « writeEmbed is not defined ») selon le moment. */
+const bloquer = (r) => (r.request().resourceType() === "document"
+  ? r.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><meta charset=utf-8><title>contenu externe</title>" }).catch(() => r.abort())
+  : r.abort());
+await ctx.route("**/*", (r) => (r.request().url().startsWith("file:") ? r.continue() : bloquer(r)));
 await ctx.route(/^https?:\/\/(?!fonts)/, (r) => {
   const u = r.request().url();
   if (/picsum\.photos|images\.unsplash|i\.pravatar/.test(u)) return r.fulfill({ path: path.join(TOOLS, "fixtures", "photo.jpg"), contentType: "image/jpeg" }).catch(() => r.abort());
-  return r.abort();
+  return bloquer(r);
 });
 const report = [];
 const variants = [
