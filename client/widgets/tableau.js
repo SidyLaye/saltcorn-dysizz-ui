@@ -11,7 +11,7 @@
      filtres  barre de filtres partagée par tous les blocs de la page
 
    Réglages communs : titre, mesure (nom de la mesure affichée), format
-   (nombre | euro | pourcent | minutes | date), libelles (JSON clé → libellé),
+   (nombre | euro | pourcent | minutes | date | dateheure | oui_non), libelles (JSON clé → libellé),
    params (paramètres fixes, ex. "periode=30j"), rafraichir (secondes),
    hauteur (px), lien (liste : adresse avec {champ}, ex. "/page/lead?id={id}"),
    colonnes (liste : JSON [{champ,titre,format}]), champs (filtres : JSON).
@@ -159,6 +159,8 @@ const NF = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
 const NF0 = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
 
 export const formater = (v, fmt) => {
+  /* oui / non : booléen Postgres (true, 1, "t"…) ; vide = non */
+  if (fmt === "oui_non") return [true, 1, "1", "t", "true", "oui"].includes(typeof v === "string" ? v.toLowerCase() : v) ? "oui" : "non";
   if (v === null || v === undefined || v === "") return "—";
   if (fmt === "date" || fmt === "dateheure") {
     const d = new Date(v);
