@@ -47,7 +47,9 @@ const niveaux = async (req, res) => {
   const st = getState();
   const items = st.getConfig("unrolled_menu_items", null) || st.getConfig("menu_items", []) || [];
   const out = { liens: [], sections: [] };
-  const url = (x) => (x.type === "Page" && x.pagename ? `/page/${x.pagename}` : x.type === "View" && x.viewname ? `/view/${x.viewname}` : x.url || null);
+  /* pages d'administration de Saltcorn (entrées « Admin Page » du menu) */
+  const ADMIN = { Tables: "/table", Views: "/viewedit", Pages: "/pageedit", Entities: "/entities", "About application": "/admin", Modules: "/plugins", "Users and security": "/useradmin", "Site structure": "/site-structure", Files: "/files", Events: "/events", Settings: "/settings" };
+  const url = (x) => (x.type === "Page" && x.pagename ? `/page/${x.pagename}` : x.type === "View" && x.viewname ? `/view/${x.viewname}` : x.type === "Admin Page" ? ADMIN[x.admin_page] || null : x.url || null);
   const parcourir = (liste, parentAdmin) => {
     for (const x of liste || []) {
       if (!x) continue;

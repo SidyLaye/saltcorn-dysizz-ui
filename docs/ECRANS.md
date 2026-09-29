@@ -76,3 +76,22 @@ Un bloc n'apparaît que pour certains onglets avec `montrer`.
   - déclencheurs Validate, Insert, Update.
 
   La lecture (`GET /dysizz/fiche/:table`) ne renvoie que ce que l'utilisateur peut lire.
+
+## 5. Modifier plusieurs lignes d'un coup : réglage `selection` du bloc « tableau »
+
+```html
+<div data-dz-widget="tableau" data-source="equipe-liste" data-vue="liste" data-grouper="agence_nom"
+     data-selection='{"table":"equipe","champs":["groupe","temps","jours","assistante","actif"],
+                      "libelles":{"temps":{"plein":"Temps plein","mi_temps":"Temps partiel"}}}'></div>
+```
+
+Cases à cocher, « sélectionner le groupe », « Sélectionner les N résultats » (tous les résultats des filtres), puis « Modifier la sélection » : on choisit un ou plusieurs champs et leur nouvelle valeur (ou « vider ») ; chaque ligne est écrite par l'API de Saltcorn (droits vérifiés, déclencheurs lancés).
+
+## 6. Rattacher des lignes, cocher plusieurs personnes : `membres` et `multiples` du bloc « fiche »
+
+- `data-membres='{"table":"equipe","champ":"groupe","titre":"Qui est dans ce groupe ?","libelle":"nom","grouper":"agence_nom"}'` : dans la fiche d'un groupe, on coche ses membres (les autres lignes de `equipe` dont `groupe` vaut ce groupe).
+- `data-multiples='{"personnes":{"table":"equipe","libelle":"nom","grouper":"agence_nom","si":{"role":"negociateur"}}}'` : le champ texte `personnes` (numéros "3,7,9") devient une liste à cocher.
+
+## 7. Éditeur de pages
+
+Une page faite en HTML se convertit en éléments natifs du builder avec `tools/html2layout.py` : titres et textes deviennent des éléments Texte, les grilles des conteneurs, et chaque bloc interactif un élément à part. Dans l'éditeur, chaque bloc dit ce qu'il montre ; ses réglages sont dans son code HTML (attributs `data-…`).

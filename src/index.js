@@ -55,6 +55,7 @@ module.exports = {
     /* navigation : entrées du menu réservées à l'administrateur (code couleur) */
     { url: "/dysizz/nav-niveaux", method: "get", callback: navigation.niveaux },
     /* bloc « fiche » : description des champs d'une table et valeurs d'une ligne (écriture par l'API Saltcorn) */
+    { url: "/dysizz/fiche/:table/lignes", method: "get", callback: fiche.lignes },
     { url: "/dysizz/fiche/:table", method: "get", callback: fiche.route },
     { url: "/dysizz-ui/sources", method: "get", callback: sources.page },
     { url: "/dysizz-ui/sources/save", method: "post", callback: sources.save },

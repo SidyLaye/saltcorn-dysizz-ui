@@ -113,4 +113,25 @@ const route = async (req, res) => {
   }
 };
 
-module.exports = { route, typeDe, optionsDe };
+/* GET /dysizz/fiche/:table/lignes?champs=nom,agence_nom,groupe
+   Lignes d'une table (id + les champs demandés seulement) que l'utilisateur peut lire, pour choisir des
+   membres dans une fiche (ex. les personnes d'un groupe). Au plus 1000 lignes. */
+const MAX_LIGNES = 1000;
+const lignes = async (req, res) => {
+  try {
+    const Table = require("@saltcorn/data/models/table");
+    const table = Table.findOne({ name: req.params.table });
+    if (!table) return res.status(404).json({ erreur: "table introuvable" });
+    const user = req.user || null;
+    const role = user ? user.role_id : 100;
+    if (role > table.min_role_read && !(user && (table.ownership_field_id || table.ownership_formula))) return res.status(403).json({ erreur: "accès refusé" });
+    const noms = new Set(table.getFields().map((f) => f.name));
+    const champs = String(req.query.champs || "").split(",").map((x) => x.trim()).filter((x) => noms.has(x) && x !== "id").slice(0, 12);
+    const rows = await table.getRows({}, { forUser: user || undefined, forPublic: !user, orderBy: champs[0] || "id", limit: MAX_LIGNES });
+    res.json({ lignes: rows.map((r) => Object.fromEntries([["id", r.id], ...champs.map((c) => [c, r[c] ?? null])])), max: MAX_LIGNES });
+  } catch (e) {
+    res.status(500).json({ erreur: "lecture impossible" });
+  }
+};
+
+module.exports = { route, lignes, typeDe, optionsDe };
