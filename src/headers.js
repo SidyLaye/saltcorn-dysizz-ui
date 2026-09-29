@@ -36,7 +36,9 @@ const headers = (rawCfg) => {
   if (c.radius > 0) vars.push(`--dz-radius:${c.radius}px`);
   if (c.custom_colors) vars.push(`--dz-primary:${c.primary}`, `--dz-primary-ink:${c.primary}`, `--dz-accent:${c.accent}`, `--dz-accent-2:${c.accent_2}`);
   /* :root:root pour passer devant les univers ([data-dz-preset]) */
-  out.push({ style: `:root:root{${vars.join(";")}}` + (c.classes_css ? "\n" + c.classes_css : "") + (c.custom_css ? "\n" + c.custom_css : "") });
+  /* sans marque : nom et logo du site retirés du menu (en haut comme sur le côté) */
+  const marque = c.nav_marque ? "" : "\n.navbar-brand{display:none!important}";
+  out.push({ style: `:root:root{${vars.join(";")}}` + marque + (c.classes_css ? "\n" + c.classes_css : "") + (c.custom_css ? "\n" + c.custom_css : "") });
   /* script de tête : pose les attributs avant l'affichage (pas de flash) */
   const flags = {
     preset: c.preset,
@@ -55,6 +57,7 @@ const headers = (rawCfg) => {
     snap: c.snap,
     smooth: c.smooth,
     morph: c.bg_morph,
+    niveaux: c.nav_niveaux,
   };
   out.push({
     headerTag:
@@ -65,7 +68,7 @@ const headers = (rawCfg) => {
       "h.setAttribute('data-dz-motion',b?'off':f.motion);if(f.cursor)h.setAttribute('data-dz-cursor','on');if(f.top)h.setAttribute('data-dz-totop','on');" +
       "if(f.tr!=='none')h.setAttribute('data-dz-tr',f.tr);if(f.snap!=='off')h.setAttribute('data-dz-snap',f.snap);if(f.smooth!=='off')h.setAttribute('data-dz-smooth',f.smooth);if(!f.morph)h.setAttribute('data-dz-bgmorph','off');" +
       "if(f.remember){try{var t=localStorage.getItem('dz-theme');if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark'||t==='light')h.setAttribute('data-bs-theme',t);}catch(e){}}" +
-      "window.__dzFam={map:f.fam,url:f.famUrl,w:f.wUrl};h.classList.add('dz-js');setTimeout(function(){if(!window.DZ)h.classList.remove('dz-js');},3000);" +
+      "window.__dzFam={map:f.fam,url:f.famUrl,w:f.wUrl};window.__dzNav={niveaux:f.niveaux};h.classList.add('dz-js');setTimeout(function(){if(!window.DZ)h.classList.remove('dz-js');},3000);" +
       "})(" + JSON.stringify(flags) + ");</script>",
   });
   out.push({ script: pub("dz.js"), defer: true });

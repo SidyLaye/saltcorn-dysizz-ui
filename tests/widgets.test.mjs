@@ -267,7 +267,8 @@ try {
     assert.strictEqual(await p.evaluate(() => window.__pasRecharge), 1, "page non rechargée");
     assert.ok(appels.slice(avant).some((a) => a.nom === "resume" && a.q.source === "b"), "les blocs relisent avec le filtre");
     assert.ok((await p.innerText("body")).includes("5"), "chiffre mis à jour");
-    assert.strictEqual(await p.locator(".dzw-tb-filtres select").inputValue(), "", "la liste déroulante suit l'adresse au rechargement");
+    /* la barre de filtres suit l'adresse tout de suite (avant : seulement au rechargement, l'ancien choix restait affiché) */
+    assert.strictEqual(await p.locator(".dzw-tb-filtres select").inputValue(), "b", "la liste déroulante suit l'adresse sans recharger");
     /* pagination et tri */
     await p.click("text=Suivant ›"); await p.waitForTimeout(300);
     assert.ok(await p.isVisible("text=2 / 3"), "page suivante");

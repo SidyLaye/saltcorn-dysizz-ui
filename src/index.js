@@ -17,13 +17,17 @@ const { atelierPage, saveBlock, deleteBlock, exportBlocks, importBlocks } = requ
 const { santePage, corriger } = require("./admin/sante");
 const donnees = require("./donnees");
 const sources = require("./admin/sources");
+const navigation = require("./navigation");
+const fiche = require("./fiche");
+const { cfgOf } = require("./settings");
 
-const onLoad = async () => {
+const onLoad = async (configuration) => {
   try {
     const { getState } = require("@saltcorn/data/db/state");
     const st = getState();
     if (st && st.assets_by_role && typeof st.computeAssetsByRole === "function") await st.computeAssetsByRole();
-    await hub.ensureMenu();
+    /* navigation réglée dans la configuration : entrée « Accueil », forme du menu */
+    await navigation.appliquer(cfgOf(configuration || {}));
   } catch (e) {
     /* pas bloquant */
   }
@@ -48,6 +52,10 @@ module.exports = {
     { url: "/dysizz/sante/corriger", method: "post", callback: corriger },
     /* sources de données : chiffres, courbes et listes calculés par la base */
     { url: "/dysizz/donnees/:nom", method: "get", callback: donnees.route },
+    /* navigation : entrées du menu réservées à l'administrateur (code couleur) */
+    { url: "/dysizz/nav-niveaux", method: "get", callback: navigation.niveaux },
+    /* bloc « fiche » : description des champs d'une table et valeurs d'une ligne (écriture par l'API Saltcorn) */
+    { url: "/dysizz/fiche/:table", method: "get", callback: fiche.route },
     { url: "/dysizz-ui/sources", method: "get", callback: sources.page },
     { url: "/dysizz-ui/sources/save", method: "post", callback: sources.save },
     { url: "/dysizz-ui/sources/tester", method: "post", callback: sources.tester },

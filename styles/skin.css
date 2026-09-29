@@ -255,6 +255,9 @@ html.dz-skin[data-bs-theme="dark"] { color-scheme: dark; }
 .dz-skin[data-bs-theme="dark"] nav.navbar .navbar-toggler-icon { --dz-toggler-filter: invert(1); }
 .dz-skin #sidebar, .dz-skin .sidebar, .dz-skin #accordionSidebar { background: var(--dz-surface) !important; border-right: 1px solid var(--dz-border); }
 .dz-skin #sidebar .nav-link, .dz-skin .sidebar .nav-link, .dz-skin #accordionSidebar .nav-link { color: var(--dz-text-soft) !important; }
+/* entrées réservées à l'administrateur (réglage Navigation) : ambre, même dans le menu habillé */
+.dz-skin #sidebar .nav-link.dz-nav-admin, .dz-skin .sidebar .nav-link.dz-nav-admin, .dz-skin nav.navbar .nav-link.dz-nav-admin, .dz-skin nav.navbar .dropdown-item.dz-nav-admin { color: #b45309 !important; }
+[data-bs-theme="dark"] .dz-skin #sidebar .nav-link.dz-nav-admin, .dz-skin[data-bs-theme="dark"] #sidebar .nav-link.dz-nav-admin, .dz-skin[data-bs-theme="dark"] nav.navbar .nav-link.dz-nav-admin { color: #fbbf24 !important; }
 .dz-skin .card, .dz-skin .modal-content, .dz-skin .dropdown-menu, .dz-skin .list-group-item, .dz-skin .table { color: var(--dz-text); }
 .dz-skin .text-muted { color: var(--dz-text-mute) !important; }
 .dz-skin .bg-white, .dz-skin .bg-light { background-color: var(--dz-surface) !important; }
