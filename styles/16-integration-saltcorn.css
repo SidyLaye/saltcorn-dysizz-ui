@@ -53,3 +53,8 @@ html.dz-builder .builder-library .card { max-height: 62vh; overflow-y: auto; pad
 .dz-demo-note{display:inline-block;margin-left:.5rem;padding:.1rem .5rem;border-radius:999px;background:var(--dz-surface-2,rgba(127,127,127,.12));font-weight:500}
 .dz-demo-frame{position:relative;transform:translateZ(0);contain:layout paint;min-height:120px;border-block:1px dashed var(--dz-border)}
 .dz-demo-frame :is(.dz-cmdk,.dz-drawer,.dz-sheet){position:absolute}
+
+/* Menu : entrées réservées à l'administrateur (réglage « Entrées réservées à l'administrateur en ambre ») */
+#sidebar a.dz-nav-admin,nav.navbar a.dz-nav-admin,.dz-nav-admin{color:#b45309!important}
+html:not(.dz-skin) .navbar-dark a.dz-nav-admin,[data-bs-theme="dark"] #sidebar a.dz-nav-admin,[data-bs-theme="dark"] nav.navbar a.dz-nav-admin{color:#fbbf24!important}
+.dz-nav-admin i{color:inherit!important}

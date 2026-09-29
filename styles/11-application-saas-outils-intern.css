@@ -39,3 +39,29 @@
 .dz-tabs-nav button[aria-selected="true"] { background: var(--dz-surface); color: var(--dz-text); box-shadow: var(--dz-shadow-sm); }
 .dz-tab-panel[hidden] { display: none !important; }
 .dz-tab-panel { animation: dz-fade-up .45s var(--dz-ease); }
+
+/* Écran d'application (tableaux de bord, listes, fiches), sans CSS propre à la page :
+   <div class="dz-ecran"> <div class="dz-ecran-titre"><h1>…</h1></div> <p class="dz-ecran-intro">…</p>
+   <div class="dz-ecran-grille dz-ecran-chiffres">…</div> (aussi dz-ecran-tuiles, dz-ecran-principale, dz-ecran-moities)
+   <p class="dz-ecran-note">…</p> <a class="dz-ecran-bt">…</a> <a class="dz-ecran-retour" href="…">← …</a>
+   <div class="dz-ecran-niveau">Page réservée à l'administrateur</div> */
+.dz-ecran { max-width: var(--dz-ecran-max, 1360px); margin: 0 auto; padding: 20px 20px 70px; }
+.dz-ecran, .dz-ecran p, .dz-ecran a, .dz-ecran li { font-family: var(--dz-font-body); }
+.dz-ecran-titre { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 4px; }
+.dz-ecran-titre h1 { margin: 0; font-size: clamp(1.45rem, 2.4vw, 1.9rem); letter-spacing: -.02em; }
+.dz-ecran-intro { margin: 2px 0 14px; color: var(--dz-text-soft); font-size: .93rem; max-width: 80ch; }
+.dz-ecran-intro a { font-weight: 600; }
+.dz-ecran-grille { display: grid; gap: 14px; margin: 0 0 14px; }
+.dz-ecran-chiffres { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.dz-ecran-tuiles { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.dz-ecran-principale { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; }
+.dz-ecran-moities { grid-template-columns: 1fr 1fr; align-items: start; }
+@media (max-width: 980px) { .dz-ecran-principale, .dz-ecran-moities { grid-template-columns: 1fr; } }
+.dz-ecran-col { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.dz-ecran-note { font-size: .84rem; color: var(--dz-text-mute); margin: -4px 0 14px; max-width: 95ch; }
+.dz-ecran-bt { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; background: var(--dz-primary); color: var(--dz-on-primary) !important; text-decoration: none; font-weight: 600; font-size: .9rem; min-height: 40px; margin: 0 10px 10px 0; }
+.dz-ecran-bt.sec { background: transparent; color: inherit !important; border: 1px solid var(--dz-border); }
+.dz-ecran-retour { display: inline-block; margin: 0 0 8px; font-size: .9rem; }
+.dz-ecran-niveau { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 4px 12px; border-radius: 99px; background: #fef3c7; color: #92400e; font-size: .8rem; font-weight: 600; }
+.dz-ecran-niveau::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #b45309; }
+[data-bs-theme="dark"] .dz-ecran-niveau { background: rgba(245, 158, 11, .16); color: #fbbf24; }

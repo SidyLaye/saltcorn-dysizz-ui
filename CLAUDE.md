@@ -29,6 +29,8 @@
 - `/dysizz/sante` (`src/admin/sante.js`) : diagnostic du tenant ; toute correction = aperçu puis clic.
 - `client/dz.js` : `once(el, clé)` écrit `data-dz-<clé>` ; la clé ne doit jamais être un attribut de réglage.
 - Pas à pas serveur pour Sidy : `docs/DEMARRAGE.md`.
+- Écrans d'application (navigation, mise en page `dz-ecran-*`, blocs « tableau » et « fiche ») : `docs/ECRANS.md`.
+  Un manque pour un écran client = une brique à ajouter ici, jamais du CSS/JS dans la page.
 
 ## Pièges Saltcorn
 - Rôles inversés : 1 admin, 40 staff, 80 user, 100 public (plus petit = plus de droits).

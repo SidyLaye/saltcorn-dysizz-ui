@@ -195,30 +195,4 @@ const setHome = async (req, res) => {
   res.redirect("/dysizz");
 };
 
-/* une entrée « Accueil » en tête du menu Saltcorn, ajoutée une seule fois : si l'admin la
-   retire (éditeur de menu), elle ne revient pas (réglage dysizz_menu_accueil = "fait") */
-const MENU = { type: "Link", text: "Accueil", label: "Accueil", url: "/dysizz", href: "/dysizz", icon: "fas fa-th-large", min_role: 1, max_role: "1", style: "", title: "", tooltip: "", target: "_self", target_blank: false, in_modal: false, location: "Standard", shortcut: "", disable_on_mobile: false };
-/* Saltcorn affiche « unrolled_menu_items » s'il existe (menu déplié), sinon « menu_items » :
-   on ajoute l'entrée aux deux */
-const ensureMenu = async () => {
-  try {
-    const { getState } = require("@saltcorn/data/db/state");
-    const st = getState();
-    /* réglage inconnu de Saltcorn : il n'est pas chargé en mémoire, on le lit en base */
-    const db = require("@saltcorn/data/db");
-    const drapeau = await db.selectMaybeOne("_sc_config", { key: "dysizz_menu_accueil" }).catch(() => null);
-    const val = drapeau && drapeau.value && typeof drapeau.value === "object" ? drapeau.value.v : drapeau && drapeau.value;
-    if (val === "fait") return;
-    for (const key of ["menu_items", "unrolled_menu_items"]) {
-      const items = st.getConfig(key, null);
-      if (!Array.isArray(items) || (key === "unrolled_menu_items" && !items.length)) continue;
-      const i = items.findIndex((x) => x && (x.url === "/dysizz" || x.href === "/dysizz"));
-      if (i >= 0 && items[i].text) continue;
-      await st.setConfig(key, [MENU, ...items.filter((_, k) => k !== i)]);
-    }
-    await db.deleteWhere("_sc_config", { key: "dysizz_menu_accueil" });
-    await db.insert("_sc_config", { key: "dysizz_menu_accueil", value: { v: "fait" } }, { noid: true });
-  } catch (e) { /* pas bloquant */ }
-};
-
-module.exports = { hubPage, setHome, ensureMenu, collect, VERSION };
+module.exports = { hubPage, setHome, collect, VERSION };

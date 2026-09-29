@@ -192,6 +192,14 @@ const charger = async (source, params) => {
   return j;
 };
 
+/* listes des filtres lues dans une source : une fois par page (la barre est redessinée à chaque filtre) */
+const LISTES = new Map();
+const listeSource = (source, params) => {
+  const k = source + "?" + (params || "");
+  if (!LISTES.has(k)) LISTES.set(k, charger(source, { par_page: 200, ...(params ? Object.fromEntries(new URLSearchParams(params)) : {}) }).catch((e) => { LISTES.delete(k); throw e; }));
+  return LISTES.get(k);
+};
+
 /* libellés lus dans une autre source (ex. identifiant d'agence → nom), une fois par page */
 const LIBELLES = new Map();
 const libellesDe = (source, cle, champ) => {
@@ -519,12 +527,12 @@ const vueFiltres = (el, o) => {
       const actif = url.du || url.au ? null : url.periode ?? c.defaut ?? "";
       bar.appendChild(h("label", {}, c.titre || "Période", h("div", { class: "dzw-tb-periodes", role: "group" }, choix.map(([v, t]) => h("button", { type: "button", class: actif === v ? "on" : null, "aria-pressed": actif === v ? "true" : "false", onclick: () => ecrireUrl({ ...lireUrl(), periode: v, du: "", au: "", page: "" }) }, t)))));
     } else if (c.type === "texte") {
-      const inp = h("input", { type: "search", value: url[c.param] || "", placeholder: c.aide || "Rechercher…" });
+      const inp = h("input", { type: "search", "data-param": c.param, value: url[c.param] || "", placeholder: c.aide || "Rechercher…" });
       let t;
       inp.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => maj(c.param, inp.value.trim()), 350); });
       bar.appendChild(h("label", {}, c.titre || "Recherche", inp));
     } else if (c.type === "nombre") {
-      const inp = h("input", { type: "number", inputmode: "decimal", value: url[c.param] || "", placeholder: c.aide || "", style: { maxWidth: "120px" } });
+      const inp = h("input", { type: "number", "data-param": c.param, inputmode: "decimal", value: url[c.param] || "", placeholder: c.aide || "", style: { maxWidth: "120px" } });
       let t;
       inp.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => maj(c.param, inp.value.trim()), 450); });
       bar.appendChild(h("label", {}, c.titre || c.param, inp));
@@ -544,7 +552,7 @@ const vueFiltres = (el, o) => {
       };
       if (c.options) remplir(c.options.map((x) => (Array.isArray(x) ? x : [x, (o.libelles && o.libelles[x]) || x])));
       /* liste lue dans une source : groupe (cle) ou liste (c.cle → c.champ, ex. agence → nom) */
-      if (c.source) charger(c.source, { par_page: 200, ...(c.params ? Object.fromEntries(new URLSearchParams(c.params)) : {}) }).then((d) => {
+      if (c.source) listeSource(c.source, c.params).then((d) => {
         const k = c.cle || "cle";
         const items = (d.lignes || []).filter((l) => l[k] !== null && l[k] !== undefined && l[k] !== "").map((l) => [l[k], (c.libelles && c.libelles[l[k]]) || (c.champ && l[c.champ]) || (o.libelles && o.libelles[l[k]]) || l[k]]);
         remplir(items);
@@ -614,7 +622,17 @@ register("tableau", (el) => {
     /* valeurs par défaut (ex. période 30 jours) posées dans l'adresse avant que les autres blocs lisent */
     const u = lireUrl(), manque = o.champs.filter((c) => c.defaut !== undefined && u[c.param] === undefined && !(c.exclut || []).some((k) => u[k]));
     if (manque.length) { const n = new URL(location.href); for (const c of manque) n.searchParams.set(c.param, c.defaut); history.replaceState(null, "", n); }
-    avecLibelles().then(() => el.appendChild(vueFiltres(el, o)));
+    /* la barre suit l'adresse : onglet, liste ou date changés ici ou ailleurs (clic sur un chiffre,
+       retour arrière) sont redessinés ; une saisie en cours garde le focus et le curseur */
+    let barre = null;
+    const dessiner = () => {
+      const f = document.activeElement, p = f && barre && barre.contains(f) && f.dataset.param ? { param: f.dataset.param, pos: f.selectionStart } : null;
+      const n = vueFiltres(el, o);
+      if (barre) barre.replaceWith(n); else el.appendChild(n);
+      barre = n;
+      if (p) { const i = n.querySelector(`[data-param="${p.param}"]`); if (i) { i.focus(); try { i.setSelectionRange(p.pos, p.pos); } catch (e) { /* champ sans curseur */ } } }
+    };
+    avecLibelles().then(() => { dessiner(); window.addEventListener("dz:filtres", dessiner); });
     return;
   }
   if (!o.source) { el.appendChild(h("div", { class: "dzw-tb-err" }, "Réglage « source » manquant.")); return; }

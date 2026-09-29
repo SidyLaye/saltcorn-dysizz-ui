@@ -2,6 +2,31 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.12.0
+
+### Ajouté
+- **Bloc « fiche »** : formulaire relié à une table, à la place des vues d'édition natives de Saltcorn.
+  - Il affiche les libellés en français, avec des listes déroulantes à noms lisibles : les clés vers une autre table et les listes de choix, avec `libelles`.
+  - Il gère les sections, les aides, les champs obligatoires et les champs montrés sous condition (`si`).
+  - Les champs protégés sont en lecture seule ; les champs peuvent aussi être cachés (`caches`) ou remplis avec l'utilisateur (`utilisateur`).
+  - Il sait créer, modifier et supprimer, avec une adresse de retour après enregistrement.
+  - L'écriture passe par l'API de Saltcorn : droits, propriétaire, champs `min_role_write` et déclencheurs Validate / Insert / Update restent vérifiés par le serveur.
+  - Route de lecture : `GET /dysizz/fiche/:table`. Elle ne renvoie que les lignes et les listes que l'utilisateur peut lire.
+- **Navigation** (réglages du plugin, nouvelle étape) :
+  - forme du menu (latéral / en haut / laisser le thème) ;
+  - nom et logo du site affichés ou non ;
+  - entrée « Accueil » (coupée par défaut, retirée du menu si elle y est) ;
+  - entrées réservées à l'administrateur en ambre.
+  Tout est appliqué dès l'enregistrement, dans le tenant.
+- Menu : l'entrée active est celle dont les paramètres correspondent à l'adresse (`/page/gestion?t=equipe`), y compris quand un onglet ou un filtre change l'adresse sans recharger la page.
+- Mise en page d'application sans CSS propre à la page : `dz-ecran`, `dz-ecran-titre`, `dz-ecran-intro`, `dz-ecran-grille` (+ `dz-ecran-chiffres`, `dz-ecran-tuiles`, `dz-ecran-principale`, `dz-ecran-moities`), `dz-ecran-col`, `dz-ecran-note`, `dz-ecran-bt`, `dz-ecran-retour`, `dz-ecran-niveau`.
+
+### Corrigé
+- Barre de filtres : l'onglet ou le choix affiché suit l'adresse. Avant, en cliquant « Équipe », l'ancien onglet restait en surbrillance ; un filtre posé ailleurs (clic sur un chiffre, retour arrière) n'était pas reflété.
+
+### Changé
+- L'entrée « Accueil » n'est plus ajoutée d'office au menu. Elle se règle dans Navigation (réglage `dysizz_menu_accueil` abandonné).
+
 ## 3.11.0
 
 ### Ajouté

@@ -988,7 +988,53 @@
     });
   }
 
+  /* ── menu : la bonne entrée active, et les entrées réservées à l'administrateur ──────────
+     Le thème compare seulement le chemin (/page/gestion) : toutes les entrées d'une même page
+     (?t=equipe, ?t=regles…) paraissent actives. Ici, l'entrée dont les paramètres correspondent
+     à l'adresse gagne ; on recommence quand l'adresse change (onglets, filtres, retour). */
+  var NAV_SEL = "#sidebar a[href], nav.navbar a.nav-link[href], nav.navbar a.dropdown-item[href]";
+  function navActif() {
+    var ici = new URLSearchParams(location.search), cands = [], avecQuery = false;
+    $all(NAV_SEL).forEach(function (a) {
+      if (!a.pathname || a.getAttribute("href").charAt(0) === "#" || a.origin !== location.origin || a.pathname !== location.pathname) return;
+      var q = new URLSearchParams(a.search), score = 0, ok = true;
+      q.forEach(function (v, k) { avecQuery = true; if (ici.get(k) !== v) ok = false; else score++; });
+      cands.push({ a: a, score: ok ? score : -1 });
+    });
+    if (!cands.length || !avecQuery) return;
+    /* le menu peut exister en double (barre du haut sur mobile, colonne sur ordinateur) : toutes les copies du meilleur lien */
+    var max = -1;
+    cands.forEach(function (c) { if (c.score > max) max = c.score; });
+    cands.forEach(function (c) {
+      var li = c.a.closest("li"), on = max >= 0 && c.score === max;
+      c.a.classList.toggle("active", on);
+      if (on) c.a.setAttribute("aria-current", "page"); else c.a.removeAttribute("aria-current");
+      if (li && !li.querySelector("ul")) li.classList.toggle("active", on);
+    });
+  }
+  function navNiveaux() {
+    if (!window.__dzNav || !window.__dzNav.niveaux || !doc.querySelector(NAV_SEL)) return;
+    var appliquer = function (d) {
+      var liens = d.liens || [], sections = d.sections || [];
+      $all(NAV_SEL).forEach(function (a) {
+        var h = a.getAttribute("href");
+        if (liens.indexOf(h) >= 0) a.classList.add("dz-nav-admin");
+        if (a.classList.contains("dropdown-toggle") && sections.indexOf(a.textContent.trim()) >= 0) a.classList.add("dz-nav-admin", "dz-nav-admin-section");
+      });
+    };
+    var cle = "dz-nav-niveaux", cache = null;
+    try { cache = JSON.parse(sessionStorage.getItem(cle) || "null"); } catch (e) { cache = null; }
+    if (cache && Date.now() - cache.t < 300000) return appliquer(cache.d);
+    fetch("/dysizz/nav-niveaux", { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : { liens: [], sections: [] }; })
+      .then(function (d) { try { sessionStorage.setItem(cle, JSON.stringify({ t: Date.now(), d: d })); } catch (e) { /* stockage plein ou interdit */ } appliquer(d); })
+      .catch(function () { /* pas bloquant */ });
+  }
+
   function start() {
+    try { navActif(); navNiveaux(); } catch (e) { if (window.console) console.warn("[dysizz-ui] menu", e); }
+    window.addEventListener("dz:filtres", function () { try { navActif(); } catch (e) { /* pas bloquant */ } });
+    window.addEventListener("popstate", function () { try { navActif(); } catch (e) { /* pas bloquant */ } });
     if (inBuilder) { initThemeToggle(doc); $all("[data-dz-widget]").forEach(function (el) { if (!el.children.length) el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> Bloc interactif « ' + el.getAttribute("data-dz-widget") + ' » (visible sur la page publiée)</div>'; }); return; }
     loadFamilies();
     pageFlags();

@@ -97,6 +97,9 @@ const DEFAULTS = {
   classes_css: "",
 };
 
+/* forme du menu : « thème » = on laisse le réglage du thème ; sinon on le pose sur any-bootstrap-theme */
+const NAV_MENUS = ["thème", "latéral", "en haut"];
+
 /* ---------------- nettoyage des valeurs ---------------- */
 const hex = (v, d) => (typeof v === "string" && /^#[0-9a-fA-F]{3,8}$/.test(v.trim()) ? v.trim() : d);
 const int = (v, d, min, max) => {
@@ -130,6 +133,11 @@ const cfgOf = (c = {}) => {
     snap: pick(c.snap, Object.keys(SNAPS), DEFAULTS.snap),
     smooth: pick(c.smooth, Object.keys(SMOOTHS), DEFAULTS.smooth),
     bg_morph: c.bg_morph !== false,
+    /* navigation (étape « Navigation ») */
+    nav_accueil: !!c.nav_accueil,
+    nav_marque: c.nav_marque !== false,
+    nav_niveaux: c.nav_niveaux !== false,
+    nav_menu: pick(c.nav_menu, NAV_MENUS, "thème"),
     /* réglages gérés par les pages /dysizz-ui (pas par le formulaire) */
     families: Array.isArray(c.families) ? c.families.filter((f) => /^[a-z]{2,12}$/.test(f)) : [],
     classes_css: typeof c.classes_css === "string" ? c.classes_css.replace(/<\/?style/gi, "") : "",
@@ -185,8 +193,24 @@ const configuration_workflow = () =>
             ],
           }),
       },
+      {
+        name: "Navigation",
+        form: async () =>
+          new Form({
+            blurb: "Le menu du site. Appliqué dès l'enregistrement, dans ce tenant seulement.",
+            fields: [
+              { name: "nav_menu", label: "Forme du menu", type: "String", required: true, default: "thème", attributes: { options: NAV_MENUS },
+                sublabel: "latéral = colonne à gauche avec sous-menus (thème any-bootstrap-theme) · en haut = barre en haut · thème = ne rien changer" },
+              { name: "nav_marque", label: "Afficher le nom et le logo du site dans le menu", type: "Bool", default: true },
+              { name: "nav_accueil", label: "Entrée « Accueil » (accueil Dysizz) en tête du menu de l'administrateur", type: "Bool", default: false,
+                sublabel: "Coupé : l'entrée est retirée du menu. L'accueil Dysizz reste à l'adresse /dysizz." },
+              { name: "nav_niveaux", label: "Entrées réservées à l'administrateur en ambre", type: "Bool", default: true,
+                sublabel: "Dans le menu de l'administrateur, les entrées et sections que les autres rôles ne voient pas sont en ambre." },
+            ],
+          }),
+      },
     ],
   });
 
 
-module.exports = { TRANSITIONS, TR_KEYS, SNAPS, SMOOTHS, FONTS, FONT_AUTO, FONT_NAMES, MONO, PRESETS, PRESET_KEYS, STYLES, MOTIONS, DEFAULTS, cfgOf, configuration_workflow };
+module.exports = { NAV_MENUS, TRANSITIONS, TR_KEYS, SNAPS, SMOOTHS, FONTS, FONT_AUTO, FONT_NAMES, MONO, PRESETS, PRESET_KEYS, STYLES, MOTIONS, DEFAULTS, cfgOf, configuration_workflow };
