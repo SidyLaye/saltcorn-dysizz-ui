@@ -38,7 +38,7 @@ if (!blocks.length) { console.error("aucun bloc pour", fam, only || ""); process
 const rawOf = (name) => rawLib.find((b) => b.name === name);
 
 const nm = (p) => "file://" + path.join(TOOLS, "node_modules", p);
-const page = (layout, theme) => `<!doctype html><html lang="fr" data-bs-theme="${theme}" data-dz-preset="${process.env.PRESET || "nocturne"}" data-dz-style="moderne" class="dz-skin dz-js" data-dz-motion="off"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+const page = (layout, theme) => `<!doctype html><html lang="fr" data-bs-theme="${theme}" data-dz-preset="${process.env.PRESET || "nocturne"}" data-dz-style="moderne" class="dz-skin dz-js" data-dz-motion="off"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="frame-src 'self' file: data: blob: about:">
 <link rel="stylesheet" href="${nm("bootstrap/dist/css/bootstrap.min.css")}"><link rel="stylesheet" href="file://${TOOLS}/fixtures/saltcorn.css"><link rel="stylesheet" href="${nm("@fortawesome/fontawesome-free/css/all.min.css")}">
 <link rel="stylesheet" href="file://${ROOT}/build/dz-core.css"><link rel="stylesheet" href="file://${ROOT}/build/dz-skin.css">${fs.readdirSync(path.join(ROOT, "build")).filter((f) => /^dz-f-.*\.css$/.test(f)).map((f) => `<link rel="stylesheet" href="file://${ROOT}/build/${f}">`).join("")}
 <style>*{animation-play-state:paused!important}.dz-reveal,[data-dz-reveal],.dz-stagger>*{opacity:1!important;transform:none!important}</style></head>
@@ -57,9 +57,10 @@ const ctx = await browser.newContext();
 /* Rien d'externe pendant le contrôle (YouTube, cartes, polices web…) : le rendu ne doit
    dépendre ni du réseau ni d'un service tiers, sinon deux captures du même bloc diffèrent
    (le bloc « Site · vidéo » échouait en CI, où YouTube répond, et passait hors ligne). */
-/* Une page externe dans une iframe (vidéo YouTube, carte…) reçoit une page vide au lieu d'être coupée :
-   coupée, Chrome affiche sa page d'erreur réseau, dont les scripts remontaient parfois comme erreurs
-   du bloc (« A network error occurred », « writeEmbed is not defined ») selon le moment. */
+/* Une page externe dans une iframe (vidéo YouTube, carte…) n'est jamais chargée : la page de contrôle
+   l'interdit (CSP frame-src, voir page()) et, en plus, une requête de document externe reçoit une page vide.
+   Sinon les scripts de YouTube tournaient dans l'iframe et remontaient comme erreurs du bloc
+   (« writeEmbed is not defined », « A network error occurred ») selon le réseau de la CI. */
 const bloquer = (r) => (r.request().resourceType() === "document"
   ? r.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><meta charset=utf-8><title>contenu externe</title>" }).catch(() => r.abort())
   : r.abort());

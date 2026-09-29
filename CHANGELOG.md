@@ -4,7 +4,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [Sem
 
 ## 3.13.1
 
-- Contrôle visuel (`tools/preview.mjs`) : une page externe dans une iframe (vidéo, carte) reçoit une page vide au lieu d'être coupée ; la page d'erreur réseau de Chrome ne remonte plus comme erreur du bloc (« Site · vidéo » échouait au hasard en CI).
+- Contrôle visuel (`tools/preview.mjs`) : une iframe vers un site externe (vidéo, carte) n'est plus jamais chargée (règle CSP de la page de contrôle, et page vide pour toute requête de document externe) ; les scripts de YouTube ne remontent plus comme erreurs du bloc (« Site · vidéo » échouait selon le réseau de la CI).
 - Listes (bloc « tableau ») : format de colonne `oui_non` (booléen affiché « oui » ou « non », vide = non).
 
 ## 3.13.0
