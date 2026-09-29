@@ -155,7 +155,8 @@ for (const b of blocks) {
         await p.goto("file://" + tmp);
         /* une vidéo peut avoir chargé sa première image dans une photo et pas dans l'autre :
            ses pixels ne disent rien de la mise en page, on les masque pour la comparaison */
-        await p.addStyleTag({ content: "video{visibility:hidden!important}" });
+        /* style ajouté par la page elle-même : addStyleTag remonte le refus CSP de l'iframe externe comme une erreur */
+        await p.evaluate(() => { const s = document.createElement("style"); s.textContent = "video{visibility:hidden!important}"; document.head.appendChild(s); });
         await p.waitForTimeout(150);
         const el = await p.$("#blk");
         const bb = await el.boundingBox();
