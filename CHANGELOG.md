@@ -2,6 +2,10 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.13.1
+
+- Listes (bloc « tableau ») : format de colonne `oui_non` (booléen affiché « oui » ou « non », vide = non).
+
 ## 3.13.0
 
 ### Ajouté

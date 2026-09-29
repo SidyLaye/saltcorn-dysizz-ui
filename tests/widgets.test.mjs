@@ -211,7 +211,7 @@ try {
       if (nom === "resume") return { type: "agregat", valeurs: { total: q.source === "b" ? 5 : 120, rejets: 12 }, precedent: { total: 100, rejets: 15 } };
       if (nom === "jours") return { type: "serie", par: "jour", lignes: Array.from({ length: 14 }, (_, i) => ({ cle: `2026-09-${String(i + 1).padStart(2, "0")}`, total: (i * 7) % 11 })) };
       if (nom === "portails") return { type: "agregat", lignes: [{ cle: "a", total: 80 }, { cle: "b", total: 40 }] };
-      if (nom === "liste") { const page = +q.page || 1; return { type: "liste", total: 120, page, par_page: 50, tri: q.tri || "cree_le", sens: q.sens || "desc", lignes: Array.from({ length: 3 }, (_, i) => ({ id: page * 10 + i, cree_le: "2026-09-20T10:00:00Z", nom: "Nom" + i, source: "a", statut: i ? "ok" : "ko" })) }; }
+      if (nom === "liste") { const page = +q.page || 1; return { type: "liste", total: 120, page, par_page: 50, tri: q.tri || "cree_le", sens: q.sens || "desc", lignes: Array.from({ length: 3 }, (_, i) => ({ id: page * 10 + i, cree_le: "2026-09-20T10:00:00Z", nom: "Nom" + i, source: "a", statut: i ? "ok" : "ko", actif: i ? 1 : false })) }; }
       return null;
     };
     const srv = http.createServer((req, res) => {
@@ -230,7 +230,7 @@ try {
 <div data-dz-widget="tableau" data-source="portails" data-vue="barres" data-filtre="source" data-libelles='{"a":"Portail A","b":"Portail B"}'></div>
 <div data-dz-widget="tableau" data-source="portails" data-vue="anneau"></div>
 <div data-dz-widget="tableau" data-source="absente" data-vue="kpi"></div>
-<div data-dz-widget="tableau" data-source="liste" data-vue="liste" data-lien="/fiche?id={id}" data-colonnes='[{"champ":"nom","titre":"Nom"},{"champ":"statut","titre":"Statut","pastilles":{"ok":{"texte":"Bon","couleur":"#047857"}}}]'></div>`).replaceAll(`file://${ROOT}/build/`, "/build/"));
+<div data-dz-widget="tableau" data-source="liste" data-vue="liste" data-lien="/fiche?id={id}" data-colonnes='[{"champ":"nom","titre":"Nom"},{"champ":"statut","titre":"Statut","pastilles":{"ok":{"texte":"Bon","couleur":"#047857"}}},{"champ":"actif","titre":"Actif","format":"oui_non"}]'></div>`).replaceAll(`file://${ROOT}/build/`, "/build/"));
     });
     /* les fichiers du kit, servis par le même serveur */
     const servirFichier = srv.listeners("request")[0];
@@ -256,6 +256,7 @@ try {
     assert.ok(await p.locator(".dzw-tb-barre", { hasText: "Portail A" }).isVisible(), "libellés appliqués");
     assert.ok(await p.isVisible("text=Lecture impossible : source introuvable"), "erreur de source expliquée");
     assert.ok(await p.isVisible("text=120 résultats"), "total de la liste");
+    assert.deepStrictEqual(await p.locator(".dzw-tb-table tbody tr td:last-child").allTextContents().then((t) => t.map((x) => x.trim())), ["non", "oui", "oui"], "format oui_non (booléen, 1)");
     assert.ok(await p.isVisible("text=Bon"), "pastille de statut");
     assert.ok((await p.locator(".dzw-tb svg polyline").count()) >= 1, "courbe dessinée");
     /* un clic sur une barre filtre toute la page, sans recharger */
