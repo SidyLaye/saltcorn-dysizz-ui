@@ -2,6 +2,20 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.13.0
+
+### Ajouté
+- Bloc « tableau », **sélection multiple** (réglage `selection`) :
+  - cases à cocher, « tout cocher » sur la page, « sélectionner le groupe » (liste groupée), « Sélectionner les N résultats » (tous les résultats des filtres) ;
+  - puis « Modifier la sélection » : un ou plusieurs changements (n'importe quel champ autorisé, valeurs lisibles, ou vider), appliqués ligne par ligne par l'API Saltcorn, avec le décompte et les refus.
+  - La barre survit aux actualisations.
+- Bloc « fiche » :
+  - `membres` : choisir les lignes d'une autre table rattachées à la fiche (ex. les personnes d'un groupe), avec cases à cocher, recherche et « tout cocher » par agence ;
+  - `multiples` : un champ qui garde une liste de numéros devient une liste à cocher.
+- Route `GET /dysizz/fiche/:table/lignes` : id et champs demandés seulement, lignes lisibles par l'utilisateur, 1000 au plus.
+- Éditeur de pages : chaque bloc dit ce qu'il montre (« Tableau · liste — « Demandes » · source leads-liste · onglet(s) … »), aussi pour les blocs ajoutés ou modifiés après l'ouverture de l'éditeur.
+- Navigation : les entrées « Admin Page » du menu (Tables, Vues, Pages…) sont aussi colorées en ambre pour l'administrateur.
+
 ## 3.12.0
 
 ### Ajouté

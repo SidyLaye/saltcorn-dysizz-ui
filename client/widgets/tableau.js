@@ -18,9 +18,21 @@
 
    Les filtres vivent dans l'adresse de la page : un lien filtré se partage,
    Retour fonctionne, et changer un filtre ne recharge que les blocs. */
-import { register, css, h, conf } from "./_commun.js";
+import { register, css, h, conf, csrf } from "./_commun.js";
 
-css("tableau", `.dzw-tb{position:relative;background:var(--dz-surface,#fff);border:1px solid var(--dz-border,#e5e7eb);border-radius:var(--dz-radius,14px);padding:16px 18px;min-width:0}
+css("tableau", `.dzw-tb-case{width:34px;text-align:center}.dzw-tb-case input{width:17px;height:17px;cursor:pointer;accent-color:var(--dz-primary,#2563eb)}
+.dzw-tb-sel{position:sticky;top:8px;z-index:5;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--dz-primary,#2563eb) 9%,var(--dz-surface,#fff));border:1px solid color-mix(in srgb,var(--dz-primary,#2563eb) 30%,transparent)}
+.dzw-tb-sel-tete{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.dzw-tb-sel button{font:inherit;font-size:.85rem;cursor:pointer;border-radius:9px;padding:6px 12px;border:1px solid var(--dz-border,#e5e7eb);background:var(--dz-surface,#fff);color:inherit}
+.dzw-tb-sel button.ok{background:var(--dz-primary,#2563eb);color:var(--dz-on-primary,#fff);border-color:transparent;font-weight:600}
+.dzw-tb-sel button.lien{border:0;background:none;text-decoration:underline;padding:6px 4px}
+.dzw-tb-sel-panneau{margin-top:10px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--dz-primary,#2563eb) 25%,transparent);display:grid;gap:8px}
+.dzw-tb-sel-ligne{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dzw-tb-sel-ligne select,.dzw-tb-sel-ligne input{font:inherit;font-size:.88rem;padding:7px 10px;border-radius:9px;border:1px solid var(--dz-border,#d1d5db);background:var(--dz-surface,#fff);color:inherit;min-width:180px;min-height:38px}
+.dzw-tb-sel-ligne .fl{opacity:.6}.dzw-tb-sel-ligne .moins{border:0!important;background:none!important;font-size:1.1rem!important;opacity:.6}
+.dzw-tb-sel-act{display:flex;gap:8px;flex-wrap:wrap}.dzw-tb-sel-msg{font-size:.85rem}
+.dzw-tb-sel-groupe{margin-left:10px;font:inherit;font-size:.75rem;font-weight:500;border:0;background:none;text-decoration:underline;cursor:pointer;color:inherit;opacity:.75}
+.dzw-tb{position:relative;background:var(--dz-surface,#fff);border:1px solid var(--dz-border,#e5e7eb);border-radius:var(--dz-radius,14px);padding:16px 18px;min-width:0}
 .dzw-tb h3{font-size:.8rem;font-weight:600;letter-spacing:.02em;text-transform:uppercase;opacity:.68;margin:0 0 10px;display:flex;justify-content:space-between;gap:8px}
 .dzw-tb h3 small{text-transform:none;letter-spacing:0;font-weight:500}
 .dzw-tb-kpi b{display:block;font-size:clamp(1.7rem,3.2vw,2.4rem);line-height:1.1;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
@@ -413,6 +425,117 @@ const cellule = (v, col, o, ligne) => {
   return formater(v, col.format || null);
 };
 
+/* ── sélection multiple et modification en lot (réglage « selection ») ─────────────────
+   selection = { table, cle: "id", champs: ["temps", "groupe", …], libelles: { champ: { valeur: libellé } } }
+   Cases à cocher, « tout sélectionner » (tous les résultats des filtres), puis « Modifier la sélection » :
+   un ou plusieurs changements (champ → valeur, ou vider), appliqués ligne par ligne par l'API de Saltcorn
+   (droits, champs protégés et déclencheurs vérifiés par le serveur). */
+const cleSel = (o) => (o.selection && o.selection.cle) || "id";
+const caseLigne = (l, o, etat) => {
+  const id = String(l[cleSel(o)]);
+  return h("input", { type: "checkbox", "aria-label": "Sélectionner", checked: etat.sel.has(id), onchange: (e) => { e.target.checked ? etat.sel.add(id) : etat.sel.delete(id); etat.majSel(); } });
+};
+const caseTout = (lignes, o, etat) => {
+  const ids = lignes.map((l) => String(l[cleSel(o)]));
+  const tous = ids.length && ids.every((x) => etat.sel.has(x));
+  return h("input", { type: "checkbox", "aria-label": "Tout sélectionner sur cette page", checked: !!tous, onchange: (e) => { ids.forEach((x) => (e.target.checked ? etat.sel.add(x) : etat.sel.delete(x))); etat.majSel(); etat.relire("force"); } });
+};
+const selectionner = (lignes, o, etat) => { lignes.forEach((l) => etat.sel.add(String(l[cleSel(o)]))); etat.majSel(); etat.relire("force"); };
+
+const SCHEMAS = new Map();
+const schemaDe = (table, champs) => {
+  const k = table + "|" + (champs || []).join(",");
+  if (!SCHEMAS.has(k)) SCHEMAS.set(k, fetch(`/dysizz/fiche/${encodeURIComponent(table)}?${new URLSearchParams(champs && champs.length ? { champs: champs.join(",") } : {})}`, { credentials: "same-origin", headers: { Accept: "application/json" } })
+    .then(async (r) => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.erreur || `HTTP ${r.status}`); return j; }));
+  return SCHEMAS.get(k);
+};
+const humainSel = (v) => { const x = String(v ?? "").replace(/_/g, " "); return x.charAt(0).toUpperCase() + x.slice(1); };
+/* un contrôle de valeur pour un champ décrit par /dysizz/fiche (choix, clé, oui/non, nombre, date, texte) */
+const controleValeur = (c, libs) => {
+  const VIDE = "__vide__";
+  if (c.type === "choix" || c.type === "cle" || c.type === "oui_non") {
+    const opts = c.type === "oui_non" ? [["true", "oui"], ["false", "non"]] : c.type === "choix" ? (c.options || []).map((x) => [x, (libs && libs[x]) || humainSel(x)]) : c.options || [];
+    const sel = h("select", {}, h("option", { value: "" }, "— choisir —"), opts.map(([v, t]) => h("option", { value: v }, String(t))), c.requis ? null : h("option", { value: VIDE }, "(vider ce champ)"));
+    return { el: sel, lire: () => (sel.value === "" ? undefined : sel.value === VIDE ? null : c.type === "oui_non" ? sel.value === "true" : c.type === "cle" && /^\d+$/.test(sel.value) ? +sel.value : sel.value) };
+  }
+  const inp = h("input", { type: c.type === "nombre" ? "number" : c.type === "date" ? "date" : "text", placeholder: "nouvelle valeur (vide = vider)" });
+  return { el: inp, lire: () => (inp.value === "" ? (c.requis ? undefined : null) : c.type === "nombre" ? Number(inp.value) : inp.value) };
+};
+
+const barreSelection = (o, etat) => {
+  const barre = h("div", { class: "dzw-tb-sel", hidden: true });
+  const S = o.selection;
+  let panneau = null;
+  const ecrire = async (id, corps) => {
+    const r = await fetch(`/api/${encodeURIComponent(S.table)}/${encodeURIComponent(id)}`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json", "CSRF-Token": csrf() }, body: JSON.stringify(corps) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.error) throw new Error(j.error === "Not authorized" ? "non autorisé" : j.error || `HTTP ${r.status}`);
+  };
+  const ouvrir = async () => {
+    if (panneau) { panneau.remove(); panneau = null; return; }
+    panneau = h("div", { class: "dzw-tb-sel-panneau" }, h("div", { class: "dzw-tb-sq", style: { height: "60px" } }));
+    barre.appendChild(panneau);
+    let d;
+    try { d = await schemaDe(S.table, S.champs); } catch (e) { panneau.replaceChildren(h("div", { class: "dzw-tb-err" }, `Modification impossible : ${e.message}`)); return; }
+    const champs = d.champs.filter((c) => !c.lecture_seule && !c.proprietaire);
+    const lignes = h("div", { class: "dzw-tb-sel-lignes" });
+    const ajouter = () => {
+      const choix = h("select", { "aria-label": "Champ à modifier" }, h("option", { value: "" }, "— quel champ ? —"), champs.map((c) => h("option", { value: c.nom }, (S.titres && S.titres[c.nom]) || c.libelle)));
+      const place = h("span", { class: "val" });
+      let ctl = null;
+      choix.addEventListener("change", () => { const c = champs.find((x) => x.nom === choix.value); ctl = c ? controleValeur(c, (S.libelles || {})[c.nom] || (o.libelles && o.libelles[c.nom])) : null; place.replaceChildren(ctl ? ctl.el : ""); });
+      const ligne = h("div", { class: "dzw-tb-sel-ligne" }, choix, h("span", { class: "fl" }, "→"), place, h("button", { type: "button", class: "moins", "aria-label": "Retirer ce changement", onclick: () => ligne.remove() }, "×"));
+      ligne.lire = () => (choix.value && ctl ? [choix.value, ctl.lire()] : null);
+      lignes.appendChild(ligne);
+    };
+    ajouter();
+    const msg = h("div", { class: "dzw-tb-sel-msg" });
+    const go = h("button", { type: "button", class: "ok" }, `Appliquer à ${etat.sel.size}`);
+    go.addEventListener("click", async () => {
+      const changements = [...lignes.children].map((x) => x.lire()).filter((x) => x && x[1] !== undefined);
+      if (!changements.length) { msg.textContent = "Choisissez au moins un champ et sa nouvelle valeur."; return; }
+      const corps = Object.fromEntries(changements);
+      const ids = [...etat.sel];
+      if (!confirm(`Modifier ${ids.length} ligne(s) ?`)) return;
+      go.disabled = true;
+      const erreurs = [];
+      let fait = 0;
+      for (const id of ids) {
+        try { await ecrire(id, corps); fait++; } catch (e) { erreurs.push(`${id} : ${e.message}`); }
+        msg.textContent = `${fait + erreurs.length} / ${ids.length}…`;
+      }
+      msg.textContent = erreurs.length ? `${fait} modifiée(s), ${erreurs.length} refusée(s) : ${erreurs.slice(0, 3).join(" ; ")}${erreurs.length > 3 ? "…" : ""}` : `${fait} ligne(s) modifiée(s).`;
+      go.disabled = false;
+      if (!erreurs.length) { etat.sel.clear(); panneau.remove(); panneau = null; etat.majSel(); }
+      etat.relire("force");
+      window.dispatchEvent(new Event("dz:rafraichir"));
+    });
+    panneau.replaceChildren(h("b", {}, "Nouvelles valeurs pour la sélection"), lignes,
+      h("div", { class: "dzw-tb-sel-act" }, h("button", { type: "button", class: "sec", onclick: ajouter }, "+ un autre changement"), go), msg);
+  };
+  etat.majSel = () => {
+    const n = etat.sel.size;
+    barre.hidden = !n && !panneau;
+    const tete = h("div", { class: "dzw-tb-sel-tete" },
+      h("b", {}, `${n} sélectionné${n > 1 ? "s" : ""}`),
+      etat.total > n ? h("button", { type: "button", class: "lien", onclick: async (e) => {
+        e.target.disabled = true; e.target.textContent = "sélection…";
+        const k = cleSel(o);
+        for (let page = 1; page <= 10; page++) {
+          const d = await charger(o.source, { ...(etat.params || {}), par_page: 200, page });
+          (d.lignes || []).forEach((l) => etat.sel.add(String(l[k])));
+          if (!d.lignes || d.lignes.length < 200) break;
+        }
+        etat.majSel(); etat.relire("force");
+      } }, `Sélectionner les ${NF0.format(etat.total)} résultats`) : null,
+      h("button", { type: "button", class: "ok", onclick: ouvrir }, panneau ? "Fermer" : "Modifier la sélection"),
+      h("button", { type: "button", class: "lien", onclick: () => { etat.sel.clear(); if (panneau) { panneau.remove(); panneau = null; } etat.majSel(); etat.relire("force"); } }, "Tout désélectionner"));
+    if (barre.firstChild && barre.firstChild.classList.contains("dzw-tb-sel-tete")) barre.firstChild.replaceWith(tete); else barre.prepend(tete);
+    if (panneau) { const b = panneau.querySelector(".ok"); if (b) b.textContent = `Appliquer à ${n}`; }
+  };
+  return barre;
+};
+
 const vueListe = (el, d, o, etat) => {
   /* liste groupée : les lignes d'un même groupe se suivent (tri stable, l'ordre de la source est gardé dans chaque groupe) */
   const lignes = o.grouper ? (d.lignes || []).map((l, i) => [l, i]).sort((a, b) => String(a[0][o.grouper] ?? "\uffff").localeCompare(String(b[0][o.grouper] ?? "\uffff"), "fr") || a[1] - b[1]).map((x) => x[0]) : d.lignes || [];
@@ -420,7 +543,7 @@ const vueListe = (el, d, o, etat) => {
   const cols = o.colonnes || (lignes[0] ? Object.keys(lignes[0]).filter((k) => k !== "id").map((k) => ({ champ: k, titre: k })) : []);
   const numeriques = new Set(cols.filter((c) => ["nombre", "euro", "pourcent", "minutes"].includes(c.format)).map((c) => c.champ));
   const table = h("table", { class: "dzw-tb-table" },
-    h("thead", {}, h("tr", {}, cols.map((c) => h("th", {
+    h("thead", {}, h("tr", {}, o.selection ? h("th", { class: "dzw-tb-case" }, caseTout(lignes, o, etat)) : null, cols.map((c) => h("th", {
       "data-tri": c.tri === false || c.bouton ? null : c.champ, class: d.tri === c.champ ? "on" : null, scope: "col",
       onclick: c.tri === false || c.bouton ? null : () => { etat.tri = c.champ; etat.sens = d.tri === c.champ && d.sens === "desc" ? "asc" : "desc"; etat.page = 1; etat.relire("force"); },
     }, c.bouton ? c.titre || "" : c.titre ?? c.champ, !c.bouton && d.tri === c.champ ? (d.sens === "asc" ? " ▲" : " ▼") : "")))),
@@ -434,13 +557,15 @@ const vueListe = (el, d, o, etat) => {
         return h("tr", { class: `dzw-tb-groupe${ferme ? " ferme" : ""}`, tabindex: 0, "aria-expanded": ferme ? "false" : "true",
           onclick: () => { etat.fermes.has(g) ? etat.fermes.delete(g) : etat.fermes.add(g); etat.relire("force"); },
           onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } } },
-          h("td", { colspan: cols.length }, h("span", { class: "chev" }, ferme ? "▸" : "▾"), " ", g === "" ? o.sansGroupe || "(sans)" : libelle(o, g), h("small", {}, ` ${n}`)));
+          h("td", { colspan: cols.length + (o.selection ? 1 : 0) }, h("span", { class: "chev" }, ferme ? "▸" : "▾"), " ", g === "" ? o.sansGroupe || "(sans)" : libelle(o, g), h("small", {}, ` ${n}`),
+            o.selection ? h("button", { type: "button", class: "dzw-tb-sel-groupe", onclick: (e) => { e.stopPropagation(); selectionner(lignes.filter((x) => String(x[o.grouper] ?? "") === g), o, etat); } }, "sélectionner le groupe") : null));
       })() : null;
       if (o.grouper && etat.fermes.has(g)) return entete ? [entete] : [];
       const tr = h("tr", { class: o.attention && vrai(o.attention, l) ? "att" : null, "data-href": href, tabindex: href ? 0 : null, onclick: href ? () => (location.href = href) : null, onkeydown: href ? (e) => { if (e.key === "Enter") location.href = href; } : null },
+        o.selection ? h("td", { class: "dzw-tb-case", onclick: (e) => e.stopPropagation() }, caseLigne(l, o, etat)) : null,
         cols.map((c) => h("td", { class: numeriques.has(c.champ) ? "num" : c.nowrap || c.format === "depuis" || c.format === "dateheure" ? "nw" : null, style: c.largeur ? { minWidth: c.largeur } : null, "data-titre": c.titre || c.champ }, cellule(l[c.champ], c, o, l))));
       return entete ? [entete, tr] : [tr];
-    }) : h("tr", {}, h("td", { colspan: cols.length || 1, class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres."))));
+    }) : h("tr", {}, h("td", { colspan: (cols.length || 1) + (o.selection ? 1 : 0), class: "dzw-tb-vide" }, o.vide || "Aucun résultat avec ces filtres."))));
   /* tout ouvrir / tout fermer quand la liste est groupée */
   const groupes = o.grouper ? [...new Set(lignes.map((x) => String(x[o.grouper] ?? "")))] : [];
   const bascule = groupes.length > 1 ? h("div", { class: "dzw-tb-bascule-groupes" },
@@ -587,7 +712,7 @@ register("tableau", (el) => {
     sur: conf(el, "sur", ""), clic: conf(el, "clic", null), alerte: conf(el, "alerte", true), attention: conf(el, "attention", null), vide: conf(el, "vide", ""),
     tuile: conf(el, "tuile", null), bascule: conf(el, "bascule", null), masquerRefus: conf(el, "masquer-refus", false), lienBarre: conf(el, "lien-barre", ""),
     pourcent: conf(el, "pourcent", false), champHtml: conf(el, "champ-html", ""), champTexte: conf(el, "champ-texte", ""), bouton: conf(el, "bouton", ""),
-    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []), grouper: conf(el, "grouper", ""), boutons: conf(el, "boutons", []), sansGroupe: conf(el, "sans-groupe", ""), replie: conf(el, "replie", false), badges: conf(el, "badges", []), cacherZero: conf(el, "cacher-zero", false), montrer: conf(el, "montrer", null),
+    entete: conf(el, "entete", ""), entetes: conf(el, "entetes", []), grouper: conf(el, "grouper", ""), selection: conf(el, "selection", null), boutons: conf(el, "boutons", []), sansGroupe: conf(el, "sans-groupe", ""), replie: conf(el, "replie", false), badges: conf(el, "badges", []), cacherZero: conf(el, "cacher-zero", false), montrer: conf(el, "montrer", null),
   };
   /* bascule grille / tableau selon un paramètre de l'adresse : { param, vues: { "": "grille", "t": "liste" } } */
   const vueDe = () => (o.bascule ? o.bascule.vues[lireUrl()[o.bascule.param] ?? ""] || o.vue : o.vue);
@@ -639,7 +764,9 @@ register("tableau", (el) => {
   const corps = h("div", {}, h("div", { class: "dzw-tb-sq", style: { height: ["kpi", "titre"].includes(o.vue) ? "44px" : `${o.hauteur || 160}px` } }));
   el.appendChild(corps);
   const ignorer = new Set(String(o.ignorer).split(",").map((s) => s.trim()).filter(Boolean));
-  const etat = { page: 0, tri: "", sens: "", n: 0, fermes: new Set() };
+  const etat = { page: 0, tri: "", sens: "", n: 0, fermes: new Set(), sel: new Set(), majSel: () => {} };
+  /* sélection multiple : barre hors de la liste (elle survit aux actualisations) */
+  if (o.selection && o.selection.table) el.insertBefore(barreSelection(o, etat), corps);
   etat.relire = async (defiler) => {
     if (!visible()) { el.hidden = true; etat.dernier = null; return; }
     const n = ++etat.n;
@@ -655,6 +782,7 @@ register("tableau", (el) => {
     try {
       const [d] = await Promise.all([charger(o.source, p), avecLibelles()]);
       if (n !== etat.n) return;
+      etat.params = p; etat.total = d.total || 0;
       const v = vueDe();
       /* actualisation : rien n'est redessiné si rien n'a changé (pas de clignotement, sélection gardée) */
       const cle = v + "|" + JSON.stringify({ ...d, ms: 0, cache: 0 });

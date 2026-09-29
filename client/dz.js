@@ -1035,7 +1035,24 @@
     try { navActif(); navNiveaux(); } catch (e) { if (window.console) console.warn("[dysizz-ui] menu", e); }
     window.addEventListener("dz:filtres", function () { try { navActif(); } catch (e) { /* pas bloquant */ } });
     window.addEventListener("popstate", function () { try { navActif(); } catch (e) { /* pas bloquant */ } });
-    if (inBuilder) { initThemeToggle(doc); $all("[data-dz-widget]").forEach(function (el) { if (!el.children.length) el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> Bloc interactif « ' + el.getAttribute("data-dz-widget") + ' » (visible sur la page publiée)</div>'; }); return; }
+    if (inBuilder) {
+      initThemeToggle(doc);
+      /* dans l'éditeur de pages : chaque bloc dit ce qu'il montre (vue, titre, source, table), pour s'y retrouver */
+      var VUES = { kpi: "chiffre clé", courbe: "courbe", barres: "barres", anneau: "anneau", liste: "liste", fiche: "fiche", grille: "grille", titre: "titre", note: "note", filtres: "filtres / onglets", document: "document" };
+      var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+      var etiqueter = function () { $all("[data-dz-widget]").forEach(function (el) {
+        if (el.children.length) return;
+        var w = el.getAttribute("data-dz-widget"), a = function (k) { return el.getAttribute("data-" + k) || ""; };
+        var genre = w === "tableau" ? "Tableau · " + (VUES[a("vue") || "kpi"] || a("vue")) : w === "fiche" ? "Formulaire (fiche)" : "Bloc « " + w + " »";
+        var titre = a("titre") || a("titre-nouveau") || a("entete");
+        var infos = [a("source") && "source " + a("source"), a("table") && "table " + a("table"), a("montrer") && "onglet(s) " + (function () { try { return JSON.parse(a("montrer")).valeurs.join(", ") || "par défaut"; } catch (e) { return "?"; } })()].filter(Boolean).join(" · ");
+        el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> <b>' + esc(genre) + "</b>" + (titre ? " — « " + esc(titre) + " »" : "") + (infos ? '<br><small style="opacity:.7">' + esc(infos) + "</small>" : "") + '<br><small style="opacity:.55">Réglages : clic sur le bloc → Code HTML (attributs data-…). Visible en vrai sur la page publiée.</small></div>';
+      }); };
+      etiqueter();
+      /* l'éditeur dessine ses blocs après le chargement (et à chaque modification) : on étiquette au fur et à mesure */
+      if ("MutationObserver" in window) { var tb = null; new MutationObserver(function () { clearTimeout(tb); tb = setTimeout(etiqueter, 80); }).observe(doc.body, { childList: true, subtree: true }); }
+      return;
+    }
     loadFamilies();
     pageFlags();
     try { initTransitions(); } catch (e) { if (window.console) console.warn("[dysizz-ui] transitions", e); }
