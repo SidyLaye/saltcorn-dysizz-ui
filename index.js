@@ -1,4 +1,4 @@
-/* dysizz-ui 3.14.0 — FICHIER GÉNÉRÉ par tools/build.mjs depuis src/, styles/, client/ et blocks/. Ne pas modifier à la main. */
+/* dysizz-ui 3.14.1 — FICHIER GÉNÉRÉ par tools/build.mjs depuis src/, styles/, client/ et blocks/. Ne pas modifier à la main. */
 "use strict";
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __commonJS = (cb, mod) => function __require() {
@@ -10,7 +10,7 @@ var require_core = __commonJS({
   "../src/core.js"(exports2, module2) {
     "use strict";
     var PLUGIN2 = "dysizz-ui";
-    var VERSION = true ? "3.14.0" : "dev";
+    var VERSION = true ? "3.14.1" : "dev";
     var pub = (file) => `/dysizz-ui/a/${VERSION}/${file}`;
     var isAdmin = (req) => !!(req.user && req.user.role_id === 1);
     var esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
@@ -3117,11 +3117,12 @@ var require_maintenance = __commonJS({
         if (res.headersSent) return;
         try {
           res.status(503);
-          res.sendWrap({ title: c.titre, bodyClass: "page_" + PAGE }, html);
+          res.sendWrap({ title: c.titre, bodyClass: "page_" + PAGE, no_menu: true }, html);
         } catch (e) {
         }
       });
     };
+    var SANS_MENU = "nav.navbar,#mainNav,#accordionSidebar,.sidebar,.navbar-brand{display:none!important}#wrapper #content-wrapper,body{margin-left:0!important;padding-top:0!important}";
     var vue = {
       name: "DZ Maintenance",
       description: "Page de maintenance : titre, message et heure de retour pr\xE9vue (r\xE9gl\xE9s dans dysizz-ui \u2192 Maintenance). Se recharge toute seule quand la maintenance est finie.",
@@ -3143,8 +3144,10 @@ var require_maintenance = __commonJS({
 ${fin ? `<p class="dz-maintenance-fin">Retour pr\xE9vu : <b>${esc(finLisible(c.fin))}</b><span class="dz-maintenance-rebours"></span></p>` : ""}
 <p class="dz-maintenance-note">Cette page se recharge toute seule d\xE8s que le site est de nouveau disponible.</p>
 <p class="dz-maintenance-admin"><a href="/auth/login">Connexion administrateur</a></p></div></div>`;
-        envoyerSurVue(extra, c, html);
-        return html;
+        const admin = extra.req && extra.req.user && extra.req.user.role_id === 1;
+        const out = admin ? html : `<style>${SANS_MENU}</style>` + html;
+        envoyerSurVue(extra, c, out);
+        return out;
       }
     };
     var assurerPage = async () => {
@@ -3162,6 +3165,7 @@ ${fin ? `<p class="dz-maintenance-fin">Retour pr\xE9vu : <b>${esc(finLisible(c.f
           description: "Page montr\xE9e pendant la maintenance (dysizz-ui)",
           min_role: 100,
           fixed_states: {},
+          attributes: { no_menu: true },
           layout: { type: "container", customClass: "dz-ecran", contents: { type: "view", view: VUE, name: "dzmaintenance", state: "shared" } }
         });
         await st.refresh_pages();
@@ -3203,7 +3207,7 @@ ${fin ? `<p class="dz-maintenance-fin">Retour pr\xE9vu : <b>${esc(finLisible(c.f
       const retour = String(b.retour || "/");
       return res.redirect(/^\/(?![\/\\])/.test(retour) ? retour : "/");
     };
-    module2.exports = { PAGE, VUE, vue, envoyerSurVue, lireCfg, dateFin, finLisible, assurerPage, appliquer, etat, basculer };
+    module2.exports = { PAGE, VUE, SANS_MENU, vue, envoyerSurVue, lireCfg, dateFin, finLisible, assurerPage, appliquer, etat, basculer };
   }
 });
 

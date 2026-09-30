@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.14.1
+
+### Corrigé
+- Page de maintenance : le menu n'est plus visible pour les utilisateurs hors administrateur, quelle que soit l'adresse
+  ouverte (`/`, `/page/…`, `/view/…`). La page `maintenance` est créée avec l'option « pas de menu ».
+
 ## 3.14.0
 
 ### Ajouté
