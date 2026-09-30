@@ -58,3 +58,17 @@ html.dz-builder .builder-library .card { max-height: 62vh; overflow-y: auto; pad
 #sidebar a.dz-nav-admin,nav.navbar a.dz-nav-admin,.dz-nav-admin{color:#b45309!important}
 html:not(.dz-skin) .navbar-dark a.dz-nav-admin,[data-bs-theme="dark"] #sidebar a.dz-nav-admin,[data-bs-theme="dark"] nav.navbar a.dz-nav-admin{color:#fbbf24!important}
 .dz-nav-admin i{color:inherit!important}
+
+/* Mode maintenance (src/maintenance.js) : page montrée aux utilisateurs, bandeau de l'administrateur */
+.dz-maintenance{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
+.dz-maintenance-carte{max-width:36rem;width:100%;text-align:center;background:var(--dz-surface,#fff);color:var(--dz-text,#111);border:1px solid var(--dz-border,#e5e7eb);border-radius:var(--dz-radius-lg,16px);box-shadow:var(--dz-shadow,0 8px 30px rgba(0,0,0,.08));padding:2.5rem 1.5rem}
+.dz-maintenance-ic{width:4rem;height:4rem;margin:0 auto 1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:var(--dz-primary-soft,#eef2ff);color:var(--dz-primary,#4f46e5)}
+.dz-maintenance-carte h1{font-size:var(--dz-fs-h2,1.6rem);margin:0 0 .75rem}
+.dz-maintenance-carte p{color:var(--dz-text-soft,#555);margin:0 0 .75rem;overflow-wrap:anywhere}
+.dz-maintenance-fin b{color:var(--dz-text,#111)}
+.dz-maintenance-rebours{display:block;margin-top:.35rem;font-variant-numeric:tabular-nums;font-weight:600;color:var(--dz-primary,#4f46e5)}
+.dz-maintenance-note{font-size:var(--dz-fs-sm,.875rem)}
+.dz-maintenance-admin{font-size:var(--dz-fs-xs,.8rem);margin:1.25rem 0 0!important}
+.dz-maintenance-admin a{color:var(--dz-text-mute,#888)}
+.dz-maintenance-bandeau{position:relative;z-index:1040;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.25rem .75rem;padding:.35rem 1rem;background:var(--dz-danger,#ef4444);color:#fff;font-size:var(--dz-fs-sm,.875rem);line-height:1.35;text-align:center}
+.dz-maintenance-bandeau button{border:0;border-radius:var(--dz-radius-pill,999px);background:#fff;color:#b91c1c;font-weight:600;font-size:.8rem;padding:.15rem .75rem;cursor:pointer}

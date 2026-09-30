@@ -92,6 +92,36 @@ Cases à cocher, « sélectionner le groupe », « Sélectionner les N résultat
 - `data-membres='{"table":"equipe","champ":"groupe","titre":"Qui est dans ce groupe ?","libelle":"nom","grouper":"agence_nom"}'` : dans la fiche d'un groupe, on coche ses membres (les autres lignes de `equipe` dont `groupe` vaut ce groupe).
 - `data-multiples='{"personnes":{"table":"equipe","libelle":"nom","grouper":"agence_nom","si":{"role":"negociateur"}}}'` : le champ texte `personnes` (numéros "3,7,9") devient une liste à cocher.
 
-## 7. Éditeur de pages
+## 7. Éditeur de pages : blocs « DZ Écran »
 
-Une page faite en HTML se convertit en éléments natifs du builder avec `tools/html2layout.py` : titres et textes deviennent des éléments Texte, les grilles des conteneurs, et chaque bloc interactif un élément à part. Dans l'éditeur, chaque bloc dit ce qu'il montre ; ses réglages sont dans son code HTML (attributs `data-…`).
+Un bloc « tableau » ou « fiche » se pose dans l'éditeur de page comme une vraie vue Saltcorn, **sans HTML** :
+
+1. Composant **View**, vue `dz_ecran`, **State : Fixed**.
+2. Colonne de droite, « View state fields » : type de bloc, source, présentation, titre, colonnes (JSON)…
+   Chaque attribut `data-…` des exemples ci-dessus est un champ (`data-titre-nouveau` → « Titre d'une nouvelle fiche ») ;
+   les attributs rares vont dans « Autres réglages (JSON) », ex. `{"clic":"…","selection":"1"}`.
+3. Enregistrer : la page publiée affiche le bloc ; dans l'éditeur, un aperçu dit ce qu'il montre.
+
+Une seule vue `dz_ecran` sert à tous les blocs ; elle repose sur la table `dz_ecran_reglages`, **vide**, qui ne sert
+qu'à déclarer les réglages (Saltcorn ne garde que les champs de la table de la vue). Ne pas la remplir ni la supprimer.
+Le message « invalid relation » de l'éditeur est normal : le bloc n'a pas besoin de relation.
+
+Pages anciennes :
+- Page Santé → « Blocs de page modifiables dans l'éditeur » convertit les blocs HTML `<div data-dz-widget=…>` en blocs
+  « DZ Écran » (mêmes réglages, même affichage). Un bloc HTML qui contient autre chose (texte, style) reste tel quel.
+- Elle retire aussi les « Preset … » enregistrés par l'éditeur avant dysizz-ui 3.14 (ils remplaçaient les réglages par l'IP).
+- `tools/html2layout.py` produit directement des blocs « DZ Écran » pour une page écrite en HTML.
+
+## 8. Maintenance (réglages du plugin → étape « Maintenance »)
+
+- Cocher « Site en maintenance » et enregistrer : tout le monde voit la page `maintenance` (vue « DZ Maintenance »),
+  **sauf l'administrateur** (rôle 1), qui voit le site normal avec un bandeau rouge et un bouton « Couper la maintenance ».
+- Titre, message et « Retour prévu » (heure de Paris, `2026-10-01 18:30`) : la page affiche un compte à rebours et se
+  recharge toute seule quand la maintenance est coupée (vérifie toutes les 30 s).
+- S'appuie sur le mode maintenance de Saltcorn (`maintenance_mode_enabled`, `maintenance_mode_page`) : pages, vues,
+  API, fichiers, recherche et menu sont fermés aux non-admins. Les routes des plugins restent ouvertes, mais gardent
+  leurs propres droits.
+- La page `maintenance` et la vue `dz_maintenance` sont créées à la première activation ; on peut modifier la page dans
+  l'éditeur (ajouter un logo, un texte).
+- Saltcorn 1.6.2 n'envoie pas la page de maintenance sur une adresse `/view/…` (le navigateur attend sans fin) :
+  la vue « DZ Maintenance » l'envoie elle-même (code 503).

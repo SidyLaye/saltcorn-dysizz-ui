@@ -10,6 +10,8 @@ src/                ← code serveur du plugin (CommonJS)
   headers.js          ce qui est injecté dans chaque page
   assets.js           fichiers servis depuis la mémoire (brotli/gzip, ETag, cache 1 an)
   pluginCfg.js        lecture / écriture de la config du plugin (+ synchro multi-nœud)
+  maintenance.js      mode maintenance (vue « DZ Maintenance », page, bandeau admin)
+  views/ecran.js      vue « DZ Écran » : blocs tableau / fiche réglables dans l'éditeur de page
   admin/              pages /dysizz-ui : accueil, atelier, classes, transitions
 styles/             ← CSS source : 00-29 = cœur (chargé partout), 30+ = familles
 client/             ← JS navigateur : dz.js (moteur), smooth.js (Lenis), editor-*.js

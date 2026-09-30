@@ -16,6 +16,8 @@ const headers = (rawCfg) => {
   if (P.mono) fams.push(MONO);
   if (P.accent) fams.push(P.accent);
   const out = [];
+  /* maintenance active : le bandeau de l'administrateur (client/dz.js) sait qu'il doit regarder */
+  if (rawCfg && (rawCfg.maintenance === true || rawCfg.maintenance === "on")) out.push({ headerTag: '<meta name="dz-maintenance" content="1">' });
   if (fams.length)
     out.push({
       headerTag:
