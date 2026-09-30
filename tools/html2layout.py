@@ -239,9 +239,38 @@ def pack(segs):
     return segs[0] if len(segs) == 1 else {"above": segs}
 
 
+# réglages connus de la vue « DZ Écran » (src/views/ecran.js) ; le reste va dans « autres » (JSON)
+DZ_ECRAN = {"source", "vue", "titre", "sous", "colonnes", "libelles", "champs", "montrer", "lien", "params", "mesure", "vide",
+            "rafraichir", "attention", "niveau", "table", "titre_nouveau", "apres", "aides", "supprimer"}
+_dz_n = [0]
+
+
+def dz_vue(n):
+    """<div data-dz-widget=…> → bloc de la vue « dz_ecran », réglable dans l'éditeur (état fixe)"""
+    import json as _json
+    cfg, autres = {"widget": n.attrs.get("data-dz-widget") or "tableau"}, {}
+    for k, v in n.attrs.items():
+        if not k.startswith("data-") or k == "data-dz-widget":
+            continue
+        cle = k[5:].replace("-", "_")
+        if cle in DZ_ECRAN:
+            cfg[cle] = v
+        else:
+            try:
+                autres[k[5:]] = _json.loads(v) if v[:1] in "[{" else v
+            except ValueError:
+                autres[k[5:]] = v
+    if autres:
+        cfg["autres"] = _json.dumps(autres, ensure_ascii=False)
+    _dz_n[0] += 1
+    return {"type": "view", "view": "dz_ecran", "name": "dz%05d" % _dz_n[0], "state": "fixed", "configuration": cfg}
+
+
 def conv(n):
     if isinstance(n, str):
         return txt(n) if n.strip() else None
+    if n.tag == "div" and n.attrs.get("data-dz-widget") in ("tableau", "fiche") and not [c for c in n.children if not (isinstance(c, str) and not c.strip())]:
+        return dz_vue(n)
     if n.tag in RAW_TAGS:
         return raw(n)
     if n.tag in ("br", "wbr", "hr") and not n.attrs:

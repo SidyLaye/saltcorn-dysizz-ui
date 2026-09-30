@@ -160,6 +160,20 @@ const VERIFS = [
     },
   },
   {
+    id: "blocs_html", gravite: "important", titre: "Blocs de page modifiables dans l'éditeur",
+    pourquoi: "Un bloc écrit en HTML (&lt;div data-dz-widget=…&gt;) n'apparaît dans l'éditeur de page que comme du code : impossible de le régler sans toucher au HTML. Converti en vue « DZ Écran », il devient un bloc qu'on voit, déplace et règle dans la colonne de droite.",
+    verifier: async () => {
+      const E = require("../views/ecran");
+      const l = (await pagesAvecBlocsHTML()).map((x) => `<b>${esc(x.page.name)}</b> : ` + [x.n ? `${x.n} bloc(s) en HTML` : "", x.k ? `${x.k} bloc(s) aux réglages remplacés par « Preset »` : ""].filter(Boolean).join(", "));
+      return l.length ? { etat: "ko", dit: `${l.length} page(s) à reprendre :` + liste(l, 40) } : { etat: "ok", dit: `Tous les blocs d'écran sont des vues « ${E.NOM_VUE} » modifiables dans l'éditeur.` };
+    },
+    correction: {
+      quoi: async () => { const p = await pagesAvecBlocsHTML(); let k = 0; let j = 0; for (const x of p) { k += x.n; j += x.k; } return `La vue « dz_ecran » est créée si elle manque, puis <b>${k}</b> bloc(s) HTML deviennent des blocs « DZ Écran » avec exactement les mêmes réglages` + (j ? `, et <b>${j}</b> bloc(s) « DZ Écran » perdent les « Preset … » (IP) enregistrés par l'éditeur` : "") + `, dans :` + liste(p.map((x) => esc(x.page.name)), 40); },
+      attention: "L'affichage ne change pas. Un bloc HTML qui contient autre chose qu'un widget (texte, style) reste tel quel. Fais une sauvegarde avant.",
+      appliquer: async () => { const E = require("../views/ecran"); await E.assurerVue(); const Page = require("@saltcorn/data/models/page"); for (const x of await pagesAvecBlocsHTML()) { const { layout, convertis, nettoyes } = E.convertirLayout(x.page.layout); if (convertis || nettoyes) await Page.update(x.page.id, { layout }); } try { await state().refresh_pages(); } catch (e) { /* rien */ } },
+    },
+  },
+  {
     id: "transactions", gravite: "critique", titre: "Transactions de la base de données",
     pourquoi: "Une transaction garantit « tout ou rien » : si une étape échoue, rien n'est à moitié écrit. Si elles ne marchent pas, un paiement, un stock ou un compteur peut rester incohérent sans message d'erreur.",
     verifier: async (req) => {
@@ -251,6 +265,15 @@ const VERIFS = [
 ];
 
 /* ---------- exécution ---------- */
+/* pages dont des blocs d'écran sont encore écrits en HTML (convertibles) */
+const pagesAvecBlocsHTML = async () => {
+  const Page = require("@saltcorn/data/models/page");
+  const E = require("../views/ecran");
+  const out = [];
+  for (const page of await Page.find({})) { const c = E.convertirLayout(page.layout); if (c.convertis || c.nettoyes) out.push({ page, n: c.convertis, k: c.nettoyes }); }
+  return out;
+};
+
 const evaluer = async (req) => {
   const racine = estRacine();
   const out = [];

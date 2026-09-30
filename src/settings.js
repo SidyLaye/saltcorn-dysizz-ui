@@ -209,6 +209,20 @@ const configuration_workflow = () =>
             ],
           }),
       },
+      {
+        name: "Maintenance",
+        form: async () =>
+          new Form({
+            blurb: "Pendant la maintenance, tout le monde voit la page « maintenance » sauf l'administrateur, qui continue de tout voir et de tester. Appliqué dès l'enregistrement.",
+            fields: [
+              { name: "maintenance", label: "Site en maintenance", type: "Bool", default: false,
+                sublabel: "Coché : les utilisateurs voient la page de maintenance ; l'administrateur voit un bandeau rouge avec un bouton pour la couper." },
+              { name: "maintenance_titre", label: "Titre", type: "String", default: "Site en maintenance" },
+              { name: "maintenance_message", label: "Message", type: "String", fieldview: "textarea", default: "Nous améliorons le service. Merci de revenir un peu plus tard." },
+              { name: "maintenance_fin", label: "Retour prévu (heure de Paris)", type: "String", sublabel: "Ex. : 2026-10-01 18:30. Vide : pas d'heure affichée." },
+            ],
+          }),
+      },
     ],
   });
 

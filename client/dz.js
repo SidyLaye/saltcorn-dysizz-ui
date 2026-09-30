@@ -1046,7 +1046,8 @@
         var genre = w === "tableau" ? "Tableau · " + (VUES[a("vue") || "kpi"] || a("vue")) : w === "fiche" ? "Formulaire (fiche)" : "Bloc « " + w + " »";
         var titre = a("titre") || a("titre-nouveau") || a("entete");
         var infos = [a("source") && "source " + a("source"), a("table") && "table " + a("table"), a("montrer") && "onglet(s) " + (function () { try { return JSON.parse(a("montrer")).valeurs.join(", ") || "par défaut"; } catch (e) { return "?"; } })()].filter(Boolean).join(" · ");
-        el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> <b>' + esc(genre) + "</b>" + (titre ? " — « " + esc(titre) + " »" : "") + (infos ? '<br><small style="opacity:.7">' + esc(infos) + "</small>" : "") + '<br><small style="opacity:.55">Réglages : clic sur le bloc → Code HTML (attributs data-…). Visible en vrai sur la page publiée.</small></div>';
+        var enVue = el.getAttribute("data-dz-bloc") === "vue";
+        el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> <b>' + esc(genre) + "</b>" + (titre ? " — « " + esc(titre) + " »" : "") + (infos ? '<br><small style="opacity:.7">' + esc(infos) + "</small>" : "") + '<br><small style="opacity:.55">' + (enVue ? "Réglages : clic sur le bloc → colonne de droite (type, source, colonnes…)." : w === "tableau" || w === "fiche" ? "Bloc écrit en HTML : page Santé → « Blocs de page modifiables » pour le rendre réglable ici." : "Réglages : attributs data-… du bloc HTML.") + " Visible en vrai sur la page publiée.</small></div>";
       }); };
       etiqueter();
       /* l'éditeur dessine ses blocs après le chargement (et à chaque modification) : on étiquette au fur et à mesure */
@@ -1092,6 +1093,44 @@
       mo.observe(doc.body, { childList: true, subtree: true });
     }
   }
-  if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start);
-  else start();
+  /* Mode maintenance : compte à rebours et rechargement de la page de maintenance quand elle est finie ;
+     pour l'administrateur, un bandeau tant que la maintenance est active (avec un bouton pour la couper). */
+  function initMaintenance() {
+    var page = doc.querySelector("[data-dz-maintenance]");
+    var meta = doc.querySelector('meta[name="dz-maintenance"]');
+    if (!page && !meta) return;
+    var etat = function (f) { fetch("/dysizz/maintenance/etat", { credentials: "same-origin", headers: { Accept: "application/json" } }).then(function (r) { return r.json(); }).then(f).catch(function () {}); };
+    if (page) {
+      var fin = page.getAttribute("data-fin"), rebours = page.querySelector(".dz-maintenance-rebours");
+      if (fin && rebours) {
+        var tick = function () {
+          var s = Math.round((new Date(fin) - new Date()) / 1000);
+          if (s <= 0) { rebours.textContent = " — d'un instant à l'autre"; return; }
+          var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+          rebours.textContent = " — dans " + (h ? h + " h " : "") + (h || m ? m + " min" : s + " s");
+        };
+        tick(); setInterval(tick, 20000);
+      }
+      /* toutes les 30 s : la maintenance est finie → on recharge la page demandée */
+      setInterval(function () { etat(function (e) { if (e && !e.active) location.reload(); }); }, 30000);
+      return;
+    }
+    etat(function (e) {
+      if (!e || !e.active || !e.admin || doc.querySelector(".dz-maintenance-bandeau")) return;
+      var b = doc.createElement("div");
+      b.className = "dz-maintenance-bandeau";
+      b.innerHTML = '<span><i class="fas fa-tools"></i> <b>Maintenance en cours.</b> Les utilisateurs voient la page de maintenance ; vous seul voyez le site.</span>';
+      var bt = doc.createElement("button"); bt.type = "button"; bt.textContent = "Couper la maintenance";
+      bt.addEventListener("click", function () {
+        if (!confirm("Couper la maintenance ? Les utilisateurs retrouvent le site tout de suite.")) return;
+        var csrf = (doc.querySelector('input[name="_csrf"]') || {}).value || window._sc_globalCsrf || "";
+        fetch("/dysizz/maintenance", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json", "CSRF-Token": csrf }, body: JSON.stringify({ active: false, _csrf: csrf }) })
+          .then(function (r) { if (r.ok) location.reload(); else alert("Impossible de couper la maintenance ici : Réglages de dysizz-ui → Maintenance."); });
+      });
+      b.appendChild(bt);
+      doc.body.insertBefore(b, doc.body.firstChild);
+    });
+  }
+  if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", function () { start(); initMaintenance(); });
+  else { start(); initMaintenance(); }
 })();

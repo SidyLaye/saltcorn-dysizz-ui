@@ -2,6 +2,22 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.14.0
+
+### Ajouté
+- Vue **« DZ Écran »** (`dz_ecran`) : les blocs « tableau » et « fiche » se posent et se règlent dans l'éditeur de page
+  (composant View, état fixe, réglages dans la colonne de droite), sans HTML. Rendu identique au `<div data-dz-widget>`.
+- Page Santé, « Blocs de page modifiables dans l'éditeur » : convertit les blocs HTML des pages en blocs « DZ Écran »
+  (aperçu, puis clic), et retire les « Preset … » enregistrés par l'éditeur.
+- `tools/html2layout.py` : un widget vide devient un bloc « DZ Écran ».
+- **Mode maintenance** (réglages → étape « Maintenance ») : page `maintenance` pour tous sauf l'administrateur, titre,
+  message, heure de retour avec compte à rebours, rechargement automatique à la fin ; bandeau de l'administrateur avec
+  bouton « Couper la maintenance ». Routes `GET /dysizz/maintenance/etat` et `POST /dysizz/maintenance` (admin).
+
+### Corrigé
+- Saltcorn 1.6.2 : pendant la maintenance, une adresse `/view/…` ne répondait jamais ; la page de maintenance est envoyée (503).
+- Éditeur de page : l'aperçu d'un bloc dit où le régler (vue « DZ Écran » ou page Santé pour un bloc HTML).
+
 ## 3.13.1
 
 - Contrôle visuel (`tools/preview.mjs`) : une iframe vers un site externe (vidéo, carte) n'est plus jamais chargée (règle CSP de la page de contrôle, et page vide pour toute requête de document externe) ; les scripts de YouTube ne remontent plus comme erreurs du bloc (« Site · vidéo » échouait selon le réseau de la CI).

@@ -20,6 +20,7 @@ const sources = require("./admin/sources");
 const navigation = require("./navigation");
 const fiche = require("./fiche");
 const { cfgOf } = require("./settings");
+const maintenance = require("./maintenance");
 
 const onLoad = async (configuration) => {
   try {
@@ -28,6 +29,8 @@ const onLoad = async (configuration) => {
     if (st && st.assets_by_role && typeof st.computeAssetsByRole === "function") await st.computeAssetsByRole();
     /* navigation réglée dans la configuration : entrée « Accueil », forme du menu */
     await navigation.appliquer(cfgOf(configuration || {}));
+    /* mode maintenance réglé dans la configuration (étape « Maintenance ») */
+    await maintenance.appliquer(configuration || {});
   } catch (e) {
     /* pas bloquant */
   }
@@ -42,7 +45,7 @@ module.exports = {
   /* affichages de champs : corps d'e-mail sûr et lisible */
   fieldviews: () => ({ dz_mail, ...WIDGET_FIELDVIEWS }),
   /* vues de données, utilisables dans tous les tenants (Vues → Créer) */
-  viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir"), require("./views/graphique"), require("./views/calendrier"), require("./views/journal"), require("./views/statut"), require("./views/disponibilite")],
+  viewtemplates: () => [require("./views/indicateurs"), require("./views/tableau"), require("./views/repartition"), require("./views/avenir"), require("./views/graphique"), require("./views/calendrier"), require("./views/journal"), require("./views/statut"), require("./views/disponibilite"), require("./views/ecran"), maintenance.vue],
   routes: () => [
     /* l'accueil façon Windows 8 : toutes les applis, outils Dysizz et l'admin Saltcorn */
     { url: "/dysizz", method: "get", callback: hub.hubPage },
@@ -52,6 +55,9 @@ module.exports = {
     { url: "/dysizz/sante/corriger", method: "post", callback: corriger },
     /* sources de données : chiffres, courbes et listes calculés par la base */
     { url: "/dysizz/donnees/:nom", method: "get", callback: donnees.route },
+    /* maintenance : état (page de maintenance, bandeau de l'admin) et bascule par l'administrateur */
+    { url: "/dysizz/maintenance/etat", method: "get", callback: maintenance.etat },
+    { url: "/dysizz/maintenance", method: "post", callback: maintenance.basculer },
     /* navigation : entrées du menu réservées à l'administrateur (code couleur) */
     { url: "/dysizz/nav-niveaux", method: "get", callback: navigation.niveaux },
     /* bloc « fiche » : description des champs d'une table et valeurs d'une ligne (écriture par l'API Saltcorn) */

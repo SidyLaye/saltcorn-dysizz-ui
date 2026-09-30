@@ -5,6 +5,19 @@ from html2layout import html2layout
 
 
 class T(unittest.TestCase):
+    def test_widget_devient_vue_reglable(self):
+        s = html2layout('<div data-dz-widget="tableau" data-source="leads" data-vue="liste" data-colonnes=\'[{"champ":"nom"}]\' data-clic="x"></div>')
+        self.assertEqual(s["type"], "view")
+        self.assertEqual(s["view"], "dz_ecran")
+        self.assertEqual(s["state"], "fixed")
+        self.assertEqual(s["configuration"]["source"], "leads")
+        self.assertEqual(s["configuration"]["colonnes"], '[{"champ":"nom"}]')
+        self.assertEqual(s["configuration"]["autres"], '{"clic": "x"}')
+
+    def test_autre_widget_reste_html(self):
+        s = html2layout('<div data-dz-widget="morpion"></div>')
+        self.assertNotEqual(s.get("view"), "dz_ecran")
+
     def test_heading(self):
         s = html2layout('<h2 class="dz-h2">Titre</h2>')
         self.assertEqual(s, {"type": "blank", "contents": "Titre", "customClass": "dz-h2", "textStyle": "h2"})
