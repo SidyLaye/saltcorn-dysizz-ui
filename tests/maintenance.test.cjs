@@ -52,10 +52,13 @@ const rep = () => { const r = { code: 200, h: {} }; r.status = (c) => ((r.code =
 
   /* /view/<nom> pendant la maintenance (Saltcorn 1.6.2 n'envoie rien) : la vue envoie la page, en 503 */
   const envoi = (url, user, deja = false) => new Promise((ok) => {
-    const res = { headersSent: deja, sent: null, code: 200, status(c) { this.code = c; return this; }, sendWrap(o, h) { this.sent = h; } };
+    const res = { headersSent: deja, sent: null, code: 200, status(c) { this.code = c; return this; }, sendWrap(o, h) { this.sent = h; this.opts = o; } };
     M.vue.run(null, "dz_maintenance", {}, {}, { req: { originalUrl: url, user }, res }).then(() => setImmediate(() => ok(res)));
   });
   let e = await envoi("/view/liste", null); assert.strictEqual(e.code, 503); assert.match(e.sent, /data-dz-maintenance/);
+  assert.strictEqual(e.opts.no_menu, true, "pas de menu sur /view/"); assert.ok(e.sent.includes(M.SANS_MENU), "menu caché hors admin");
+  /* page vue par l'administrateur (aperçu) : le menu reste */
+  assert.ok(!(await M.vue.run(null, "dz_maintenance", {}, {}, { req: { originalUrl: "/page/maintenance", user: { role_id: 1 } } })).includes(M.SANS_MENU));
   e = await envoi("/page/accueil", null); assert.strictEqual(e.sent, null, "route /page : Saltcorn envoie lui-même");
   e = await envoi("/view/liste", { role_id: 1 }); assert.strictEqual(e.sent, null, "admin : rien");
   e = await envoi("/view/liste", null, true); assert.strictEqual(e.sent, null, "déjà répondu : rien");

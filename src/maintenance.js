@@ -43,9 +43,12 @@ const envoyerSurVue = ({ req, res } = {}, c, html) => {
   if (!st.getConfig("maintenance_mode_enabled", false) || (req.user && req.user.role_id <= 1)) return;
   setImmediate(() => {
     if (res.headersSent) return;
-    try { res.status(503); res.sendWrap({ title: c.titre, bodyClass: "page_" + PAGE }, html); } catch (e) { /* rien */ }
+    try { res.status(503); res.sendWrap({ title: c.titre, bodyClass: "page_" + PAGE, no_menu: true }, html); } catch (e) { /* rien */ }
   });
 };
+
+/* menu, marque et menu latéral des thèmes Saltcorn : cachés sur la page de maintenance */
+const SANS_MENU = "nav.navbar,#mainNav,#accordionSidebar,.sidebar,.navbar-brand{display:none!important}#wrapper #content-wrapper,body{margin-left:0!important;padding-top:0!important}";
 
 /* Vue « DZ Maintenance » : ce que voient les utilisateurs pendant la maintenance */
 const vue = {
@@ -69,8 +72,11 @@ const vue = {
 ${fin ? `<p class="dz-maintenance-fin">Retour prévu : <b>${esc(finLisible(c.fin))}</b><span class="dz-maintenance-rebours"></span></p>` : ""}
 <p class="dz-maintenance-note">Cette page se recharge toute seule dès que le site est de nouveau disponible.</p>
 <p class="dz-maintenance-admin"><a href="/auth/login">Connexion administrateur</a></p></div></div>`;
-    envoyerSurVue(extra, c, html);
-    return html;
+    /* hors administrateur : pas de menu, quelle que soit l'adresse ouverte (/, /page/…, /view/…) */
+    const admin = extra.req && extra.req.user && extra.req.user.role_id === 1;
+    const out = admin ? html : `<style>${SANS_MENU}</style>` + html;
+    envoyerSurVue(extra, c, out);
+    return out;
   },
 };
 
@@ -84,7 +90,7 @@ const assurerPage = async () => {
     await st.refresh_views();
   }
   if (!Page.findOne({ name: PAGE }) && !(await db.selectMaybeOne("_sc_pages", { name: PAGE }))) {
-    await Page.create({ name: PAGE, title: "Maintenance", description: "Page montrée pendant la maintenance (dysizz-ui)", min_role: 100, fixed_states: {},
+    await Page.create({ name: PAGE, title: "Maintenance", description: "Page montrée pendant la maintenance (dysizz-ui)", min_role: 100, fixed_states: {}, attributes: { no_menu: true },
       layout: { type: "container", customClass: "dz-ecran", contents: { type: "view", view: VUE, name: "dzmaintenance", state: "shared" } } });
     await st.refresh_pages();
   }
@@ -129,4 +135,4 @@ const basculer = async (req, res) => {
   return res.redirect(/^\/(?![\/\\])/.test(retour) ? retour : "/");
 };
 
-module.exports = { PAGE, VUE, vue, envoyerSurVue, lireCfg, dateFin, finLisible, assurerPage, appliquer, etat, basculer };
+module.exports = { PAGE, VUE, SANS_MENU, vue, envoyerSurVue, lireCfg, dateFin, finLisible, assurerPage, appliquer, etat, basculer };
