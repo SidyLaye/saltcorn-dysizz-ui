@@ -1041,12 +1041,22 @@
       var VUES = { kpi: "chiffre clé", courbe: "courbe", barres: "barres", anneau: "anneau", liste: "liste", fiche: "fiche", grille: "grille", titre: "titre", note: "note", filtres: "filtres / onglets", document: "document" };
       var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
       var etiqueter = function () { $all("[data-dz-widget]").forEach(function (el) {
-        if (el.children.length) return;
+        if (el.children.length || (el.closest && el.closest(".dz-apercu"))) return;
         var w = el.getAttribute("data-dz-widget"), a = function (k) { return el.getAttribute("data-" + k) || ""; };
         var genre = w === "tableau" ? "Tableau · " + (VUES[a("vue") || "kpi"] || a("vue")) : w === "fiche" ? "Formulaire (fiche)" : "Bloc « " + w + " »";
         var titre = a("titre") || a("titre-nouveau") || a("entete");
         var infos = [a("source") && "source " + a("source"), a("table") && "table " + a("table"), a("montrer") && "onglet(s) " + (function () { try { return JSON.parse(a("montrer")).valeurs.join(", ") || "par défaut"; } catch (e) { return "?"; } })()].filter(Boolean).join(" · ");
         var enVue = el.getAttribute("data-dz-bloc") === "vue";
+        /* blocs « tableau » et « fiche » : vrai rendu, avec les vraies données, sous une étiquette ; les clics vont à
+           l'éditeur (sélection du bloc), pas au bloc. Un bloc d'un autre onglet est montré quand même. */
+        if (w === "tableau" || w === "fiche") {
+          el.innerHTML = '<div class="dz-wg-builder dz-wg-builder-mini"><i class="fas fa-puzzle-piece"></i> <b>' + esc(genre) + "</b>" + (infos ? ' <small style="opacity:.7">' + esc(infos) + "</small>" : "") + (enVue ? "" : ' <small style="opacity:.55">· bloc écrit en HTML : page Santé → « Blocs de page modifiables »</small>') + '</div><div class="dz-apercu"></div>';
+          var vrai = doc.createElement("div");
+          Array.prototype.forEach.call(el.attributes, function (at) { if (/^data-/.test(at.name) && at.name !== "data-montrer" && at.name !== "data-dz-bloc" && !/^data-dz-(?!widget)/.test(at.name)) vrai.setAttribute(at.name, at.value); });
+          el.querySelector(".dz-apercu").appendChild(vrai);
+          try { initWidgets(vrai); loadFamilies(); } catch (e) { /* l'étiquette suffit */ }
+          return;
+        }
         el.innerHTML = '<div class="dz-wg-builder"><i class="fas fa-puzzle-piece"></i> <b>' + esc(genre) + "</b>" + (titre ? " — « " + esc(titre) + " »" : "") + (infos ? '<br><small style="opacity:.7">' + esc(infos) + "</small>" : "") + '<br><small style="opacity:.55">' + (enVue ? "Réglages : clic sur le bloc → colonne de droite (type, source, colonnes…)." : w === "tableau" || w === "fiche" ? "Bloc écrit en HTML : page Santé → « Blocs de page modifiables » pour le rendre réglable ici." : "Réglages : attributs data-… du bloc HTML.") + " Visible en vrai sur la page publiée.</small></div>";
       }); };
       etiqueter();

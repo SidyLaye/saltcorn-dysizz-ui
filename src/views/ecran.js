@@ -36,6 +36,9 @@ const CHAMPS = [
 ];
 const ATTR = (k) => "data-" + k.replace(/_/g, "-");
 
+/* entités numériques (&#x27; &#39;…) : avant 3.14.2 la conversion les laissait telles quelles dans les réglages */
+const numeriques = (s) => s.replace(/&#x([0-9a-f]{1,6});|&#(\d{1,7});/gi, (m, h, d) => { try { return String.fromCodePoint(h ? parseInt(h, 16) : +d); } catch (e) { return m; } });
+
 /* réglages d'un placement → balise lue par dz.js */
 const balise = (s = {}) => {
   const w = /^(tableau|fiche)$/.test(String(s.widget || "")) ? s.widget : "tableau";
@@ -44,9 +47,9 @@ const balise = (s = {}) => {
     if (k === "widget" || k === "autres") continue;
     const v = s[k];
     if (v === undefined || v === null || v === "") continue;
-    attrs.push(`${ATTR(k)}="${esc(typeof v === "object" ? JSON.stringify(v) : String(v))}"`);
+    attrs.push(`${ATTR(k)}="${esc(typeof v === "object" ? JSON.stringify(v) : numeriques(String(v)))}"`);
   }
-  let autres = s.autres;
+  let autres = typeof s.autres === "string" ? numeriques(s.autres) : s.autres;
   if (typeof autres === "string" && autres.trim()) { try { autres = JSON.parse(autres); } catch (e) { return `<div class="alert alert-warning">DZ Écran : « Autres réglages » n'est pas un JSON valide.</div>`; } }
   if (autres && typeof autres === "object") for (const [k, v] of Object.entries(autres)) {
     if (!/^[a-z][a-z0-9-]*$/.test(k) || v === undefined || v === null) continue;
@@ -66,7 +69,7 @@ const PRESET = /^preset_/;
 
 /* ——— conversion : <div data-dz-widget=…></div> écrit en HTML dans une page → bloc « DZ Écran » ——— */
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", apos: "'" };
-const desEsc = (s) => String(s).replace(/&(amp|lt|gt|quot|#39|apos);/g, (m, k) => ENT[k]);
+const desEsc = (s) => numeriques(String(s)).replace(/&(amp|lt|gt|quot|apos);/g, (m, k) => ENT[k]);
 const connus = new Set(CHAMPS.map(([k]) => k));
 const lireWidget = (w, attrs) => {
   const cfg = { widget: w }, autres = {};

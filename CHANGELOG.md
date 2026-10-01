@@ -2,6 +2,16 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.14.2
+
+### Ajouté
+- Éditeur de page : les blocs « tableau » et « fiche » s'affichent pour de vrai, avec les vraies données, sous une
+  petite étiquette (type, source, onglet). Un bloc d'un autre onglet est montré aussi. Les clics sélectionnent le bloc.
+
+### Corrigé
+- Blocs « DZ Écran » convertis depuis le HTML : une apostrophe écrite `&#x27;` restait telle quelle (« aujourd&#x27;hui »).
+  La conversion décode maintenant toutes les entités, et les blocs déjà convertis sont réparés à l'affichage.
+
 ## 3.14.1
 
 ### Corrigé
