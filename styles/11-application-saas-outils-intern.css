@@ -58,6 +58,10 @@
 .dz-ecran-moities { grid-template-columns: 1fr 1fr; align-items: start; }
 @media (max-width: 980px) { .dz-ecran-principale, .dz-ecran-moities { grid-template-columns: 1fr; } }
 .dz-ecran-col { display: grid; gap: 14px; align-content: start; min-width: 0; }
+/* Les vues Saltcorn ajoutent des enveloppes autour des cartes. Leur largeur minimale
+   intrinsèque doit pouvoir rétrécir dans la grille ; le tableau défile dans sa carte. */
+.dz-ecran-grille > *, .dz-ecran-col > * { min-width: 0; max-width: 100%; }
+.dz-ecran-grille .dzw-tb { box-sizing: border-box; min-width: 0; max-width: 100%; overflow-x: auto; }
 .dz-ecran-note { font-size: .84rem; color: var(--dz-text-mute); margin: -4px 0 14px; max-width: 95ch; }
 .dz-ecran-bt { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; background: var(--dz-primary); color: var(--dz-on-primary) !important; text-decoration: none; font-weight: 600; font-size: .9rem; min-height: 40px; margin: 0 10px 10px 0; }
 .dz-ecran-bt.sec { background: transparent; color: inherit !important; border: 1px solid var(--dz-border); }
