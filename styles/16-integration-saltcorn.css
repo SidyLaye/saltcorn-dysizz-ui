@@ -72,3 +72,7 @@ html:not(.dz-skin) .navbar-dark a.dz-nav-admin,[data-bs-theme="dark"] #sidebar a
 .dz-maintenance-admin a{color:var(--dz-text-mute,#888)}
 .dz-maintenance-bandeau{position:relative;z-index:1040;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.25rem .75rem;padding:.35rem 1rem;background:var(--dz-danger,#ef4444);color:#fff;font-size:var(--dz-fs-sm,.875rem);line-height:1.35;text-align:center}
 .dz-maintenance-bandeau button{border:0;border-radius:var(--dz-radius-pill,999px);background:#fff;color:#b91c1c;font-weight:600;font-size:.8rem;padding:.15rem .75rem;cursor:pointer}
+
+/* Éditeur de page : vrai rendu des blocs « tableau » et « fiche » sous une étiquette ; les clics sélectionnent le bloc */
+.dz-builder .dz-wg-builder-mini{padding:4px 10px;margin:0 0 6px;text-align:left;font-size:.8rem;border:1px dashed var(--dz-border,#cbd5e1);border-radius:8px;opacity:.85}
+.dz-builder .dz-apercu{pointer-events:none;user-select:none;max-height:560px;overflow:hidden}
