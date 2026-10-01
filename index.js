@@ -1555,6 +1555,13 @@ var require_ecran = __commonJS({
       ["autres", "Autres r\xE9glages (JSON)", 'Tout autre attribut : {"clic":"\u2026","alerte":"\u2026"}', { area: true }]
     ];
     var ATTR = (k) => "data-" + k.replace(/_/g, "-");
+    var numeriques = (s) => s.replace(/&#x([0-9a-f]{1,6});|&#(\d{1,7});/gi, (m, h, d) => {
+      try {
+        return String.fromCodePoint(h ? parseInt(h, 16) : +d);
+      } catch (e) {
+        return m;
+      }
+    });
     var balise = (s = {}) => {
       const w = /^(tableau|fiche)$/.test(String(s.widget || "")) ? s.widget : "tableau";
       const attrs = [];
@@ -1562,9 +1569,9 @@ var require_ecran = __commonJS({
         if (k === "widget" || k === "autres") continue;
         const v = s[k];
         if (v === void 0 || v === null || v === "") continue;
-        attrs.push(`${ATTR(k)}="${esc(typeof v === "object" ? JSON.stringify(v) : String(v))}"`);
+        attrs.push(`${ATTR(k)}="${esc(typeof v === "object" ? JSON.stringify(v) : numeriques(String(v)))}"`);
       }
-      let autres = s.autres;
+      let autres = typeof s.autres === "string" ? numeriques(s.autres) : s.autres;
       if (typeof autres === "string" && autres.trim()) {
         try {
           autres = JSON.parse(autres);
@@ -1588,7 +1595,7 @@ var require_ecran = __commonJS({
     };
     var PRESET = /^preset_/;
     var ENT = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", apos: "'" };
-    var desEsc = (s) => String(s).replace(/&(amp|lt|gt|quot|#39|apos);/g, (m, k) => ENT[k]);
+    var desEsc = (s) => numeriques(String(s)).replace(/&(amp|lt|gt|quot|apos);/g, (m, k) => ENT[k]);
     var connus = new Set(CHAMPS.map(([k]) => k));
     var lireWidget = (w, attrs) => {
       const cfg = { widget: w }, autres = {};

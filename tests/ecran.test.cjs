@@ -39,5 +39,11 @@ const E = require("../src/views/ecran");
   const fs = await E.get_state_fields();
   assert.ok(fs.find((f) => f.name === "source") && fs.find((f) => f.name === "autres").fieldview === "textarea");
   assert.strictEqual(E.widgetsHTML(layout), 2); assert.strictEqual(E.widgetsHTML(L), 1);
+  /* apostrophe écrite &#x27; dans le HTML : décodée à la conversion, et réparée à l'affichage des blocs déjà convertis */
+  const apo = E.convertirLayout({ type: "blank", isHTML: true, contents: '<div data-dz-widget="tableau" data-titre="Qui reçoit aujourd&#x27;hui" data-colonnes="[{&quot;texte&quot;: &quot;remplacé aujourd&#x27;hui&quot;}]"></div>' });
+  const txt = JSON.stringify(apo.layout);
+  assert.ok(!/&#x27;/.test(txt) && /aujourd'hui/.test(txt), "conversion : plus d'entité numérique");
+  const vieux = E.balise({ widget: "tableau", titre: "Qui reçoit aujourd&#x27;hui", autres: '{"colonnes":[{"texte":"remplacé aujourd&#x27;hui"}]}' });
+  assert.ok(!/&amp;#x27;/.test(vieux) && /aujourd&#39;hui|aujourd'hui/.test(vieux), "bloc déjà converti : réparé à l'affichage");
   console.log("DZ Écran OK : bloc HTML → vue réglable dans l'éditeur, rendu identique, valeurs échappées");
 })().catch((e) => { console.error(e); process.exit(1); });
