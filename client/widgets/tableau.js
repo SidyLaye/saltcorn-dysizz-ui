@@ -155,6 +155,24 @@ css("tableau", `.dzw-tb-case{width:34px;text-align:center}.dzw-tb-case input{wid
 }`);
 
 const PALETTE = ["var(--dz-primary,#2563eb)", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#64748b", "#a3a3a3"];
+
+// Une connexion partagée par page. Le signal ne transporte que l'invalidation ;
+// chaque source relue conserve ses contrôles d'accès sur le serveur.
+let socketLecture = null, timerLecture = null;
+const brancherLecture = () => {
+  const s = typeof window.get_shared_socket === "function" ? window.get_shared_socket() : null;
+  if (!s || socketLecture === s) return;
+  if (socketLecture) { socketLecture.off("dynamic_update", invaliderLecture); socketLecture.off("connect", joindreLecture); }
+  socketLecture=s; s.on("dynamic_update",invaliderLecture); s.on("connect",joindreLecture);
+  if(s.connected) joindreLecture();
+};
+const joindreLecture = () => socketLecture?.emit("join_dynamic_update_room",()=>{});
+const invaliderLecture = d => {
+  if(!d?.dzf_lecture || timerLecture) return;
+  timerLecture=setTimeout(()=>{timerLecture=null;if(!document.hidden) window.dispatchEvent(new Event("dz:rafraichir"));},750);
+};
+window.addEventListener("load",brancherLecture);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden) brancherLecture();});
 const NF = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
 const NF0 = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
 
@@ -782,7 +800,7 @@ register("tableau", (el) => {
     }
     el.classList.add("charge");
     try {
-      const [d] = await Promise.all([charger(o.source, p), avecLibelles()]);
+      const [d] = await Promise.all([charger(o.source, defiler === "actualisation" ? {...p,_dz_frais:"1"} : p), avecLibelles()]);
       if (n !== etat.n) return;
       etat.params = p; etat.total = d.total || 0;
       const v = vueDe();
@@ -812,9 +830,19 @@ register("tableau", (el) => {
     } finally { if (n === etat.n) el.classList.remove("charge"); }
   };
   window.addEventListener("dz:filtres", () => { etat.page = 0; etat.relire("force"); });
-  window.addEventListener("dz:rafraichir", () => etat.relire());
+  const automatique = () => {
+    if(document.hidden || !el.isConnected || el.classList.contains("charge")) return;
+    // Aucun rafraîchissement pendant une saisie ou une sélection dans le bloc.
+    if(el.contains(document.activeElement) && document.activeElement.matches("input,select,textarea,[contenteditable]")) return;
+    const selection=window.getSelection();
+    if(selection && !selection.isCollapsed && el.contains(selection.anchorNode)) return;
+    etat.relire("actualisation");
+  };
+  window.addEventListener("dz:rafraichir", automatique);
   /* actualisation périodique : onglet visible seulement, jamais deux lectures en même temps */
-  if (o.rafraichir >= 10) setInterval(() => { if (!document.hidden && !el.classList.contains("charge")) etat.relire(); }, o.rafraichir * 1000);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && o.rafraichir >= 10) etat.relire(); });
+  if (o.rafraichir >= 10) setInterval(automatique, o.rafraichir * 1000);
+  document.addEventListener("visibilitychange", () => { if (o.rafraichir >= 10) automatique(); });
+  el.addEventListener("focusout",()=>setTimeout(automatique,0));
+  brancherLecture();
   etat.relire();
 });

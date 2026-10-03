@@ -495,11 +495,12 @@ const lireSource = async (nom, query, user) => {
   const { err, plan } = valider(def);
   if (err.length) throw Object.assign(new Error("source invalide : " + err[0]), { code: 500 });
   if (!peutLire(plan, user)) throw Object.assign(new Error("accès refusé"), { code: 403 });
-  const propres = Object.fromEntries(Object.entries(query || {}).filter(([k, v]) => typeof v === "string").sort());
+  const frais = query && query._dz_frais === "1";
+  const propres = Object.fromEntries(Object.entries(query || {}).filter(([k, v]) => k !== "_dz_frais" && typeof v === "string").sort());
   const cle = JSON.stringify([db.getTenantSchema(), nom, user.role_id === 1 ? "admin" : user.id || "public", propres]);
   const ttl = Math.max(0, src.cache_s ?? 30) * 1000;
   const hit = CACHE.get(cle);
-  if (ttl && hit && hit.t > Date.now() - ttl) return { ...hit.r, cache: true };
+  if (!frais && ttl && hit && hit.t > Date.now() - ttl) return { ...hit.r, cache: true };
   const t0 = Date.now();
   const r = await executer(plan, propres, user);
   r.ms = Date.now() - t0;
