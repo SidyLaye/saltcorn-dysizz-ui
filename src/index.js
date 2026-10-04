@@ -42,7 +42,7 @@ module.exports = {
   onLoad,
   configuration_workflow,
   headers,
-  actions: { dz_ui_application: require("./application").action },
+  actions: () => ({ dz_ui_application: require("./application").action }),
   /* affichages de champs : corps d'e-mail sûr et lisible */
   fieldviews: () => ({ dz_mail, ...WIDGET_FIELDVIEWS }),
   /* vues de données, utilisables dans tous les tenants (Vues → Créer) */

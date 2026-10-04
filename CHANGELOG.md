@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.1
+
+### Corrigé
+- Chargement du plugin dans Saltcorn : l’action de présentation respecte le contrat des plugins configurables. Le modèle « DZ Écran » reste disponible après rechargement.
+- Le test de chargement vérifie désormais les contributions avec le même appel de configuration que Saltcorn.
+
 ## 3.15.0
 
 ### Ajouté

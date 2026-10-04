@@ -9,6 +9,18 @@ const assert = require("assert");
 const plugin = require("../index.js");
 assert.strictEqual(plugin.sc_plugin_api_version, 1);
 assert.strictEqual(plugin.plugin_name, "dysizz-ui");
+// Saltcorn State.registerPlugin appelle chaque contribution avec la configuration
+// lorsque le plugin expose configuration_workflow (contrat Saltcorn 1.6.2).
+const withCfg = (key, fallback) => plugin.configuration_workflow
+  ? plugin[key] ? plugin[key]({}) : fallback
+  : plugin[key] || fallback;
+const registeredViews = withCfg("viewtemplates", []);
+assert(registeredViews.some(v => v.name === "DZ Écran"), "DZ Écran enregistré");
+const registeredActions = withCfg("actions", {});
+assert.strictEqual(typeof registeredActions.dz_ui_application.run, "function", "action enregistrable par Saltcorn");
+for (const [key, fallback] of [["types", []], ["functions", {}], ["modelpatterns", {}], ["fileviews", {}], ["eventTypes", {}], ["fonts", {}], ["icons", []], ["table_providers", {}], ["authentication", {}], ["exchange", {}], ["copilot_skills", []], ["external_tables", {}], ["fieldviews", {}], ["headers", []], ["routes", []]]) {
+  assert.doesNotThrow(() => withCfg(key, fallback), key + " respecte le contrat de chargement");
+}
 const h = plugin.headers({ families: ["projet"], transition: "stack", smooth: "light" });
 const css = h.filter((x) => x.css).map((x) => x.css);
 assert(css.some((c) => c.endsWith("dz-core.css")), "dz-core.css chargé");
