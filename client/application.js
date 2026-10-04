@@ -82,7 +82,7 @@
    if(bar.dataset.dzAppOrganised)return;bar.dataset.dzAppOrganised='1';
    const widget=bar.closest('[data-dz-widget]');let defs=[];try{defs=JSON.parse(widget?.dataset.champs||'[]');}catch{}
    if(!Array.isArray(defs))return;
-   if(defs.some(c=>c.type==='boutons')){
+   if(defs.length&&defs.every(c=>c.type==='boutons')){
     const group=bar.querySelector('[role="group"]');if(!group)return;bar.classList.add('ux-tabs');group.setAttribute('role','tablist');group.setAttribute('aria-label','Rubriques');
     [...group.children].forEach((b,i)=>{b.setAttribute('role','tab');b.setAttribute('aria-selected',String(b.classList.contains('on')));b.tabIndex=b.classList.contains('on')?0:-1;b.addEventListener('keydown',e=>{const keys={ArrowRight:(i+1)%group.children.length,ArrowLeft:(i+group.children.length-1)%group.children.length,Home:0,End:group.children.length-1};if(keys[e.key]!=null){e.preventDefault();group.children[keys[e.key]].focus();group.children[keys[e.key]].click();}});});return;
    }
@@ -91,7 +91,7 @@
    const key='dz-app-filters:'+location.pathname+':'+(widget?.dataset.montrer||widget?.dataset.champs||'').slice(0,170);
    try{panel.open=sessionStorage.getItem(key)==='open';panel.ontoggle=()=>sessionStorage.setItem(key,panel.open?'open':'closed');}catch{}
    const groups=new Map(),groupFor=c=>{const t=decode(c.titre).toLowerCase();if(/date|reçu|^du$|^au$|période/.test(t))return 'Période';if(/agence|négociateur|commune|portail|groupe|assistant|rôle/.test(t))return 'Origine et rattachement';if(/statut|fiche|notification|extraction|bien|présent|manque|rythme/.test(t))return 'Situation';return 'Autres critères';};
-   fields.forEach((label,i)=>{const c=defs[i]||{},t=decode(c.titre).toLowerCase();if((c.type==='texte'||/^(agence|statut|reçu depuis|période)$/.test(t))&&primary.children.length<4){primary.append(label);return;}const name=groupFor(c);if(!groups.has(name)){const fieldset=node('fieldset'),legend=node('legend','',name);fieldset.append(legend);groups.set(name,fieldset);panel.append(fieldset);}groups.get(name).append(label);});
+   fields.forEach((label,i)=>{const c=defs[i]||{},t=decode(c.titre).toLowerCase();if(c.type==='boutons'){label.classList.add('ux-filter-switch');primary.append(label);return;}if((c.type==='texte'&&/recherche/.test(t)||/^(agence|statut|reçu depuis|période)$/.test(t))&&primary.children.length<4){primary.append(label);return;}const name=groupFor(c);if(!groups.has(name)){const fieldset=node('fieldset'),legend=node('legend','',name);fieldset.append(legend);groups.set(name,fieldset);panel.append(fieldset);}groups.get(name).append(label);});
    bar.prepend(primary,panel);
    const update=()=>{const q=new URLSearchParams(location.search),n=defs.filter(c=>c.type!=='boutons'&&!c.garder&&q.get(c.param)&&q.get(c.param)!=='tout').length;summary.textContent='Tous les filtres'+(n?' · '+n+' actif'+(n>1?'s':''):'');};update();window.addEventListener('dz:filtres',update);
   });

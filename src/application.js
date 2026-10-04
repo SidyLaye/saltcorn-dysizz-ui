@@ -1,7 +1,7 @@
 /* Présentation d'application, configurée par tenant ; aucun nom de page métier ici. */
 "use strict";
 const { VERSION } = require("./core");
-const { patchCfg, getCfg } = require("./pluginCfg");
+const { patchCfg, getCfg, reloadCfg } = require("./pluginCfg");
 const valid = (v) => typeof v === "string" && /^[a-zA-Z0-9_-]{1,100}$/.test(v);
 const clean = (raw) => {
   if (typeof raw === "string") { try { raw = JSON.parse(raw); } catch { return null; } }
@@ -68,10 +68,10 @@ const action = {
       const backups = st.getConfig(key, []);
       await st.setConfig(key, [...backups.slice(-4), { date: new Date().toISOString(), application_ui: cfg.application_ui || "" }]);
       await patchCfg({ application_ui: JSON.stringify(next) });
-    }
+    } else await reloadCfg();
     const stored = clean((await getCfg()).application_ui);
     if (JSON.stringify(stored) !== JSON.stringify(next)) throw new Error("Présentation enregistrée non confirmée");
-    return { version: VERSION, actif: true, deja_actif: same, pages: report, menu_conserve: true };
+    return { version: VERSION, actif: true, deja_actif: same, pages: report, menu_conserve: true, cache_recharge: true };
   },
 };
 module.exports = { clean, widgetsOf, action };

@@ -2,6 +2,13 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.2
+
+### Corrigé
+- Les menus déroulants restent devant les cartes et les bandeaux, y compris avec le verre translucide.
+- Les formulaires mêlant des filtres et un sélecteur d'affichage conservent leur disposition compacte ; le sélecteur reste visible et les critères restent disponibles.
+- Une activation déjà enregistrée recharge aussi les fichiers de présentation et diffuse la configuration aux autres processus, sans réécrire les pages ni créer une nouvelle sauvegarde.
+
 ## 3.15.1
 
 ### Corrigé

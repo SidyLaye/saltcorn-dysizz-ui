@@ -1,9 +1,9 @@
 "use strict";
 const assert=require("node:assert/strict"),Module=require("module"),vm=require("node:vm");
-let writes=0,loads=0,config={custom_css:"existing",nav_menu:"thème",application_ui:""};
+let writes=0,loads=0,broadcasts=0,assetRefreshes=0,config={custom_css:"existing",nav_menu:"thème",application_ui:""};
 const backups={};
 const page={name:"orders",layout:{above:[{view:"dz_ecran",configuration:{source:"orders-list",vue:"liste"}}]},min_role:40};
-const state={getConfig:(k,d)=>backups[k]||d,setConfig:async(k,v)=>{backups[k]=v;},computeAssetsByRole:async()=>{},processSend:()=>{}};
+const state={getConfig:(k,d)=>backups[k]||d,setConfig:async(k,v)=>{backups[k]=v;},computeAssetsByRole:async()=>{assetRefreshes++;},processSend:()=>{broadcasts++;}};
 const plugin={name:"dysizz-ui",get configuration(){return config;},set configuration(v){config=v;},upsert:async()=>{writes++;}};
 const orig=Module._load;
 Module._load=function(name,...args){
@@ -24,10 +24,12 @@ const presentation={enabled:true,pages:{orders:{title:"Orders",sections:[{title:
  await assert.rejects(action.run({configuration:{...args,presentation:{enabled:true,pages:{absent:{}}}},user}),/Page absente/);
  await action.run({configuration:{...args,operation:"activer"},user});assert.equal(writes,1);assert.equal(config.custom_css,"existing");assert.equal(config.nav_menu,"thème");assert.equal(page.min_role,40);
  const again=await action.run({configuration:{...args,operation:"activer"},user});assert.equal(again.deja_actif,true);assert.equal(writes,1,"relancer n'ajoute ni migration ni sauvegarde");
- assert.equal(backups.dz_application_sauvegardes.length,1);assert.equal(loads,1);
+ assert.equal(backups.dz_application_sauvegardes.length,1);assert.equal(loads,2);
+ assert.equal(broadcasts,2);assert.equal(assetRefreshes,2);assert.equal(again.cache_recharge,true,"une activation identique répare aussi les caches de présentation");
  await action.run({configuration:{operation:"restaurer"},user});assert.equal(config.application_ui,"");assert.equal(config.custom_css,"existing");
  assert.equal(clean({enabled:true,pages:JSON.parse('{"__proto__":{}}')}),null);
  const h=headers({application_ui:JSON.stringify(presentation)});assert(h.some(x=>x.css?.endsWith("dz-application.css")));assert(h.some(x=>x.script?.endsWith("dz-application.js")));
+ assert(h.every(x=>!x.onlyViews&&!x.onlyFieldviews&&!x.only_if),"les fichiers et le plan de présentation sont injectés pour tous les rôles");
  assert(!headers({}).some(x=>x.css?.endsWith("dz-application.css")),"les autres tenants gardent leur présentation");
  const malicious=headers({application_ui:JSON.stringify({enabled:true,pages:{orders:{title:"</script><script>bad</script>"}}})});
  const init=malicious.find(x=>x.headerTag?.startsWith("<script>"));assert(!init.headerTag.includes("<script>bad"));

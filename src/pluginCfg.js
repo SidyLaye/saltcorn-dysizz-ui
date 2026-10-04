@@ -17,22 +17,26 @@ const getCfg = async () => {
 };
 
 const patchCfg = async (patch) => {
-  const Plugin = require("@saltcorn/data/models/plugin");
-  const db = require("@saltcorn/data/db");
-  const { getState } = require("@saltcorn/data/db/state");
   const me = await findMe();
   if (!me) throw new Error("plugin dysizz-ui introuvable");
   me.configuration = { ...(me.configuration || {}), ...patch };
   await me.upsert();
-  await Plugin.loadPlugin(me);
-  try {
-    const st = getState();
-    if (st.computeAssetsByRole) await st.computeAssetsByRole();
-    st.processSend && st.processSend({ refresh_plugin_cfg: me.name, tenant: db.getTenantSchema() });
-  } catch (e) {
-    /* pas bloquant */
-  }
+  await reloadCfg(me);
   return me.configuration;
 };
 
-module.exports = { findMe, getCfg, patchCfg };
+/* Relancer une activation identique doit aussi réparer les caches des workers. */
+const reloadCfg = async (me) => {
+  const Plugin = require("@saltcorn/data/models/plugin");
+  const db = require("@saltcorn/data/db");
+  const { getState } = require("@saltcorn/data/db/state");
+  me = me || await findMe();
+  if (!me) throw new Error("plugin dysizz-ui introuvable");
+  await Plugin.loadPlugin(me);
+  const st = getState();
+  if (st.computeAssetsByRole) await st.computeAssetsByRole();
+  st.processSend && st.processSend({ refresh_plugin_cfg: me.name, tenant: db.getTenantSchema() });
+  return me.configuration;
+};
+
+module.exports = { findMe, getCfg, patchCfg, reloadCfg };
