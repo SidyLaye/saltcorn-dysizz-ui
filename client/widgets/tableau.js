@@ -803,6 +803,7 @@ register("tableau", (el) => {
       const [d] = await Promise.all([charger(o.source, defiler === "actualisation" ? {...p,_dz_frais:"1"} : p), avecLibelles()]);
       if (n !== etat.n) return;
       etat.params = p; etat.total = d.total || 0;
+      if (d.par_page) el.dataset.dzPageSize = String(d.par_page);
       const v = vueDe();
       /* actualisation : rien n'est redessiné si rien n'a changé (pas de clignotement, sélection gardée) */
       const cle = v + "|" + JSON.stringify({ ...d, ms: 0, cache: 0 });

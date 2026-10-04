@@ -1,5 +1,13 @@
 # Écrans d'application sans code propre
 
+## Présentation des applications (3.15)
+
+Le réglage `application_ui` contient `{ "enabled": true, "pages": { ... } }`. Chaque page peut déclarer un titre, des `sections` (`title`, `sources`), un `layout` (`standard` ou `property`), `charts` et `inline_sources`. Les sources sont celles de ses blocs DZ Écran existants. Les blocs ajoutés ensuite restent visibles dans la première rubrique.
+
+Sur ces pages seulement, le module applique les filtres regroupés, tableaux à défilement, pagination haute, rubriques clavier et panneaux givrés. Le clair/sombre suit le choix natif du visiteur (`DZ.setTheme`). Le menu, les formulaires, les actions métier, les sources et les droits restent natifs. Aucun panneau de comparaison ni bandeau de démonstration n’est ajouté.
+
+Pour une migration depuis Run JS serveur, utiliser `Actions.dz_ui_application({ operation: "verifier", presentation })`, puis `operation: "activer"`. La vérification contrôle les pages et sources sans écriture ; l’activation garde les cinq dernières configurations. Relancer ne crée pas une seconde sauvegarde. `operation: "restaurer"` rétablit la dernière présentation sauvegardée. Ces opérations exigent le rôle administrateur.
+
 Un écran (tableau de bord, liste, fiche, formulaire) se construit avec dysizz-ui seul. On n'écrit ni CSS ni JavaScript dans la page, et on n'utilise pas de vue d'édition native. Tout se règle dans le tenant.
 
 ## 1. Navigation (réglages du plugin → étape « Navigation »)

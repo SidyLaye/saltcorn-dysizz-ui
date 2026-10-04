@@ -141,6 +141,7 @@ const cfgOf = (c = {}) => {
     /* réglages gérés par les pages /dysizz-ui (pas par le formulaire) */
     families: Array.isArray(c.families) ? c.families.filter((f) => /^[a-z]{2,12}$/.test(f)) : [],
     classes_css: typeof c.classes_css === "string" ? c.classes_css.replace(/<\/?style/gi, "") : "",
+    application_ui: require("./application").clean(c.application_ui),
   };
 };
 
@@ -190,6 +191,7 @@ const configuration_workflow = () =>
               { name: "remember_theme", label: "Retenir le choix clair / sombre du visiteur", type: "Bool", default: true },
               { name: "custom_css", label: "CSS en plus (optionnel)", type: "String", fieldview: "textarea",
                 sublabel: "Chargé après le kit, pour les retouches propres à ce tenant" },
+              { name: "application_ui", label: "Présentation des applications (JSON)", type: "String", fieldview: "textarea", default: "" },
             ],
           }),
       },

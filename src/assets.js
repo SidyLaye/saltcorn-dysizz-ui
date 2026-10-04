@@ -8,6 +8,8 @@ const ASSETS = {
   "dz-skin.css": "text/css; charset=utf-8",
   "dz-builder.css": "text/css; charset=utf-8",
   "dz.js": "application/javascript; charset=utf-8",
+  "dz-application.css": "text/css; charset=utf-8",
+  "dz-application.js": "application/javascript; charset=utf-8",
   "dz-smooth.js": "application/javascript; charset=utf-8",
   "dz-editor.js": "application/javascript; charset=utf-8",
 };

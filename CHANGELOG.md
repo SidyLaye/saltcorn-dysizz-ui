@@ -2,6 +2,17 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.0
+
+### Ajouté
+- Présentation d’application activable par tenant et par page : verre translucide vert, palettes claire et sombre, logo compact et menu natif conservé.
+- Filtres regroupés sans perte de critères, tableaux avec en-têtes fixes et pagination en haut, densité et colonnes mémorisées, rubriques de fiches accessibles au clavier.
+- Action `dz_ui_application` : vérification sans écriture, activation relançable et restauration des réglages précédents. Les pages, sources et droits ne sont pas réécrits.
+
+### Corrigé
+- Les contrôles de pagination affichent le nombre de lignes réellement demandé par le bloc natif.
+- Construction du kit sous Windows : interpréteur Python et encodage UTF-8.
+
 ## 3.14.2
 
 ### Ajouté

@@ -29,7 +29,7 @@ fs.mkdirSync(r("build"), { recursive: true });
 fs.mkdirSync(r("src/generated"), { recursive: true });
 
 /* 1. packs */
-const py = spawnSync("python3", [r("tools/build_packs.py")], { stdio: "inherit" });
+const py = spawnSync(process.env.PYTHON || (process.platform === "win32" ? "python" : "python3"), [r("tools/build_packs.py")], { stdio: "inherit", env: { ...process.env, PYTHONUTF8: "1" } });
 if (py.status !== 0) process.exit(py.status || 1);
 
 /* 2. CSS */
@@ -55,6 +55,7 @@ const out = {
   /* chargé seulement dans l'éditeur de pages (voir src/headers.js) */
   "dz-builder.css": await minCss(parity.css + "\n" + Object.values(famSrc).flat().join("\n")),
   "dz-skin.css": await minCss(fs.readFileSync(r("styles/skin.css"), "utf8")),
+  "dz-application.css": await minCss(fs.readFileSync(r("styles/application.css"), "utf8")),
 };
 for (const [fam, parts] of Object.entries(famSrc)) out[`dz-f-${fam}.css`] = await minCss(parts.join("\n"));
 /* préfixes de classes → famille (pour le chargement à la demande dans dz.js) */
@@ -95,6 +96,7 @@ const bundleClient = async (entry, globalName) =>
   ).outputFiles[0].text;
 out["dz.js"] = (await bundleClient("dz.js")) + "\n" + (await bundleClient("vues.js"));
 out["dz-smooth.js"] = await bundleClient("smooth.js");
+out["dz-application.js"] = await bundleClient("application.js");
 for (const f of fs.readdirSync(r("client")).filter((f) => /^editor.*\.js$/.test(f))) out["dz-" + f] = await bundleClient(f);
 /* widgets : un fichier chacun, chargé à la demande (dz-w-<nom>.js) */
 for (const f of fs.readdirSync(r("client", "widgets")).filter((f) => /^[a-z0-9-]+\.js$/.test(f))) out["dz-w-" + f] = await bundleClient(path.join("widgets", f));

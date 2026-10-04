@@ -15,6 +15,7 @@ const headers = (rawCfg) => {
   const fams = [...new Set([fBody, fHead])].map((f) => FONTS[f] && FONTS[f].g).filter(Boolean);
   if (P.mono) fams.push(MONO);
   if (P.accent) fams.push(P.accent);
+  if (c.application_ui) fams.push(FONTS.Inter.g);
   const out = [];
   /* maintenance active : le bandeau de l'administrateur (client/dz.js) sait qu'il doit regarder */
   if (rawCfg && (rawCfg.maintenance === true || rawCfg.maintenance === "on")) out.push({ headerTag: '<meta name="dz-maintenance" content="1">' });
@@ -30,6 +31,7 @@ const headers = (rawCfg) => {
   if (c.skin) out.push({ css: pub("dz-skin.css") });
   /* familles de blocs utilisées par ce tenant (cochées sur /dysizz-ui) */
   for (const f of c.families) if (EMBED[`dz-f-${f}.css`]) out.push({ css: pub(`dz-f-${f}.css`) });
+  if (c.application_ui) out.push({ css: pub("dz-application.css") });
   const vars = [
     `--dz-font-body:${FONTS[fBody].stack}`,
     `--dz-font-heading:${FONTS[fHead].stack}`,
@@ -60,6 +62,7 @@ const headers = (rawCfg) => {
     smooth: c.smooth,
     morph: c.bg_morph,
     niveaux: c.nav_niveaux,
+    app: c.application_ui,
   };
   out.push({
     headerTag:
@@ -70,10 +73,12 @@ const headers = (rawCfg) => {
       "h.setAttribute('data-dz-motion',b?'off':f.motion);if(f.cursor)h.setAttribute('data-dz-cursor','on');if(f.top)h.setAttribute('data-dz-totop','on');" +
       "if(f.tr!=='none')h.setAttribute('data-dz-tr',f.tr);if(f.snap!=='off')h.setAttribute('data-dz-snap',f.snap);if(f.smooth!=='off')h.setAttribute('data-dz-smooth',f.smooth);if(!f.morph)h.setAttribute('data-dz-bgmorph','off');" +
       "if(f.remember){try{var t=localStorage.getItem('dz-theme');if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark'||t==='light')h.setAttribute('data-bs-theme',t);}catch(e){}}" +
+      "var p=decodeURIComponent(location.pathname.split('/page/')[1]||'').replace(/\\/$/,'');if(!b&&f.app&&Object.prototype.hasOwnProperty.call(f.app.pages,p)){h.classList.add('dz-app-ui');window.__dzApplication=f.app.pages[p];}" +
       "window.__dzFam={map:f.fam,url:f.famUrl,w:f.wUrl};window.__dzNav={niveaux:f.niveaux};h.classList.add('dz-js');setTimeout(function(){if(!window.DZ)h.classList.remove('dz-js');},3000);" +
-      "})(" + JSON.stringify(flags) + ");</script>",
+      "})(" + JSON.stringify(flags).replace(/</g, "\\u003c") + ");</script>",
   });
   out.push({ script: pub("dz.js"), defer: true });
+  if (c.application_ui) out.push({ script: pub("dz-application.js"), defer: true });
   if (c.smooth !== "off") out.push({ script: pub("dz-smooth.js"), defer: true });
   return out;
 };

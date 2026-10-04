@@ -39,6 +39,8 @@ jobs:
           git diff --exit-code -- index.js || (echo "::error::index.js n'est pas à jour : lance « cd tools && node build.mjs » puis commit." && exit 1)
       - name: Chargement du plugin (sans Saltcorn)
         run: node tests/load-plugin.cjs
+      - name: Présentation des applications (validation, droits et restauration)
+        run: node tests/application.test.cjs
       - name: Page Santé et sécurité (Saltcorn simulé)
         run: node tests/sante.test.cjs
       - name: Sources de données (vrai PostgreSQL)
