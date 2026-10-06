@@ -30,6 +30,8 @@
   if(back){back.classList.add('ux-back');content.append(back);}
   const head=node('div','ux-screen-head'),kpis=node('div','ux-kpi-row'),filters=[],rest=[];
   const hasTitle=widgets.some(w=>w.dataset.vue==='titre');
+  // Section titles travel with the first data widget that follows them; otherwise they would stay below the rearranged screen.
+  const sectionTitles=[...original.querySelectorAll('h2,h3,h4,.dz-h2,.dz-h3,.dz-h4')].filter(t=>!t.closest('[data-dz-widget],.dz-ecran-titre')&&!t.parentElement.closest('h2,h3,h4,.dz-h2,.dz-h3,.dz-h4')).map(t=>[t,widgets.find(w=>t.compareDocumentPosition(w)&Node.DOCUMENT_POSITION_FOLLOWING)]).filter(([,w])=>w);
   if(heading){const wrap=heading.closest('.dz-ecran-titre')||heading;if(hasTitle)wrap.hidden=true;else {if(plan.title)heading.textContent=plan.title;content.append(wrap);}}
   else if(!hasTitle&&plan.title)content.append(node('h1','dz-ecran-titre',plan.title));
   content.append(head);
@@ -62,8 +64,11 @@
     if(panels[selected]?.tab.hidden){const first=panels.findIndex(p=>!p.tab.hidden);if(first>=0)activate(first,false,false);}
    };
   }else{const stack=node('div','dz-app-stack');stack.append(...rest);content.append(stack);}
+  for(const [title,w] of sectionTitles){title.classList.add('ux-section-title');(w.parentElement===kpis?kpis:w.parentElement).before(title);}
   // Existing content other than the data widgets is retained, including native links/forms.
-  for(const intro of [...original.querySelectorAll('.dz-ecran-intro,.dz-ecran-note')]){
+  // Intros placed after the screen container in the page are gathered too.
+  const scope=document.getElementById('page-inner-content')||document.querySelector('main')||original;
+  for(const intro of [...(scope.contains(original)?scope:original).querySelectorAll('.dz-ecran-intro,.dz-ecran-note')]){
    if(content.contains(intro)||intro.querySelector('[data-dz-widget],form,input,button,a'))continue;
    intro.classList.add('page-intro');
    if(/Cliquez une ligne|Cliquez une personne|Page réservée/.test(intro.textContent))intro.hidden=true;
@@ -95,7 +100,9 @@
    bar.prepend(primary,panel);
    const update=()=>{const q=new URLSearchParams(location.search),n=defs.filter(c=>c.type!=='boutons'&&!c.garder&&q.get(c.param)&&q.get(c.param)!=='tout').length;summary.textContent='Tous les filtres'+(n?' · '+n+' actif'+(n>1?'s':''):'');};update();window.addEventListener('dz:filtres',update);
   });
-  content.querySelectorAll('.dzw-tb[data-vue="kpi"] .dzw-tb-sous').forEach(text=>{if(text.dataset.dzAppConcise)return;text.dataset.dzAppConcise='1';const help=node('details','ux-inline-help'),summary=node('summary','','i');summary.setAttribute('aria-label','Comment est calculé cet indicateur ?');text.before(help);help.append(summary,text);text.closest('.dzw-tb').querySelector('h3')?.append(help);});
+  content.querySelectorAll('.dzw-tb[data-vue="kpi"] .dzw-tb-sous').forEach(text=>{if(text.dataset.dzAppConcise)return;text.dataset.dzAppConcise='1';const help=node('details','ux-inline-help'),summary=node('summary','','i');summary.setAttribute('aria-label','Comment est calculé cet indicateur ?');text.before(help);help.append(summary,text);
+   // the widget redraws its body on every refresh but keeps its title: replace the previous help instead of adding one more
+   const title=text.closest('.dzw-tb')?.querySelector('h3');if(title){title.querySelectorAll(':scope > .ux-inline-help').forEach(old=>old.remove());title.append(help);}});
   content.querySelectorAll('[data-vue="note"] .dzw-tb-note').forEach(text=>{
    if(text.dataset.dzAppConcise)return;text.dataset.dzAppConcise='1';const value=decode(text.textContent);
    const edits=[[/Recalculé à chaque/,'Les destinataires affichés tiennent compte des remplacements en cours.'],[/Modifier plusieurs personnes/,'Sélectionnez les personnes, puis choisissez « Modifier la sélection ».'],[/Jours : 1 = lundi/,''],[/Exemple : mi-temps/,'Les jours non travaillés utilisent le relais indiqué.'],[/Le relais peut être/,'À la fin du congé, les demandes reviennent automatiquement au titulaire.'],[/Un départ se prépare/,'Indiquez une date de départ et un remplaçant pour programmer le relais.']];

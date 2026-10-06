@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.3
+
+### Corrigé
+- Indicateurs : l'aide « i » n'est plus ajoutée une fois de plus à chaque actualisation automatique (un seul « i » par indicateur).
+- Présentation d'application : un titre de section (ex. « Le parcours d'une demande ») reste au-dessus de ses chiffres, et une introduction placée après l'écran rejoint l'en-tête, au lieu de rester en bas de page.
+
 ## 3.15.2
 
 ### Corrigé

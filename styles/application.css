@@ -128,3 +128,4 @@ html.dz-app-ui .navbar .dropdown-menu{z-index:1040!important}
 html.dz-app-ui .ux-dialog{z-index:1060!important}
 html.dz-app-ui .ux-filter-switch .dzw-tb-periodes{display:flex;gap:4px;flex-wrap:wrap}
 html.dz-app-ui .ux-filter-switch button{min-height:36px;padding:7px 12px}
+html.dz-app-ui .ux-section-title{margin:18px 0 4px}
