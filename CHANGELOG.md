@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.5
+
+### Ajouté
+- Courbe à plusieurs séries : légende sous le graphique (couleur, nom, total de la période).
+- Réglage `couleurs` de la courbe : une couleur fixe par série, dans l'ordre des mesures (la couleur suit l'entité, pas son rang).
+
 ## 3.15.4
 
 ### Corrigé

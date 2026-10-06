@@ -47,6 +47,7 @@ css("tableau", `.dzw-tb-case{width:34px;text-align:center}.dzw-tb-case input{wid
 .dzw-tb-barres{display:grid;gap:7px}
 .dzw-tb-barre{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:.85rem;cursor:default;border-radius:8px}
 .dzw-tb-barre[data-cle]{cursor:pointer}
+.dzw-tb-legende-courbe{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:.8rem}.dzw-tb-legende-courbe span{display:inline-flex;align-items:center;gap:6px}.dzw-tb-legende-courbe i{width:10px;height:10px;border-radius:3px;display:inline-block}.dzw-tb-legende-courbe b{font-weight:600;font-variant-numeric:tabular-nums;opacity:.75}
 .dzw-tb-barre span:first-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.25}
 .dzw-tb-barre[data-cle]:focus-visible{outline:2px solid var(--dz-primary,#2563eb);outline-offset:3px}
 .dzw-tb-barre i{display:block;height:10px;border-radius:99px;background:var(--dz-primary,#2563eb);min-width:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
@@ -313,6 +314,8 @@ const vueCourbe = (el, d, o) => {
   const lignes = d.lignes || [];
   if (!lignes.length) return h("div", { class: "dzw-tb-vide" }, "Aucune donnée sur la période.");
   const mesures = o.mesures || [o.mesure || Object.keys(lignes[0]).find((k) => k !== "cle")];
+  /* couleur fixe par série (data-couleurs, dans l'ordre des mesures) : elle suit l'entité, pas son rang */
+  const couleur = (k) => (Array.isArray(o.couleurs) && /^#[0-9a-f]{3,8}$/i.test(o.couleurs[k] || "") ? o.couleurs[k] : PALETTE[k % PALETTE.length]);
   /* repère à la taille réelle du bloc : le texte des axes garde sa taille sur téléphone */
   const W = Math.max(280, Math.round(el.clientWidth - 36) || 640), H = o.hauteur || 200, P = { g: 34, d: 8, h: 10, b: 22 };
   const max = Math.max(1, ...lignes.flatMap((l) => mesures.map((m) => +l[m] || 0)));
@@ -338,7 +341,7 @@ const vueCourbe = (el, d, o) => {
     add("text", { x: x(i), y: H - 5, "text-anchor": "middle", class: "dzw-tb-axe" }).textContent = isNaN(dt) ? String(l.cle) : dt.toLocaleDateString("fr-FR", d.par === "mois" ? { month: "short" } : { day: "2-digit", month: "2-digit" });
   });
   mesures.forEach((m, k) => {
-    const c = PALETTE[k % PALETTE.length];
+    const c = couleur(k);
     const pts = lignes.map((l, i) => `${x(i)},${y(l[m])}`).join(" ");
     if (k === 0) add("polygon", { points: `${x(0)},${H - P.b} ${pts} ${x(lignes.length - 1)},${H - P.b}`, fill: c, "fill-opacity": 0.1 });
     add("polyline", { points: pts, fill: "none", stroke: c, "stroke-width": 2.2, "stroke-linejoin": "round", "stroke-linecap": "round" });
@@ -362,6 +365,10 @@ const vueCourbe = (el, d, o) => {
   svg.addEventListener("pointermove", survol);
   svg.addEventListener("pointerdown", survol);
   svg.addEventListener("pointerleave", () => { bulle.hidden = true; curseur.setAttribute("stroke-opacity", 0); });
+  /* plusieurs courbes : légende (couleur + nom + total), sinon on ne sait pas quelle ligne est quoi */
+  if (mesures.length > 1) wrap.appendChild(h("div", { class: "dzw-tb-legende-courbe" }, mesures.map((m, k) => h("span", {},
+    h("i", { style: { background: couleur(k) } }), (o.libelles && o.libelles[m]) || m,
+    h("b", {}, formater(lignes.reduce((t, l) => t + (+l[m] || 0), 0), o.format))))));
   return wrap;
 };
 
@@ -733,7 +740,7 @@ register("tableau", (el) => {
     source: conf(el, "source", ""), vue: conf(el, "vue", "kpi"), titre: conf(el, "titre", ""), mesure: conf(el, "mesure", ""),
     mesures: conf(el, "mesures", null), format: conf(el, "format", ""), libelles: conf(el, "libelles", {}), params: conf(el, "params", ""),
     rafraichir: conf(el, "rafraichir", 0), hauteur: conf(el, "hauteur", 0), lien: conf(el, "lien", ""), colonnes: conf(el, "colonnes", null),
-    champs: conf(el, "champs", []), sous: conf(el, "sous", ""), inverse: conf(el, "inverse", false), max: conf(el, "max", 12), ignorer: conf(el, "ignorer", ""),
+    champs: conf(el, "champs", []), sous: conf(el, "sous", ""), inverse: conf(el, "inverse", false), max: conf(el, "max", 12), couleurs: conf(el, "couleurs", null), ignorer: conf(el, "ignorer", ""),
     libellesSource: conf(el, "libelles-source", ""), libellesCle: conf(el, "libelles-cle", "id"), libellesChamp: conf(el, "libelles-champ", "nom"),
     sur: conf(el, "sur", ""), clic: conf(el, "clic", null), alerte: conf(el, "alerte", true), attention: conf(el, "attention", null), vide: conf(el, "vide", ""),
     tuile: conf(el, "tuile", null), bascule: conf(el, "bascule", null), masquerRefus: conf(el, "masquer-refus", false), lienBarre: conf(el, "lien-barre", ""),
