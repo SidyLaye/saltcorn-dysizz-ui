@@ -2,6 +2,13 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.4
+
+### Corrigé
+- Présentation d'application, rubriques de graphiques : les cartes s'empilent en colonnes (maçonnerie CSS native) au lieu d'une grille à lignes égales ; une carte courte remonte sous la précédente, plus de grands vides. Une seule colonne quand la place manque.
+- Barres : libellés sur deux lignes au lieu d'être coupés (texte complet au survol) ; barres cliquables atteignables au clavier (Tab, Entrée ou Espace) avec un contour de focus visible.
+- Valeur vide affichée « Non renseigné » au lieu de « (vide) ».
+
 ## 3.15.3
 
 ### Corrigé

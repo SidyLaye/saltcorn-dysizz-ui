@@ -6,15 +6,17 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import assert from "node:assert";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+/* adresse file:// valide aussi sous Windows (C:\… -> file:///C:/…) */
+const ROOT_URL = pathToFileURL(ROOT).href;
 const require = createRequire(path.join(ROOT, "tools", "package.json"));
 const { chromium } = require("playwright");
 const exe = ["/opt/pw-browsers/chromium", process.env.CHROMIUM_PATH].find((p) => p && fs.existsSync(p));
 const page = (body) => `<!doctype html><html class="dz-skin dz-js" data-dz-motion="off"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="file://${ROOT}/build/dz-core.css"></head><body><form>${body}</form>
-<script>window.__dzFam={map:{},url:"",w:"file://${ROOT}/build/dz-w-"};</script><script src="file://${ROOT}/build/dz.js"></script></body></html>`;
+<link rel="stylesheet" href="${ROOT_URL}/build/dz-core.css"></head><body><form>${body}</form>
+<script>window.__dzFam={map:{},url:"",w:"${ROOT_URL}/build/dz-w-"};</script><script src="${ROOT_URL}/build/dz.js"></script></body></html>`;
 
 const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const tmp = path.join(os.tmpdir(), `dz-widgets-${process.pid}.html`);
@@ -24,7 +26,7 @@ export const ouvrir = async (body, largeur = 1100) => {
   await p.setViewportSize({ width: largeur, height: 800 });
   const errs = [];
   p.on("pageerror", (e) => errs.push(e.message));
-  await p.goto("file://" + tmp);
+  await p.goto(pathToFileURL(tmp).href);
   await p.waitForTimeout(400);
   return { p, errs };
 };
@@ -230,7 +232,7 @@ try {
 <div data-dz-widget="tableau" data-source="portails" data-vue="barres" data-filtre="source" data-libelles='{"a":"Portail A","b":"Portail B"}'></div>
 <div data-dz-widget="tableau" data-source="portails" data-vue="anneau"></div>
 <div data-dz-widget="tableau" data-source="absente" data-vue="kpi"></div>
-<div data-dz-widget="tableau" data-source="liste" data-vue="liste" data-lien="/fiche?id={id}" data-colonnes='[{"champ":"nom","titre":"Nom"},{"champ":"statut","titre":"Statut","pastilles":{"ok":{"texte":"Bon","couleur":"#047857"}}},{"champ":"actif","titre":"Actif","format":"oui_non"}]'></div>`).replaceAll(`file://${ROOT}/build/`, "/build/"));
+<div data-dz-widget="tableau" data-source="liste" data-vue="liste" data-lien="/fiche?id={id}" data-colonnes='[{"champ":"nom","titre":"Nom"},{"champ":"statut","titre":"Statut","pastilles":{"ok":{"texte":"Bon","couleur":"#047857"}}},{"champ":"actif","titre":"Actif","format":"oui_non"}]'></div>`).replaceAll(`${ROOT_URL}/build/`, "/build/"));
     });
     /* les fichiers du kit, servis par le même serveur */
     const servirFichier = srv.listeners("request")[0];
@@ -259,6 +261,10 @@ try {
     assert.deepStrictEqual(await p.locator(".dzw-tb-table tbody tr td:last-child").allTextContents().then((t) => t.map((x) => x.trim())), ["non", "oui", "oui"], "format oui_non (booléen, 1)");
     assert.ok(await p.isVisible("text=Bon"), "pastille de statut");
     assert.ok((await p.locator(".dzw-tb svg polyline").count()) >= 1, "courbe dessinée");
+    /* une barre cliquable s'utilise aussi au clavier */
+    assert.strictEqual(await p.getAttribute('.dzw-tb-barre[data-cle="a"]', "tabindex"), "0", "barre atteignable avec Tab");
+    await p.focus('.dzw-tb-barre[data-cle="a"]'); await p.keyboard.press("Enter"); await p.waitForTimeout(300);
+    assert.ok(p.url().includes("source=a"), "Entrée sur une barre filtre comme un clic");
     /* un clic sur une barre filtre toute la page, sans recharger */
     await p.evaluate(() => { window.__pasRecharge = 1; });
     const avant = appels.length;

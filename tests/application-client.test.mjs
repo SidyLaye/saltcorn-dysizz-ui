@@ -46,7 +46,21 @@ try {
     return { dansEcran: c.contains(t), avantChiffres: t.nextElementSibling === k, intro: c.contains(document.querySelector(".dz-ecran-intro")) };
   });
   assert.deepEqual(ordre, { dansEcran: true, avantChiffres: true, intro: true }, "titre de section et intro restent avec leurs chiffres, pas en bas de page");
-  console.log("Présentation navigateur : aide des indicateurs unique, titres de section et intro à leur place OK");
+  // grille des graphiques : des cartes de hauteurs différentes ne laissent pas de trou
+  const css = fs.readFileSync(path.join(root, "styles", "application.css"), "utf8");
+  const g = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  await g.setContent(`<html class="dz-app-ui"><head><style>${css}</style></head><body><div class="ux-screen-grid ux-charts-grid">
+    <div class="dzw-tb" id="a" style="height:300px"></div><div class="dzw-tb" id="b" style="height:900px"></div>
+    <div class="dzw-tb" id="c" style="height:300px"></div><div class="dzw-tb" id="cache" hidden style="height:500px"></div></div></body></html>`);
+  const box = (s) => g.locator(s).boundingBox();
+  const [a, b, c] = [await box("#a"), await box("#b"), await box("#c")];
+  assert.ok(c.y - (a.y + a.height) < 40 || c.y - (b.y + b.height) < 40, "une carte courte remonte sous la précédente");
+  assert.ok(Math.abs(a.x - b.x) > 100 || Math.abs(b.x - c.x) > 100, "deux colonnes sur grand écran");
+  assert.equal(await g.locator("#cache").isVisible(), false, "un bloc masqué (onglet) reste masqué");
+  await g.setViewportSize({ width: 700, height: 900 });
+  const [a2, b2] = [await box("#a"), await box("#b")];
+  assert.ok(Math.abs(a2.x - b2.x) < 2, "une seule colonne quand la place manque");
+  console.log("Présentation navigateur : aide des indicateurs unique, titres de section et intro à leur place, grille sans trou OK");
 } finally {
   await browser.close();
 }

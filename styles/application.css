@@ -129,3 +129,4 @@ html.dz-app-ui .ux-dialog{z-index:1060!important}
 html.dz-app-ui .ux-filter-switch .dzw-tb-periodes{display:flex;gap:4px;flex-wrap:wrap}
 html.dz-app-ui .ux-filter-switch button{min-height:36px;padding:7px 12px}
 html.dz-app-ui .ux-section-title{margin:18px 0 4px}
+html.dz-app-ui .ux-charts-grid{display:block;columns:2 380px;column-gap:18px}html.dz-app-ui .ux-charts-grid>.dzw-tb:not([hidden]){display:block;break-inside:avoid;margin:0 0 18px;width:100%}html.dz-app-ui .ux-charts-grid:has(>.dzw-tb:only-child){columns:1}

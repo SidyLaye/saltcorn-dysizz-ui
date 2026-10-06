@@ -45,9 +45,10 @@ css("tableau", `.dzw-tb-case{width:34px;text-align:center}.dzw-tb-case input{wid
 .dzw-tb-axe{font-size:10px;fill:currentColor;opacity:.55}
 .dzw-tb-bulle{position:absolute;pointer-events:none;background:var(--dz-text,#0f172a);color:var(--dz-surface,#fff);font-size:.75rem;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);z-index:5;box-shadow:0 8px 20px -8px rgba(0,0,0,.4)}
 .dzw-tb-barres{display:grid;gap:7px}
-.dzw-tb-barre{display:grid;grid-template-columns:minmax(80px,30%) 1fr auto;gap:10px;align-items:center;font-size:.85rem;cursor:default}
+.dzw-tb-barre{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:.85rem;cursor:default;border-radius:8px}
 .dzw-tb-barre[data-cle]{cursor:pointer}
-.dzw-tb-barre span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dzw-tb-barre span:first-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.25}
+.dzw-tb-barre[data-cle]:focus-visible{outline:2px solid var(--dz-primary,#2563eb);outline-offset:3px}
 .dzw-tb-barre i{display:block;height:10px;border-radius:99px;background:var(--dz-primary,#2563eb);min-width:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .dzw-tb-barre b{font-variant-numeric:tabular-nums;font-weight:600}
 .dzw-tb-barre:hover i{filter:brightness(1.1)}
@@ -103,7 +104,7 @@ css("tableau", `.dzw-tb-case{width:34px;text-align:center}.dzw-tb-case input{wid
 .dzw-tb-l.alerte{color:#b45309;font-size:.8rem}
 .dzw-tb-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
 .dzw-tb-table tr.att td:first-child{box-shadow:inset 3px 0 0 #f59e0b}
-.dzw-tb-barres.pc .dzw-tb-barre{grid-template-columns:minmax(80px,30%) 1fr auto 44px}
+.dzw-tb-barres.pc .dzw-tb-barre{grid-template-columns:minmax(90px,38%) 1fr auto 44px}
 .dzw-tb-barre small{opacity:.6;text-align:right;font-variant-numeric:tabular-nums}
 .dzw-tb-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
 .dzw-tb-tuile{display:flex;flex-direction:column;border:1px solid var(--dz-border,#e5e7eb);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;background:var(--dz-surface,#fff);transition:transform .15s,box-shadow .15s}
@@ -306,7 +307,7 @@ const vueKpi = (el, d, o) => {
   return h("div", { class: `dzw-tb-kpi${["depuis", "date", "dateheure", "jour", "age"].includes(o.format) ? " txt" : ""}` }, kids);
 };
 
-const libelle = (o, cle) => (cle === null || cle === undefined || cle === "" ? "(vide)" : (o.libelles && o.libelles[cle]) || String(cle));
+const libelle = (o, cle) => (cle === null || cle === undefined || cle === "" ? "Non renseigné" : (o.libelles && o.libelles[cle]) || String(cle));
 
 const vueCourbe = (el, d, o) => {
   const lignes = d.lignes || [];
@@ -371,11 +372,16 @@ const vueBarres = (el, d, o) => {
   const max = Math.max(1, ...lignes.map((l) => +l[m] || 0));
   const filtre = el.getAttribute("data-filtre");
   const tot = (d.lignes || []).reduce((x, l) => x + (+l[m] || 0), 0) || 1;
-  return h("div", { class: `dzw-tb-barres${o.pourcent ? " pc" : ""}` }, lignes.map((l) => h("div", {
-    class: "dzw-tb-barre", title: `${libelle(o, l.cle)} : ${formater(l[m], o.format)}`, "data-cle": filtre || o.lienBarre ? String(l.cle ?? "") : null,
-    onclick: o.lienBarre ? () => (location.href = lienDe(o.lienBarre, l)) : filtre ? () => ecrireUrl({ ...lireUrl(), [filtre]: String(l.cle ?? "") }) : null,
+  return h("div", { class: `dzw-tb-barres${o.pourcent ? " pc" : ""}` }, lignes.map((l) => {
+    const aller = o.lienBarre ? () => (location.href = lienDe(o.lienBarre, l)) : filtre ? () => ecrireUrl({ ...lireUrl(), [filtre]: String(l.cle ?? "") }) : null;
+    /* barre cliquable : atteignable au clavier (Tab, puis Entrée ou Espace) */
+    return h("div", {
+    class: "dzw-tb-barre", title: `${libelle(o, l.cle)} : ${formater(l[m], o.format)}`, "data-cle": aller ? String(l.cle ?? "") : null,
+    onclick: aller, tabindex: aller ? "0" : null, role: aller ? "link" : null,
+    onkeydown: aller ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); aller(); } } : null,
   }, h("span", {}, libelle(o, l.cle)), h("span", {}, h("i", { style: { width: `${((+l[m] || 0) / max) * 100}%` } })), h("b", {}, formater(l[m], o.format)),
-    o.pourcent ? h("small", {}, `${Math.round(((+l[m] || 0) / tot) * 100)} %`) : null)));
+    o.pourcent ? h("small", {}, `${Math.round(((+l[m] || 0) / tot) * 100)} %`) : null);
+  }));
 };
 
 const vueAnneau = (el, d, o) => {
