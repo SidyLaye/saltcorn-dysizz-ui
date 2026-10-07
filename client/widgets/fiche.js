@@ -22,6 +22,8 @@
      Cases à cocher, recherche, « tout cocher » par groupe ; enregistré avec la fiche (API Saltcorn).
    - data-multiples : un champ texte qui garde une liste de numéros ("3,7,9") devient une liste de personnes à cocher :
      {"personnes":{"table":"equipe","libelle":"nom","grouper":"agence_nom","si":{"role":"negociateur"}}}.
+   - Champ Fichier de la table : choix d'une pièce jointe (10 Mo au plus, images, PDF, bureautique, zip), envoyée
+     à l'enregistrement par /dysizz/fiche/:table/fichier/:champ ; lisible par les administrateurs et son auteur.
    - data-bouton (« Enregistrer »), data-titre, data-titre-nouveau, data-supprimer (true : bouton Supprimer).
    Tout est vérifié par le serveur (API Saltcorn) : droits, propriétaire, champs protégés, contrôles. */
 import { register, css, h, conf, csrf } from "./_commun.js";
@@ -166,6 +168,15 @@ register("fiche", async (el) => {
       else if (c.type === "date") input = h("input", { type: "date", id: idc, value: jour(v) });
       else if (c.type === "dateheure") input = h("input", { type: "datetime-local", id: idc, value: jourHeure(v) });
       else if (c.type === "couleur") input = h("input", { type: "color", id: idc, value: v || "#000000" });
+      else if (c.type === "fichier") {
+        /* pièce jointe : envoyée au moment d'enregistrer ; sans nouveau choix, le fichier actuel est gardé */
+        input = h("input", { type: "file", id: idc, accept: c.accept || null });
+        wrap.append(h("label", { for: idc }, label, c.requis && !v ? h("span", { class: "req", "aria-hidden": "true" }, "*") : null), input,
+          v ? h("p", { class: "aide" }, "Fichier actuel : ", h("a", { href: `/files/serve/${encodeURIComponent(v)}`, target: "_blank", rel: "noopener" }, String(v).split("/").pop()), " (en choisir un autre le remplace)") : null);
+        if (aide) wrap.appendChild(h("p", { class: "aide" }, aide));
+        ctrls[c.nom] = { c, input, wrap, actuel: v };
+        return wrap;
+      }
       else input = h("input", { type: c.type === "email" ? "email" : c.type === "tel" ? "tel" : "text", id: idc, value: v ?? "" });
       wrap.append(h("label", { for: idc }, label, c.requis ? h("span", { class: "req", "aria-hidden": "true" }, "*") : null), input);
     }
@@ -201,6 +212,7 @@ register("fiche", async (el) => {
   const lireValeur = (k) => {
     const { c, input } = k;
     if (c.type === "oui_non") return input.checked;
+    if (c.type === "fichier") return input.files && input.files[0] ? input.files[0] : k.actuel || null;
     const s = input.value;
     if (s === "") return null;
     if (c.type === "nombre") return Number(s);
@@ -299,6 +311,16 @@ register("fiche", async (el) => {
     if (manque) { montrer("dzw-fi-err", manque > 1 ? `${manque} champs à remplir.` : "Un champ à remplir."); return; }
     ok.disabled = true;
     try {
+      /* pièces jointes : chaque nouveau fichier est d'abord envoyé, le champ reçoit sa référence */
+      for (const [nom, v] of Object.entries(corps)) {
+        if (!(v instanceof File)) { if (parNom[nom] && parNom[nom].type === "fichier" && v === (ctrls[nom] || {}).actuel) delete corps[nom]; continue; }
+        if (v.size > 10 * 1024 * 1024) throw new Error(`« ${v.name} » dépasse 10 Mo`);
+        const fd = new FormData(); fd.append("file", v);
+        const r = await fetch(`/dysizz/fiche/${encodeURIComponent(table)}/fichier/${encodeURIComponent(nom)}`, { method: "POST", credentials: "same-origin", headers: { Accept: "application/json", "CSRF-Token": csrf() }, body: fd });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.valeur) throw new Error(j.erreur || `envoi du fichier impossible (HTTP ${r.status})`);
+        corps[nom] = j.valeur;
+      }
       const j = await appel(creation ? `/api/${encodeURIComponent(table)}/` : `/api/${encodeURIComponent(table)}/${d.id}`, corps);
       const nid = creation ? j.success : d.id;
       const errM = await enregistrerMembres(nid);

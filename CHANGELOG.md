@@ -2,6 +2,14 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## 3.15.6
+
+### Ajouté
+- Fiche : un champ Fichier de la table devient un choix de pièce jointe (10 Mo au plus ; images, PDF, bureautique,
+  zip), envoyée à l'enregistrement par `POST /dysizz/fiche/:table/fichier/:champ`. Réservé à qui peut écrire dans
+  la table, sans ouvrir l'envoi de fichiers de Saltcorn à tous ; fichier lisible par les administrateurs et son auteur.
+  Le fichier déjà joint est montré avec un lien. Test : `tests/fiche-fichier.test.cjs`.
+
 ## 3.15.5
 
 ### Ajouté

@@ -21,6 +21,7 @@ const typeDe = (f) => {
   if (t === "Integer" || t === "Float" || t === "Money") return "nombre";
   if (t === "Date") return f.attributes && f.attributes.day_only === false ? "dateheure" : "date";
   if (t === "Color") return "couleur";
+  if (t === "File") return "fichier";
   if (t === "String" && f.attributes && f.attributes.options) return "choix";
   if (t === "String" && f.attributes && (f.attributes.textarea || f.attributes.max_length > 300)) return "zone";
   /* textes longs par leur nom : description, message, explication, commentaire, remarque, notes */
@@ -99,6 +100,7 @@ const route = async (req, res) => {
         proprietaire: f.name === proprio,
       };
       if (type === "choix") c.options = optionsDe(f);
+      if (type === "fichier") c.accept = ACCEPT;
       if (type === "cle") {
         /* la table des utilisateurs n'est pas proposée en liste : un champ propriétaire est rempli par le serveur */
         c.options = f.reftable_name === "users" && role > 1 ? [] : await listeLiee(f, user);
@@ -134,4 +136,39 @@ const lignes = async (req, res) => {
   }
 };
 
-module.exports = { route, lignes, typeDe, optionsDe };
+/* POST /dysizz/fiche/:table/fichier/:champ (multipart, champ « file ») — pièce jointe d'un champ Fichier.
+   L'envoi de fichiers de Saltcorn est réservé aux administrateurs (min_role_upload) ; ici, quiconque peut
+   écrire dans la table peut joindre un fichier à CE champ, et rien d'autre. Le fichier n'est lisible que par
+   les administrateurs et par celui qui l'a envoyé (règle de /files/serve). On renvoie la valeur à écrire
+   dans le champ ; l'écriture de la ligne passe ensuite par l'API, avec tous ses contrôles. */
+const ENVOI_MAX = 10 * 1024 * 1024;
+const EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt", "csv", "doc", "docx", "xls", "xlsx", "odt", "ods", "zip"];
+const ACCEPT = EXTENSIONS.map((x) => "." + x).join(",");
+const MIMES = /^(image\/(png|jpe?g|gif|webp)|application\/pdf|text\/(plain|csv)|application\/(msword|vnd\.ms-excel|vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet)|vnd\.oasis\.opendocument\.(text|spreadsheet)|zip|x-zip-compressed|octet-stream))$/;
+const envoyer = async (req, res) => {
+  try {
+    const Table = require("@saltcorn/data/models/table");
+    const table = Table.findOne({ name: req.params.table });
+    if (!table) return res.status(404).json({ erreur: "table introuvable" });
+    const user = req.user;
+    if (!user || !user.id) return res.status(401).json({ erreur: "connexion requise" });
+    const f = table.getFields().find((x) => x.name === req.params.champ);
+    if (!f || typeDe(f) !== "fichier") return res.status(400).json({ erreur: "ce champ n'accepte pas de fichier" });
+    const proprio = !!table.ownership_field_id || !!table.ownership_formula;
+    const mrw = f.attributes && f.attributes.min_role_write;
+    if (!(user.role_id <= table.min_role_write || proprio) || (mrw && user.role_id > +mrw)) return res.status(403).json({ erreur: "accès refusé" });
+    const fichier = req.files && req.files.file;
+    if (!fichier || Array.isArray(fichier)) return res.status(400).json({ erreur: "un seul fichier attendu" });
+    if (fichier.truncated || fichier.size > ENVOI_MAX) return res.status(413).json({ erreur: "fichier trop lourd (10 Mo au plus)" });
+    const ext = String(fichier.name || "").toLowerCase().split(".").pop();
+    if (!EXTENSIONS.includes(ext) || !MIMES.test(String(fichier.mimetype || ""))) return res.status(415).json({ erreur: `type de fichier refusé (acceptés : ${EXTENSIONS.join(", ")})` });
+    const File = require("@saltcorn/data/models/file");
+    const enr = await File.from_req_files(fichier, user.id, 1);
+    const valeur = File.fieldValueFromRelative ? File.fieldValueFromRelative(enr.path_to_serve) : enr.path_to_serve;
+    res.json({ valeur, nom: enr.filename });
+  } catch (e) {
+    res.status(500).json({ erreur: "envoi impossible" });
+  }
+};
+
+module.exports = { route, lignes, envoyer, typeDe, optionsDe, ENVOI_MAX, EXTENSIONS };
